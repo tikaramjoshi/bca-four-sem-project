@@ -1,0 +1,257 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f7f6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main {
+    background-color: #1560BD;
+    padding: 15px 25px;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    color: #fff;
+}
+
+nav a {
+    text-decoration: none;
+    color: black;
+    background-color: rgb(165, 154, 239);
+    padding: 8px 15px;
+    font-weight: bold;
+    border-radius: 4px;
+    margin: 0 8px;
+}
+
+nav a:hover, .submit button:hover {
+    color: white;
+    background-color: rgb(15, 160, 112);
+}
+
+.submit{
+    display: flex;
+    align-items: center;
+}
+
+.submit button {
+    background-color: orange;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 15px;
+    font-weight: bold;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* .submit button:hover {
+    color: white;
+    background-color: rgb(15, 160, 112);
+} */
+
+#register.active {
+    background-color: rgb(18, 127, 134);
+    color: white;
+}
+
+.register-page {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.from-register {
+    width: 100%;
+    max-width: 380px;
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.from-register input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 15px;
+    outline: none;
+} 
+
+.from-register input:focus {
+    border-color: #1560db;
+}
+
+.from-register button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+}
+
+.btn-register {
+    background: #42b72a;
+    margin-top: 10px;
+}
+
+.from-register a {
+    display: block;
+    text-align: center;
+    margin: 15px 0;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.from-register a:hover {
+    text-decoration: underline;
+}
+
+.last {
+    background-color: #1560BD;
+    color: white;
+    width: 100%;
+    padding: 15px;
+    text-align: center;
+}
+
+@media  screen and (max-width: 600px) {
+    nav{
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .submit button{
+        margin-left: 8px;
+    }
+
+    .register-page{
+        padding: 20px 10px;
+    }
+
+    .from-register{
+        padding: 20px;
+    }
+    
+}
+
+.from-register h2{
+    text-align:center;
+    color:#1560BD;
+    margin-bottom:10px;
+}
+
+.role-title{
+    text-align:center;
+    color:#555;
+    margin-bottom:15px;
+    font-size:15px;
+}
+
+.role-title strong{
+    color:#1560BD;
+}
+
+
+.popup-bg{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+}
+
+.popup{
+    width: 350px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.lab-inp{
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.lab-inp input{
+    width: 100%;
+    height: 50px;
+    border: 2px solid #1560BD;
+    border-radius: 6px;
+    padding: 15px;
+    font-size: 16px;
+    background-color: #fff;
+    outline: none;
+}
+
+.lab-inp label{
+    position:absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #fff;
+    padding: 0 6px;
+    transition: .3s;
+    pointer-events: none;
+    color: #555;
+}
+
+.lab-inp label.active{
+    top: 12px;
+    left: 12px;
+    transform: translateY(-50%);
+    color: #1560BD;
+    font-size: 15px;
+    padding: 0 6px;
+    font-weight: bold;
+}
+
+.pass{
+    position: relative;
+}
+
+.pass input{
+    padding-right: 45px;
+}
+
+.pass_view{
+    position: absolute;
+    right: 15px;
+    top: 60%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 18px;
+    z-index: 2;
+}
+
+.pass_view:hover{
+    color: #1560BD;
+}
