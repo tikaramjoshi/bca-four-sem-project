@@ -255,7 +255,6 @@
                 <a href="#" id="home" class="active">Home</a>
                 <a href="#contactSection" id="contact"> Contact</a>
                 <a href="#aboutSection" id="about">About</a>
-                <a href="#faq">FAQ</a>
             </div>
             <div>
                 <button type="button" id="login">Login</button>
