@@ -18,6 +18,7 @@ if (!in_array($role, $allowed_roles)) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $phone = trim($_POST['phone']);
@@ -29,7 +30,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $role = "passenger";
     }
 
-    if ($password !== $confirm_password) {
+
+    if (!preg_match('/^[0-9]{10}$/', $phone)) {
+        $message = "BOSS Phone number must be exactly 10 digits!";
+        $message_type = "error";
+    } elseif ($password !== $confirm_password) {
 
         $message = "BOSS Password does not match!";
         $message_type = "error";
@@ -78,7 +83,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 $message = "BOSS Something went wrong. Please try again.";
                 error_log($e->getMessage());
-                // $message = $e->getMessage();
                 $message_type = "error";
             }
         }
@@ -90,7 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
-
+ 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -98,7 +102,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php echo ($role == "passenger") ? "Register" : ucfirst($role) . " Register"; ?>
     </title>
 
-    <link rel="stylesheet" href="register-style.css">
+ <link rel="stylesheet" href="register-style.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
 </head>
 
 <body>
@@ -123,15 +129,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     echo ucfirst($role) . " Register";
                 } ?>
             </h2>
-            <!-- <p class="role-title">Account Type: <strong>?php echo ucfirst($role); ?></strong></p> -->
 
             <form method="POST">
                 <input type="hidden" name="role" value="<?php echo $role; ?>">
-                <div class="lab-inp"> <input type="text" name="name" required> <label>Full Name</label></div>
-                <div class="lab-inp"> <input type="email" name="email" required> <label>Email</label> </div>
-                <div class="lab-inp"> <input type="tel" name="phone" required> <label>Phone Number</label></div>
-                <div class="lab-inp"> <input type="password" name="password" required> <label>Password</label> </div>
-                <div class="lab-inp"> <input type="password" name="confirm_password" required> <label>Confirm Password</label> </div>
+                <div class="lab-inp"><input type="text" name="name" placeholder="Enter your full name" required value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>"></div>
+                <div class="lab-inp"><input type="email" name="email" placeholder="Enter your email" required value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"> </div>
+                <div class="lab-inp"><input type="text" name="phone" placeholder="Enter your phone number" maxlength="10" id="phone" required value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>"></div>
+                <div class="lab-inp pass"><input type="password" name="password" id="pas" placeholder="Enter your password" required><span class="pass_view" onclick="passView('pas', this)"><i class="fa-solid fa-eye"></i></span></div>
+                <div class="lab-inp pass"><input type="password" name="confirm_password" id="c_pas" placeholder="Confirm password" required><span class="pass_view" onclick="passView('c_pas', this)"><i class="fa-solid fa-eye"></i></span> </div>
                 <button type="submit" class="btn-register">
                     Register
                 </button>
@@ -149,34 +154,76 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <h3>
                     <?php echo $message; ?>
                 </h3>
-                <button type="button" onclick="closePopup()">Close</button>
+                 <p id="countdown" style="margin-top:15px;color:#1560BD;font-weight:bold;">
+            Closing in 3s...
+        </p>
             </div>
         </div>
     <?php } ?>
-</body>
-<script>
-    function closePopup() {
-        document.querySelector(".popup-bg").style.display = "none";
 
-        <?php if ($message_type == "success") { ?>
-            window.location.href = "login.php";
-        <?php } ?>
+    <script>
+function closePopup(){
+
+    const popup = document.querySelector(".popup-bg");
+
+    if(popup){
+        popup.style.display = "none";
+    }
+
+    <?php if($message_type=="success"){ ?>
+        window.location.href = "login.php";
+    <?php } ?>
+
+}
+
+<?php if($message != "") { ?>
+
+
+let timeLeft = 3;
+
+const countdown = document.getElementById("countdown");
+
+const timer = setInterval(function () {
+
+    timeLeft--;
+
+    if (timeLeft > 0) {
+
+        countdown.innerHTML = "Closing in " + timeLeft + "s...";
+
+    } else {
+
+        clearInterval(timer);
+
+        closePopup();
 
     }
 
-    document.querySelectorAll(".lab-inp input").forEach(function(input) {
+}, 1000);
 
-        input.addEventListener("focus", function() {
-            this.nextElementSibling.classList.add("active");
+<?php } ?>
+
+        const phone = document.getElementById("phone");
+
+        phone.addEventListener("input", function() {
+            this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
         });
 
-        input.addEventListener("blur", function() {
-            if (this.value.trim() === "") {
-                this.nextElementSibling.classList.remove("active");
+        function passView(id, element) {
+            let input = document.getElementById(id);
+            let icon = element.querySelector("i");
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
             }
-        });
-    });
-
-</script>
+        }
+    </script>
+</body>
 
 </html>

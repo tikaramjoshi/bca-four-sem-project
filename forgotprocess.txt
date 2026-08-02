@@ -1,0 +1,93 @@
+--------------------Forgot Password Files--------------------
+
+- login.php
+- forgot_password.php
+- send_otp.php
+- verify_otp.php
+- resend_otp.php
+- reset_password.php
+- db.php
+
+
+
+
+
+--------------------Gmail Setup for OTP--------------------
+
+1. Sign in to Gmail account.
+2. Enable 2-Step Verification.
+3. Open App Passwords.
+4. Create a new App Password.
+5. Enter the app name:
+   Online Bus Booking
+6. Click Generate.
+7. Copy the 16-character App Password.
+8. Open send_otp.php.
+9. Enter your Gmail address and App Password in the SMTP settings.
+10. Save the file and test the Forgot Password feature.
+The system will now send OTP emails to the user's registered email address.
+
+
+
+
+
+--------------------PHPMailer Installation Steps--------------------
+
+1. Check Composer Installation
+Run the following command to verify that Composer is installed.
+composer --version
+
+2. Open the Project Folder
+Navigate to project directory.
+cd C:\xampp\htdocs\sl_project_final
+
+3. Install PHPMailer
+Install PHPMailer using Composer.
+composer require phpmailer/phpmailer
+This command:
+Downloads PHPMailer.
+Creates the vendor folder.
+Creates composer.json.
+Creates composer.lock.
+Generates vendor/autoload.php.
+
+4. Resolve the ZIP Extension Error
+Initially, Composer displayed the following error:
+The zip extension and unzip/7z commands are both missing.
+This occurred because the PHP ZIP extension was disabled.
+
+5. Enable the ZIP Extension
+Open the following file:
+C:\xampp\php\php.ini
+Change:
+;extension=php_zip.dll
+to:
+extension=php_zip.dll
+Save the file and restart Apache.
+
+6. Verify the ZIP Extension
+Run:
+C:\xampp\php\php.exe -m | findstr zip
+Expected output:
+zip
+This confirms that the ZIP extension is enabled.
+
+7. Clear the Composer Cache
+Run:
+composer clear-cache
+
+8. Install PHPMailer Again
+Run:
+composer require phpmailer/phpmailer
+Successful output:
+Installing phpmailer/phpmailer (v7.1.1)
+Generating autoload files
+This confirms that PHPMailer has been installed successfully.
+
+9. Verify the Installation
+Check that the following files and folders have been created:
+vendor/
+vendor/autoload.php
+composer.json
+composer.lock
+The project is now ready to use PHPMailer for sending OTP emails through Gmail SMTP.

@@ -15,17 +15,19 @@
             font-family: Arial, Helvetica, sans-serif;
             background-color: #f4f7f6;
             min-height: 100vh;
+            display: flex;
             flex-direction: column;
         }
         .main {
             background-color: #1560bd;
-            padding: 15px 25px;
+            padding: 15px;
         }
 
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
             gap: 15px;
             color: #fff;
         }
@@ -79,8 +81,8 @@
         }
 
         .datetime h4{
-            font-size: 14px;
-            margin-top: 8px;
+            font-size: 13px;
+            margin-top: 7px;
         }
 
         .datetime p{
@@ -245,6 +247,64 @@
         html {
             scroll-behavior: smooth;
         }
+
+              
+@media  (max-width: 500px) {
+    .main{
+        padding: 10px;
+    }
+    nav{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    nav div{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+nav a, nav button{
+    padding: 6px 10px;
+    font-size: 13px;
+    margin: 0;
+}
+    .datetime{
+        margin: 20px auto;
+    }
+
+        .first{
+        width:95%;
+    }
+
+    .second{
+        width:95%;
+        margin-top:30px;
+    }
+
+    .route{
+        width:100%;
+        max-width:300px;
+    }
+
+    .last-main{
+        flex-direction:column;
+        align-items:center;
+        text-align:center;
+    }
+
+    .last-link,
+    .last-contact,
+    .last-about{
+        width:100%;
+        max-width:320px;
+    }
+}
+ 
     </style>
 </head>
 
@@ -257,7 +317,7 @@
                 <a href="#aboutSection" id="about">About</a>
             </div>
             <div>
-                <button type="button" id="login">Login</button>
+                <button type="button" id="login" onclick="location.href='login.php'">Login</button>
                 <button type="button" id="register" onclick="location.href='register.php'">Register</button>
             </div>
         </nav>
@@ -291,8 +351,8 @@
                 <h3>Quick Link</h3>
                 <a href="#">Home</a>
                 <a href="#">Gallery</a>
-                <a href="#">Policy</a>
-                <a href="#">Login</a>
+                <a href="policy.php">Policy</a>
+                <a href="login.php">Login</a>
                 <a href="register.php?role=passenger">Register Passenger</a>
                 <a href="register.php?role=owner">Register Owner</a>
                 <a href="register.php?role=driver">Register Driver</a>
