@@ -65,7 +65,7 @@ $locations = ['Kathmandu', 'Pokhara', 'Chitwan', 'Butwal', 'Dhangadhi', 'Nepalgu
                     <a href="profile.php"> My Profile</a>
                     <a href="booking_history.php"> My Bookings</a>
                     <a href="booking_history.php"> Booking History</a>
-                    <a href="settings.php"> Settings</a>
+                    <a href="../changepassword.php">Change Password</a>
                     <hr>
                     <a href="../logout.php" class="logout-link"> Logout</a>
                 </div>
@@ -103,8 +103,8 @@ $locations = ['Kathmandu', 'Pokhara', 'Chitwan', 'Butwal', 'Dhangadhi', 'Nepalgu
         <button type="button" id="search">
             Search Bus
         </button>
-    </div>
-    <div class="second" id="box">
+    </div><br><br><br><br><br>
+    <!-- <div class="second" id="box">
         <h1>Popular Route</h1>
         <div class="route">
             <img
@@ -123,7 +123,7 @@ $locations = ['Kathmandu', 'Pokhara', 'Chitwan', 'Butwal', 'Dhangadhi', 'Nepalgu
                 Booking
             </button>
         </div>
-    </div>
+    </div> -->
     <footer class="last">
         <div class="last-main">
             <div class="last-link">

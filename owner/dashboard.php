@@ -140,14 +140,11 @@ VALUES(?,?,?,?,?,?,'pending')
 $search = "";
 $sql = "
 SELECT * FROM bus WHERE owner_id=? ";
-// $params = [$owner_id];
 if (!empty($_GET['search'])) {
     $search = trim($_GET['search']);
     $sql .= " 
     AND ( bus_number LIKE ? OR bus_name LIKE ? )
     ";
-    // $params[] = "%{$search}%";
-    // $params[] = "%{$search}%";
 }
 $sql .= "
 ORDER BY bus_id DESC
@@ -264,8 +261,6 @@ $totalDriverStmt->close();
             <span class="status <?= strtolower($verification_status) ?>">
                 <?= htmlspecialchars(ucfirst($verification_status)) ?>
             </span>
-
-
 
             <div class="settings-menu">
                 <div class="image" onclick="toggleMenu()">

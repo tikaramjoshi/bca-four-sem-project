@@ -19,7 +19,7 @@ if (!isset($_GET['id'])) {
 
 $verification_id = (int)$_GET['id'];
 
-/* Change driver verification from pending to verified */
+
 $stmt = $conn->prepare("
     UPDATE driver_verification
     SET status = 'verified'
@@ -31,7 +31,7 @@ $stmt->execute();
 
 $stmt->close();
 
-/* Also make driver verified in users table */
+
 $stmt = $conn->prepare("
     UPDATE users u
     INNER JOIN driver_verification dv

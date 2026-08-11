@@ -42,8 +42,7 @@ if (isset($_POST['update_bus'])) {
     $bus_name = trim($_POST['bus_name']);
     $bus_type = trim($_POST['bus_type']);
     $seats = (int)$_POST['seats'];
-    $image_name = $bus['bus_image']; // old image
-    /* Image Update */
+    $image_name = $bus['bus_image'];
     if (isset($_FILES['bus_image']) && $_FILES['bus_image']['error'] == 0) {
         $upload_dir = "../uploads/bus/";
         $extension = strtolower(
@@ -64,7 +63,7 @@ if (isset($_POST['update_bus'])) {
                 $_FILES['bus_image']['tmp_name'],
                 $upload_dir . $new_image
             )) {
-                // delete old image
+
                 if (
                     !empty($bus['bus_image']) &&
                     file_exists($upload_dir . $bus['bus_image'])
@@ -75,7 +74,7 @@ if (isset($_POST['update_bus'])) {
             }
         }
     }
-    // duplicate check
+
     $check = $conn->prepare("
         SELECT bus_id
         FROM bus
@@ -132,7 +131,7 @@ if (isset($_POST['update_bus'])) {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Arial, sans-serif;
         }
 
         body {
@@ -153,7 +152,6 @@ if (isset($_POST['update_bus'])) {
             background: white;
             padding: 35px;
             border-radius: 12px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
         }
 
         .edit-box h2 {
@@ -246,111 +244,40 @@ if (isset($_POST['update_bus'])) {
     <div class="container">
         <div class="edit-box">
             <h2>Edit Bus</h2>
-            <?php
-            if ($message != "") {
-            ?>
-                <div class="message">
-                    <?= htmlspecialchars($message); ?>
-                </div>
-            <?php
-            }
-            ?>
+            <?php if ($message != "") { ?>
+                <div class="message"> <?= htmlspecialchars($message); ?> </div>
+            <?php } ?>
             <form method="POST">
-                <label>
-                    Bus Number
-                </label>
-                <input
-                    type="text"
-                    name="bus_number"
-                    value="<?= htmlspecialchars($bus['bus_number']); ?>"
-                    required>
-                <label>
-                    Bus Name
-                </label>
-                <input
-                    type="text"
-                    name="bus_name"
-                    value="<?= htmlspecialchars($bus['bus_name']); ?>"
-                    required>
-                <label>
-                    Bus Type
-                </label>
+                <label>Bus Number</label>
+                <input type="text" name="bus_number" value="<?= htmlspecialchars($bus['bus_number']); ?>" required>
+                <label> Bus Name</label>
+                <input type="text" name="bus_name" value="<?= htmlspecialchars($bus['bus_name']); ?>" required>
+                <label> Bus Type </label>
                 <select name="bus_type" required>
-                    <option value="AC"
-                        <?= ($bus['bus_type'] == "AC") ? "selected" : ""; ?>>
-                        AC
-                    </option>
-                    <option value="Non AC"
-                        <?= ($bus['bus_type'] == "Non AC") ? "selected" : ""; ?>>
-                        Non AC
-                    </option>
-                    <option value="Deluxe"
-                        <?= ($bus['bus_type'] == "Deluxe") ? "selected" : ""; ?>>
-                        Deluxe
-                    </option>
-                    <option value="Sofa"
-                        <?= ($bus['bus_type'] == "Sofa") ? "selected" : ""; ?>>
-                        Sofa
-                    </option>
+                    <option value="AC" <?= ($bus['bus_type'] == "AC") ? "selected" : ""; ?>> AC </option>
+                    <option value="Non AC" <?= ($bus['bus_type'] == "Non AC") ? "selected" : ""; ?>>Non AC</option>
+                    <option value="Deluxe" <?= ($bus['bus_type'] == "Deluxe") ? "selected" : ""; ?>>Deluxe </option>
+                    <option value="Sofa" <?= ($bus['bus_type'] == "Sofa") ? "selected" : ""; ?>>Sofa</option>
                 </select>
-                <label>
-                    Total Seats
-                </label>
-                <input
-                    type="number"
-                    name="seats"
-                    min="10"
-                    max="80"
-                    value="<?= $bus['seats']; ?>"
-                    required>
+                <label> Total Seats</label>
+                <input type="number" name="seats" min="10" max="80" value="<?= $bus['seats']; ?>" required>
                 <label>Bus Image</label>
-
-                <input
-                    type="file"
-                    name="bus_image"
-                    accept="image/*"
-                    onchange="previewImage(event)">
-
-
+                <input type="file" name="bus_image" accept="image/*" onchange="previewImage(event)">
                 <br><br>
-
-
-                <img
-                    id="preview"
-                    src="../uploads/bus/<?= htmlspecialchars($bus['bus_image']); ?>"
-                    width="200"
-                    height="130"
-                    style="
-object-fit:cover;
-border-radius:8px;
-border:1px solid #ccc;
-">
+                <img id="preview" src="../uploads/bus/<?= htmlspecialchars($bus['bus_image']); ?>" width="200" height="130" style=" object-fit:cover; border-radius:8px; border:1px solid #ccc; ">
                 <div class="button-group">
-                    <button
-                        type="submit"
-                        name="update_bus"
-                        class="update-btn">
-                        Update Bus
-                    </button>
-                    <a
-                        href="dashboard.php"
-                        class="cancel-btn">
-                        Cancel
-                    </a>
+                    <button type="submit" name="update_bus" class="update-btn"> Update Bus </button>
+                    <a href="dashboard.php" class="cancel-btn"> Cancel </a>
                 </div>
             </form>
         </div>
     </div>
-
     <script>
         function previewImage(event) {
-
             let image = document.getElementById("preview");
-
             image.src = URL.createObjectURL(
                 event.target.files[0]
             );
-
         }
     </script>
 </body>

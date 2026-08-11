@@ -27,40 +27,40 @@ if (!$ticket) exit('Ticket not found.');
             font-family: Arial, sans-serif;
             background: #f4f6f8;
             margin: 0;
-            color: #263238
+            color: #263238;
         }
 
         .wrap {
             max-width: 680px;
             margin: 42px auto;
-            padding: 0 16px
+            padding: 0 16px;
         }
 
         .ticket {
             background: #fff;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 3px 14px #00000018
+            box-shadow: 0 3px 14px #00000018;
         }
 
         .head {
             background: #0f766e;
             color: #fff;
-            padding: 24px
+            padding: 24px;
         }
 
         .head h1 {
             font-size: 24px;
-            margin: 0 0 7px
+            margin: 0 0 7px;
         }
 
         .head p {
             margin: 0;
-            opacity: .9
+            opacity: .9;
         }
 
         .content {
-            padding: 24px
+            padding: 24px;
         }
 
         .grid {
@@ -68,17 +68,17 @@ if (!$ticket) exit('Ticket not found.');
             grid-template-columns: repeat(2, 1fr);
             gap: 18px;
             border-bottom: 1px dashed #94a3b8;
-            padding-bottom: 22px
+            padding-bottom: 22px;
         }
 
         .item small {
             display: block;
             color: #64748b;
-            margin-bottom: 5px
+            margin-bottom: 5px;
         }
 
         .item strong {
-            font-size: 16px
+            font-size: 16px;
         }
 
         .status {
@@ -88,24 +88,24 @@ if (!$ticket) exit('Ticket not found.');
             padding: 5px 10px;
             border-radius: 15px;
             font-size: 12px;
-            font-weight: bold
+            font-weight: bold;
         }
 
         .confirmed,
         .paid {
             background: #dcfce7;
-            color: #166534
+            color: #166534;
         }
 
         .cancelled {
             background: #fee2e2;
-            color: #991b1b
+            color: #991b1b;
         }
 
         .actions {
             display: flex;
             gap: 10px;
-            margin-top: 24px
+            margin-top: 24px;
         }
 
         .button {
@@ -115,29 +115,29 @@ if (!$ticket) exit('Ticket not found.');
             padding: 10px 16px;
             border-radius: 6px;
             text-decoration: none;
-            cursor: pointer
+            cursor: pointer;
         }
 
         .secondary {
-            background: #64748b
+            background: #64748b;
         }
 
         @media print {
             body {
-                background: #fff
+                background: #fff;
             }
 
             .wrap {
                 margin: 0;
-                max-width: none
+                max-width: none;
             }
 
             .ticket {
-                box-shadow: none
+                box-shadow: none;
             }
 
             .actions {
-                display: none
+                display: none;
             }
         }
     </style>

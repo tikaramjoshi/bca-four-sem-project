@@ -31,6 +31,7 @@ $from = $trip['from_city'] ?? $trip['departure_city'] ?? $trip['source'] ?? '';
 $to = $trip['to_city'] ?? $trip['arrival_city'] ?? $trip['destination'] ?? '';
 $date = $trip['travel_date'] ?? $trip['departure_date'] ?? $trip['date'] ?? '';
 $time = $trip['departure_time'] ?? $trip['time'] ?? '';
+$time = $time ? date('h:i A', strtotime($time)) : '';
 $price = $trip['ticket_price'] ?? $trip['price'] ?? $trip['fare'] ?? 0;
 $busName = $trip['bus_name'] ?? $trip['name'] ?? ('Bus ' . $busId);
 $route = $trip['route'] ?? trim($from . ' to ' . $to);
@@ -44,14 +45,22 @@ function seatRows($busId)
 {
     $rows = [];
     $seat = 1;
+    if ($busId == 3) {
+        for ($i = 0; $i < 10; $i++) {
+            $rows[] = [$seat++, $seat++, null, $seat++, $seat++];
+        }
+        $rows[] = [$seat++, $seat++, null, $seat++, null];
+        $rows[] = [$seat++, $seat++, $seat++, $seat++, $seat++];
+        return $rows;
+    }
     if ($busId == 2) {
-        for ($row = 0; $row < 2; $row++) {
+        for ($i = 0; $i < 2; $i++) {
             $rows[] = [$seat++, null, $seat++, $seat++];
         }
     }
-    $total = $busId == 3 ? 48 : ($busId == 2 ? 42 : 40);
+    $total = $busId == 2 ? 42 : 40;
     while ($seat <= $total) {
-        $rows[] = [$seat++, $seat++, $seat++, $seat++];
+        $rows[] = [$seat++, $seat++, null, $seat++, $seat++];
     }
     return $rows;
 }
@@ -68,20 +77,19 @@ function seatRows($busId)
             font-family: Arial, sans-serif;
             background: #f4f6f8;
             margin: 0;
-            color: #263238
+            color: #263238;
         }
 
         .wrap {
             max-width: 850px;
             margin: 35px auto;
-            padding: 0 16px
+            padding: 0 16px;
         }
 
         .card {
             background: #fff;
             border-radius: 10px;
             padding: 24px;
-            box-shadow: 0 2px 12px #00000014
         }
 
         .trip {
@@ -90,17 +98,17 @@ function seatRows($busId)
             gap: 18px;
             border-bottom: 1px solid #e5e7eb;
             padding-bottom: 18px;
-            margin-bottom: 24px
+            margin-bottom: 24px;
         }
 
         .trip div {
-            min-width: 120px
+            min-width: 120px;
         }
 
         .trip small {
             display: block;
             color: #6b7280;
-            margin-bottom: 4px
+            margin-bottom: 4px;
         }
 
         .layout {
@@ -108,52 +116,53 @@ function seatRows($busId)
             margin: auto;
             border: 2px solid #334155;
             border-radius: 22px;
-            padding: 20px
+            padding: 20px;
         }
 
         .driver {
             text-align: right;
             margin: 0 0 18px;
             color: #475569;
-            font-size: 14px
+            font-size: 14px;
         }
 
         .row {
             display: grid;
             grid-template-columns: repeat(2, 1fr) 24px repeat(2, 1fr);
             gap: 9px;
-            margin: 9px 0
+            margin: 9px 0;
         }
 
         .seat {
             border: 0;
             border-radius: 5px;
             padding: 11px 2px;
-            background: #dbeafe;
-            color: #1e3a8a;
+            background: #118215;
+            color: #ffffff;
             cursor: pointer;
-            font-weight: bold
+            font-weight: bold;
         }
 
         .seat:hover {
-            background: #93c5fd
+            background: #1130f8;
+            color: white;
         }
 
         .seat.booked {
-            background: #e5e7eb;
-            color: #9ca3af;
-            cursor: not-allowed
+            background: #ce4f3993;
+            color: #d0d6deac;
+            cursor: not-allowed;
         }
 
         .gap {
-            grid-column: 3
+            grid-column: 3;
         }
 
         .actions {
             display: flex;
             justify-content: center;
             gap: 12px;
-            margin-top: 22px
+            margin-top: 22px;
         }
 
         .actions button {
@@ -162,18 +171,18 @@ function seatRows($busId)
             color: white;
             padding: 11px 20px;
             border-radius: 6px;
-            cursor: pointer
+            cursor: pointer;
         }
 
         .actions button:disabled {
-            background: #94a3b8;
+            background: #246cd0;
             cursor: not-allowed
         }
 
         .notice {
             text-align: center;
             margin-top: 15px;
-            color: #475569
+            color: #475569;
         }
 
         .legend {
@@ -181,7 +190,7 @@ function seatRows($busId)
             justify-content: center;
             gap: 16px;
             font-size: 13px;
-            margin: 16px 0
+            margin: 16px 0;
         }
 
         .dot {
@@ -190,15 +199,26 @@ function seatRows($busId)
             height: 12px;
             border-radius: 3px;
             margin-right: 5px;
-            vertical-align: -1px
+            vertical-align: -1px;
         }
 
         .available {
-            background: #dbeafe
+            background: #59ea76;
         }
 
         .unavailable {
-            background: #e5e7eb
+            background: #e61414;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 22px 1fr 1fr;
+            gap: 9px;
+            margin: 9px 0;
+        }
+
+        .last-row {
+            grid-template-columns: repeat(5, 1fr);
         }
     </style>
 </head>
@@ -219,11 +239,22 @@ function seatRows($busId)
                 <div id="selectedSeats"></div>
                 <div class="layout">
                     <p class="driver">Driver</p>
-                    <?php foreach (seatRows($busId) as $row): ?><div class="row"><?php foreach ($row as $seat): ?><?php if ($seat === null): ?><span class="gap"></span><?php else: ?><button type="button" class="seat<?= isset($bookedSeats[$seat]) ? ' booked' : '' ?>" data-seat="<?= $seat ?>" <?= isset($bookedSeats[$seat]) ? ' disabled' : '' ?>><?= $seat ?></button><?php endif; ?><?php endforeach; ?></div><?php endforeach; ?>
+                    <?php foreach (seatRows($busId) as $row): ?>
+                        <?php $lastRow = count($row) == 5 && !in_array(null, $row); ?>
+                        <div class="row<?= $lastRow ? ' last-row' : '' ?>">
+                            <?php foreach ($row as $seat): ?>
+                                <?php if ($seat === null): ?>
+                                    <span class="gap"></span>
+                                <?php else: ?>
+                                    <button type="button" class="seat<?= isset($bookedSeats[$seat]) ? ' booked' : '' ?>" data-seat="<?= $seat ?>" <?= isset($bookedSeats[$seat]) ? 'disabled' : '' ?>><?= $seat ?></button>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
                 <div class="legend"><span><i class="dot available"></i>Available</span><span><i class="dot unavailable"></i>Booked</span></div>
                 <div class="actions"><button type="submit" id="continueButton" disabled>Continue</button></div>
-                <p class="notice" id="selectedText">Choose up to 4 available seats.</p>
+                <p class="notice" id="selectedText">Choose min 1 and max 4 available seats.</p>
             </form>
         </section>
     </main>
@@ -246,7 +277,7 @@ function seatRows($busId)
                     return
                 }
                 chosen.push(seat);
-                button.style.background = '#5eead4';
+                button.style.background = '#2312df';
                 button.style.outline = '2px solid #0f766e'
             }
             selectedSeats.innerHTML = chosen.map(seat => '<input type="hidden" name="seat_numbers[]" value="' + seat + '">').join('');

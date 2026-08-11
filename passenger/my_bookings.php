@@ -24,27 +24,26 @@ $bookings = $stmt->get_result();
             font-family: Arial, sans-serif;
             background: #f4f6f8;
             margin: 0;
-            color: #263238
+            color: #263238;
         }
 
         .wrap {
             max-width: 1050px;
             margin: 40px auto;
-            padding: 0 16px
+            padding: 0 16px;
         }
 
         .card {
             background: #fff;
             border-radius: 10px;
             padding: 24px;
-            box-shadow: 0 2px 12px #00000014
         }
 
         .top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px
+            margin-bottom: 20px;
         }
 
         .top h2 {
@@ -56,29 +55,29 @@ $bookings = $stmt->get_result();
             color: #fff;
             padding: 10px 15px;
             border-radius: 6px;
-            text-decoration: none
+            text-decoration: none;
         }
 
         .table-wrap {
-            overflow-x: auto
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 760px
+            min-width: 760px;
         }
 
         th,
         td {
             text-align: left;
             padding: 13px;
-            border-bottom: 1px solid #e5e7eb
+            border-bottom: 1px solid #e5e7eb;
         }
 
         th {
             background: #f8fafc;
-            color: #475569
+            color: #475569;
         }
 
         .status {
@@ -86,29 +85,29 @@ $bookings = $stmt->get_result();
             padding: 5px 10px;
             border-radius: 15px;
             font-size: 12px;
-            font-weight: bold
+            font-weight: bold;
         }
 
         .pending {
             background: #fef3c7;
-            color: #92400e
+            color: #92400e;
         }
 
         .confirmed,
         .paid {
             background: #dcfce7;
-            color: #166534
+            color: #166534;
         }
 
         .cancelled {
             background: #fee2e2;
-            color: #991b1b
+            color: #991b1b;
         }
 
         .empty {
             text-align: center;
             padding: 40px;
-            color: #64748b
+            color: #64748b;
         }
     </style>
 </head>

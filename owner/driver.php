@@ -218,446 +218,7 @@ $total_assignments = count($assignments);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Driver Management</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
-        }
 
-        body {
-            background: #f4f6f9;
-            color: #222;
-        }
-
-        .page {
-            width: 94%;
-            max-width: 1350px;
-            margin: 30px auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 6px;
-        }
-
-        .header p {
-            color: #777;
-            font-size: 14px;
-        }
-
-        .back-btn {
-            text-decoration: none;
-            background: #1560bd;
-            color: #fff;
-            padding: 11px 18px;
-            border-radius: 7px;
-            font-size: 14px;
-        }
-
-        .back-btn:hover {
-            background: #0d4f9c;
-        }
-
-        .message {
-            padding: 14px 17px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .message.success {
-            background: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #842029;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
-            margin-bottom: 25px;
-        }
-
-        .stat {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, .06);
-        }
-
-        .stat small {
-            display: block;
-            color: #777;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-
-        .stat strong {
-            color: #1560bd;
-            font-size: 28px;
-        }
-
-        .box {
-            background: #fff;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, .06);
-        }
-
-        .box h2 {
-            font-size: 20px;
-            margin-bottom: 6px;
-        }
-
-        .box-description {
-            color: #777;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 15px;
-            align-items: end;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #444;
-        }
-
-        .form-group select {
-            width: 100%;
-            height: 44px;
-            border: 1px solid #ddd;
-            border-radius: 7px;
-            padding: 0 12px;
-            background: #fff;
-            outline: none;
-            font-size: 14px;
-        }
-
-        .form-group select:focus {
-            border-color: #1560bd;
-        }
-
-        .assign-btn {
-            height: 44px;
-            padding: 0 22px;
-            border: none;
-            border-radius: 7px;
-            background: #198754;
-            color: #fff;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .assign-btn:hover {
-            background: #146c43;
-        }
-
-        .table-box {
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, .06);
-        }
-
-        .table-header {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-header h2 {
-            font-size: 19px;
-        }
-
-        .table-header span {
-            color: #777;
-            font-size: 13px;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            min-width: 950px;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: #f7f9fc;
-            color: #555;
-            padding: 15px;
-            text-align: left;
-            font-size: 13px;
-            border-bottom: 1px solid #eee;
-        }
-
-        td {
-            padding: 15px;
-            font-size: 14px;
-            border-bottom: 1px solid #eee;
-            vertical-align: middle;
-        }
-
-        tr:hover td {
-            background: #fafcff;
-        }
-
-        .driver-info {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-        }
-
-        .driver-image {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #ddd;
-        }
-
-        .driver-name {
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-
-        .driver-email {
-            color: #888;
-            font-size: 12px;
-        }
-
-        .bus-number {
-            color: #1560bd;
-            font-weight: 700;
-        }
-
-        .bus-name {
-            color: #777;
-            font-size: 12px;
-            margin-top: 3px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .verified {
-            background: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .assigned {
-            background: #cff4fc;
-            color: #055160;
-        }
-
-        .remove-btn {
-            border: none;
-            background: #dc3545;
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .remove-btn:hover {
-            background: #b02a37;
-        }
-
-        .empty {
-            text-align: center;
-            padding: 50px 20px;
-            color: #777;
-        }
-
-        .empty-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .empty h3 {
-            color: #444;
-            margin-bottom: 6px;
-        }
-
-        .empty p {
-            font-size: 14px;
-        }
-
-        @media(max-width:900px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .assign-btn {
-                width: 100%;
-            }
-
-            .stats {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media(max-width:600px) {
-            .page {
-                width: 94%;
-                margin: 20px auto;
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-        }
-
-        .table-box {
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, .06);
-            margin-bottom: 25px;
-        }
-
-        .table-header {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-header h2 {
-            font-size: 19px;
-        }
-
-        .table-header span {
-            color: #777;
-            font-size: 13px;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: #f7f9fc;
-            color: #555;
-            padding: 15px;
-            text-align: left;
-            font-size: 13px;
-            border-bottom: 1px solid #eee;
-        }
-
-        td {
-            padding: 15px;
-            font-size: 14px;
-            border-bottom: 1px solid #eee;
-            vertical-align: middle;
-        }
-
-        tr:hover td {
-            background: #fafcff;
-        }
-
-        .driver-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .driver-image {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #ddd;
-        }
-
-        .driver-name {
-            font-weight: 600;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .verified {
-            background: #d1e7dd;
-            color: #0f5132;
-        }
-
-        td form {
-            display: flex;
-            gap: 7px;
-            align-items: center;
-        }
-
-        td select {
-            height: 36px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 0 8px;
-            background: #fff;
-        }
-
-        .assign-btn {
-            height: 36px;
-            padding: 0 14px;
-            border: none;
-            border-radius: 6px;
-            background: #198754;
-            color: #fff;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .assign-btn:hover {
-            background: #146c43;
-        }
-    </style>
 </head>
 
 <body>
@@ -693,9 +254,7 @@ $total_assignments = count($assignments);
 
         <div class="box">
             <h2>Assign Driver</h2>
-            <p class="box-description">
-                Only drivers approved by Admin and not assigned to another bus are available.
-            </p>
+            <p class="box-description"> Only drivers approved by Admin and not assigned to another bus are available. </p>
 
             <?php if (!empty($buses) && !empty($available_drivers)): ?>
                 <form method="POST" onsubmit="return confirm('Are you sure you want to assign this driver to this bus?');">
@@ -705,10 +264,8 @@ $total_assignments = count($assignments);
                             <select name="bus_id" required>
                                 <option value="">Select bus</option>
                                 <?php foreach ($buses as $bus): ?>
-                                    <option value="<?= (int)$bus['bus_id'] ?>">
-                                        <?= htmlspecialchars($bus['bus_number']) ?> -
-                                        <?= htmlspecialchars($bus['bus_name']) ?>
-                                    </option>
+                                    <option value="<?= (int)$bus['bus_id'] ?>"> <?= htmlspecialchars($bus['bus_number']) ?> -
+                                        <?= htmlspecialchars($bus['bus_name']) ?> </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -717,29 +274,25 @@ $total_assignments = count($assignments);
                             <label>Select Approved Driver</label>
                             <select name="driver_id" required>
                                 <option value="">Select driver</option>
-                                <?php foreach ($available_drivers as $driver): ?>
-                                    <option value="<?= (int)$driver['user_id'] ?>">
-                                        <?= htmlspecialchars($driver['name']) ?> -
-                                        <?= htmlspecialchars($driver['phone']) ?>
-                                    </option>
+                                <?php foreach ($available_drivers as $driver): ?> <option value="<?= (int)$driver['user_id'] ?>"> <?= htmlspecialchars($driver['name']) ?> - <?= htmlspecialchars($driver['phone']) ?> </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
 
                         <button type="submit" name="assign_driver" class="assign-btn">
-                            ✓ Assign Driver
+                            Assign Driver
                         </button>
                     </div>
                 </form>
             <?php elseif (empty($buses)): ?>
                 <div class="empty">
-                    <div class="empty-icon">🚌</div>
+                    <div class="empty-icon"></div>
                     <h3>No Approved Bus</h3>
                     <p>Admin must approve your bus before you can assign a driver.</p>
                 </div>
             <?php else: ?>
                 <div class="empty">
-                    <div class="empty-icon">👤</div>
+                    <div class="empty-icon"></div>
                     <h3>No Available Driver</h3>
                     <p>There are currently no Admin-approved drivers available.</p>
                 </div>
@@ -777,11 +330,7 @@ $total_assignments = count($assignments);
                                 <tr>
                                     <td>
                                         <div class="driver-info">
-                                            <img
-                                                src="../uploads/profile/<?= htmlspecialchars($driver_image) ?>"
-                                                class="driver-image"
-                                                alt="Driver"
-                                                onerror="this.onerror=null;this.src='../images/default.png';">
+                                            <img src="../uploads/profile/<?= htm($driver_image) ?>" class="driver-image" alt="Driver" onerror="this. this.src='../images/default.png';">
 
                                             <div>
                                                 <div class="driver-name">
@@ -801,7 +350,7 @@ $total_assignments = count($assignments);
 
                                     <td>
                                         <span class="badge verified">
-                                            ✓ Approved
+                                            Approved
                                         </span>
                                     </td>
 
@@ -842,7 +391,7 @@ $total_assignments = count($assignments);
             <?php else: ?>
 
                 <div class="empty">
-                    <div class="empty-icon">👤</div>
+                    <div class="empty-icon"></div>
                     <h3>No Approved Drivers</h3>
                     <p>
                         No Admin-approved drivers are currently available.

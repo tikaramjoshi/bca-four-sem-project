@@ -76,7 +76,6 @@ nav a:hover,
     background: white;
     padding: 32px;
     border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
 .form-login input {
@@ -185,7 +184,6 @@ nav a:hover,
     .form-login {
         padding: 15px;
     }
-
 }
 
 .error {
@@ -207,7 +205,6 @@ nav a:hover,
 }
 
 .popup-bg {
-
     position: fixed;
     top: 0;
     left: 0;

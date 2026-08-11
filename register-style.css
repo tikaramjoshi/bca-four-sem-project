@@ -2,10 +2,11 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
     background-color: #f4f7f6;
     min-height: 100vh;
     display: flex;
@@ -32,15 +33,16 @@ nav a {
     padding: 8px 15px;
     font-weight: bold;
     border-radius: 4px;
-    
+
 }
 
-nav a:hover, .submit button:hover {
+nav a:hover,
+.submit button:hover {
     color: white;
     background-color: rgb(15, 160, 112);
 }
 
-.submit{
+.submit {
     display: flex;
     align-items: center;
 }
@@ -55,11 +57,6 @@ nav a:hover, .submit button:hover {
     cursor: pointer;
     transition: 0.3s;
 }
-
-/* .submit button:hover {
-    color: white;
-    background-color: rgb(15, 160, 112);
-} */
 
 #register.active {
     background-color: rgb(18, 127, 134);
@@ -80,7 +77,6 @@ nav a:hover, .submit button:hover {
     background-color: white;
     padding: 32px;
     border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .from-register input {
@@ -91,7 +87,7 @@ nav a:hover, .submit button:hover {
     border-radius: 5px;
     font-size: 15px;
     outline: none;
-} 
+}
 
 .from-register input:focus {
     border-color: #1560db;
@@ -111,7 +107,7 @@ nav a:hover, .submit button:hover {
 
 .btn-register {
     background: #42b72a;
-    
+
 }
 
 .from-register a {
@@ -136,25 +132,25 @@ nav a:hover, .submit button:hover {
 }
 
 
-.from-register h2{
-    text-align:center;
-    color:#1560BD;
-    margin-bottom:5px;
+.from-register h2 {
+    text-align: center;
+    color: #1560BD;
+    margin-bottom: 5px;
 }
 
-.role-title{
-    text-align:center;
-    color:#555;
-    margin-bottom:15px;
-    font-size:15px;
+.role-title {
+    text-align: center;
+    color: #555;
+    margin-bottom: 15px;
+    font-size: 15px;
 }
 
-.role-title strong{
-    color:#1560BD;
+.role-title strong {
+    color: #1560BD;
 }
 
 
-.popup-bg{
+.popup-bg {
     position: fixed;
     left: 0;
     top: 0;
@@ -167,7 +163,7 @@ nav a:hover, .submit button:hover {
     z-index: 99999;
 }
 
-.popup{
+.popup {
     width: 350px;
     background: #fff;
     padding: 25px;
@@ -175,12 +171,12 @@ nav a:hover, .submit button:hover {
     text-align: center;
 }
 
-.lab-inp{
+.lab-inp {
     position: relative;
     margin-bottom: 10px;
 }
 
-.lab-inp input{
+.lab-inp input {
     width: 100%;
     height: 45px;
     border: 2px solid #1560BD;
@@ -191,37 +187,15 @@ nav a:hover, .submit button:hover {
     outline: none;
 }
 
-/* .lab-inp label{
-    position:absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: #fff;
-    padding: 0 6px;
-    transition: .3s;
-    pointer-events: none;
-    color: #555;
-} */
-
-/* .lab-inp label.active{
-    top: 12px;
-    left: 12px;
-    transform: translateY(-50%);
-    color: #1560BD;
-    font-size: 15px;
-    padding: 0 6px;
-    font-weight: bold;
-} */
-
-.pass{
+.pass {
     position: relative;
 }
 
-.pass input{
+.pass input {
     padding-right: 45px;
 }
 
-.pass_view{
+.pass_view {
     position: absolute;
     right: 15px;
     top: 60%;
@@ -232,28 +206,27 @@ nav a:hover, .submit button:hover {
     z-index: 2;
 }
 
-.pass_view:hover{
+.pass_view:hover {
     color: #1560BD;
 }
-       
-@media  screen and (max-width: 600px) {
-    nav{
+
+@media screen and (max-width: 600px) {
+    nav {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
     }
 
-    .submit button{
+    .submit button {
         margin-left: 8px;
     }
 
-    .register-page{
+    .register-page {
         padding: 10px 5px;
     }
 
-    .from-register{
+    .from-register {
         padding: 15px;
     }
-    
+
 }
- 

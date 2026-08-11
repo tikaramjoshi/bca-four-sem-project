@@ -7,17 +7,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "admin") {
 }
 
 require_once "../db.php";
-/* Get all buses with owner details */
-$sql = "
-    SELECT 
-        bus.*,
-        users.name AS owner_name,
-        users.email AS owner_email,
-        users.phone AS owner_phone
-    FROM bus
-    INNER JOIN users 
-        ON bus.owner_id = users.user_id
-    ORDER BY bus.bus_id DESC
+$sql = " SELECT  bus.*, users.name AS owner_name, users.email AS owner_email, users.phone AS owner_phone FROM bus INNER JOIN users  ON bus.owner_id = users.user_id ORDER BY bus.bus_id DESC
 ";
 $result = mysqli_query($conn, $sql);
 
@@ -47,7 +37,6 @@ if (!$result) {
             background: #fff;
             padding: 25px;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
         }
 
         h2 {
@@ -157,74 +146,40 @@ if (!$result) {
                     <?php if (mysqli_num_rows($result) > 0): ?>
                         <?php while ($bus = mysqli_fetch_assoc($result)): ?>
                             <tr>
-                                <td>
-                                    <?= htmlspecialchars($bus['bus_id']) ?>
+                                <td> <?= htmlspecialchars($bus['bus_id']) ?></td>
+                                <td> <?php if (!empty($bus['bus_image'])): ?>
+                                        <img src="../uploads/bus/<?= htmlspecialchars($bus['bus_image']) ?>" class="bus-image" alt="Bus Image"> <?php else: ?>
+                                        <img src="../images/no-image.png" class="bus-image" alt="No Image"> <?php endif; ?>
                                 </td>
-                                <td>
-                                    <?php if (!empty($bus['bus_image'])): ?>
-                                        <img
-                                            src="../uploads/bus/<?= htmlspecialchars($bus['bus_image']) ?>"
-                                            class="bus-image"
-                                            alt="Bus Image">
-                                    <?php else: ?>
-                                        <img
-                                            src="../images/no-image.png"
-                                            class="bus-image"
-                                            alt="No Image">
-                                    <?php endif; ?>
+                                <td> <?= htmlspecialchars($bus['bus_number']) ?>
                                 </td>
-                                <td>
-                                    <?= htmlspecialchars($bus['bus_number']) ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($bus['bus_name']) ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($bus['bus_type']) ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($bus['seats']) ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($bus['owner_name']) ?>
-                                </td>
+                                <td> <?= htmlspecialchars($bus['bus_name']) ?> </td>
+                                <td> <?= htmlspecialchars($bus['bus_type']) ?> </td>
+                                <td> <?= htmlspecialchars($bus['seats']) ?> </td>
+                                <td> <?= htmlspecialchars($bus['owner_name']) ?> </td>
                                 <td>
                                     <?php if ($bus['status'] == "approved"): ?>
-                                        <span class="status approved">
-                                            Approved
-                                        </span>
+                                        <span class="status approved"> Approved </span>
                                     <?php elseif ($bus['status'] == "pending"): ?>
-                                        <span class="status pending">
-                                            Pending
-                                        </span>
+                                        <span class="status pending"> Pending </span>
                                     <?php else: ?>
-                                        <span class="status rejected">
-                                            Rejected
-                                        </span>
+                                        <span class="status rejected"> Rejected </span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a
-                                        href="view_bus.php?id=<?= $bus['bus_id'] ?>"
-                                        class="view-btn">
-                                        View Details
-                                    </a>
+                                    <a href="view_bus.php?id=<?= $bus['bus_id'] ?>" class="view-btn"> View Details</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="9" style="text-align:center;">
-                                No buses found.
-                            </td>
+                            <td colspan="9" style="text-align:center;"> No buses found. </td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
-        <a href="dashboard.php" class="back">
-            Back to Home
-        </a>
+        <a href="dashboard.php" class="back"> Back to Home </a>
     </div>
 </body>
 

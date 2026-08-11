@@ -131,7 +131,6 @@ $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'defa
             background: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, .15);
         }
 
         .box h2 {

@@ -68,7 +68,6 @@ $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png'
             background: #fff;
             border-radius: 10px;
             padding: 25px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, .12);
         }
 
         .profile-box h2 {

@@ -1,0 +1,222 @@
+.schedule-page {
+    width: 100%
+}
+
+.schedule-header,
+.schedule-form-box,
+.schedule-table-box {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, .08)
+}
+
+.schedule-header {
+    padding: 22px 25px;
+    margin-bottom: 20px
+}
+
+.schedule-header h2 {
+    margin: 0;
+    color: #1560BD
+}
+
+.schedule-header p {
+    margin: 6px 0 0;
+    color: #777
+}
+
+.message {
+    padding: 13px 16px;
+    border-radius: 7px;
+    margin-bottom: 20px;
+    font-weight: bold
+}
+
+.success {
+    background: #e1f7e8;
+    color: #16803c
+}
+
+.error {
+    background: #ffe3e3;
+    color: #c62828
+}
+
+.schedule-form-box {
+    padding: 22px;
+    margin-bottom: 20px
+}
+
+.schedule-form-box h3 {
+    margin: 0 0 20px;
+    color: #1560BD
+}
+
+.schedule-form {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 6px
+}
+
+.form-group input,
+.form-group select {
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    outline: none;
+    font-size: 14px;
+    background: #fff
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #1560BD
+}
+
+.form-actions {
+    display: flex;
+    align-items: end;
+    gap: 8px
+}
+
+.btn {
+    height: 42px;
+    padding: 0 17px;
+    border: 0;
+    border-radius: 7px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: bold;
+    cursor: pointer
+}
+
+.btn-primary {
+    background: #1560BD;
+    color: #fff
+}
+
+.btn-cancel {
+    background: #eee;
+    color: #555
+}
+
+.schedule-table-box {
+    overflow: hidden
+}
+
+.table-title {
+    padding: 20px 22px;
+    border-bottom: 1px solid #eee
+}
+
+.table-title h3 {
+    margin: 0;
+    color: #1560BD
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px
+}
+
+.schedule-table th {
+    background: #1560BD;
+    color: #fff;
+    padding: 13px;
+    text-align: left;
+    font-size: 13px
+}
+
+.schedule-table td {
+    padding: 13px;
+    border-bottom: 1px solid #eee;
+    color: #444;
+    font-size: 14px
+}
+
+.schedule-table tr:hover {
+    background: #f7faff
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold
+}
+
+.active {
+    background: #dff6e5;
+    color: #16803c
+}
+
+.cancelled {
+    background: #ffe1e1;
+    color: #d62828
+}
+
+.completed {
+    background: #e4edff;
+    color: #1560BD
+}
+
+.edit,
+.delete {
+    display: inline-flex;
+    padding: 6px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 5px
+}
+
+.edit {
+    background: #e4edff;
+    color: #1560BD
+}
+
+.delete {
+    background: #ffe1e1;
+    color: #d62828
+}
+
+.empty {
+    text-align: center;
+    color: #999;
+    padding: 40px !important
+}
+
+@media(max-width:1000px) {
+    .schedule-form {
+        grid-template-columns: repeat(2, 1fr)
+    }
+}
+
+@media(max-width:600px) {
+    .schedule-form {
+        grid-template-columns: 1fr
+    }
+}

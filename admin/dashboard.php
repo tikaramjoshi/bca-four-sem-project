@@ -17,13 +17,11 @@ $totalDrivers = $conn->query("SELECT COUNT(*) FROM users WHERE role='driver'")->
 $totalPassengers = $conn->query("SELECT COUNT(*) FROM users WHERE role='passenger'")->fetch_row()[0];
 $totalBuses = $conn->query("SELECT COUNT(*) FROM bus")->fetch_row()[0];
 $totalOwnerVerification = $conn->query("SELECT COUNT(*) FROM owner_verification WHERE status='pending'")->fetch_row()[0];
-
 $totalDriverVerification = $conn->query("
     SELECT COUNT(*)
     FROM driver_verification
     WHERE status = 'pending'
 ")->fetch_row()[0];
-
 $totalPassengerVerification = $conn->query("SELECT COUNT(*) FROM users WHERE role='passenger' AND (verification_status IS NULL OR verification_status <> 'verified')")->fetch_row()[0];
 $totalPending = $conn->query("SELECT COUNT(*) FROM bus WHERE status='pending'")->fetch_row()[0];
 if (isset($_GET['action']) && isset($_GET['id'])) {
@@ -200,12 +198,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
                                     <td><a href="../uploads/<?= htmlspecialchars($row['company_certificate']) ?>" target="_blank">View Certificate</a></td>
                                     <td><span class="pending-text">Pending</span></td>
                                     <td>
-                                        <a
-                                            href="verify_driver.php?id=<?= (int)$row['verification_id'] ?>"
-                                            class="approve"
-                                            onclick="return confirm('Verify this driver?')">
-                                            Verify
-                                        </a>
+                                        <a href="verify_driver.php?id=<?= (int)$row['verification_id'] ?>" class="approve" onclick="return confirm('Verify this driver?')"> Verify </a>
                                         <a class="reject" href="reject_owner.php?id=<?= $row['verification_id'] ?>">Reject</a>
                                     </td>
                                 </tr>
@@ -216,55 +209,22 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
             <?php endif; ?><br><br>
             <?php
             $driverVerificationRows = [];
-
             $stmt = $conn->prepare("
-    SELECT
-        dv.verification_id,
-        dv.driver_id,
-        dv.license_number,
-        dv.license_issue_date,
-        dv.license_expiry_date,
-        dv.profile_photo,
-        dv.license_photo_front,
-        dv.license_photo_back,
-        dv.status,
-        dv.created_at,
-        u.name,
-        u.email,
-        u.phone
-    FROM driver_verification dv
-    INNER JOIN users u
-        ON dv.driver_id = u.user_id
-    WHERE dv.status = 'pending'
-    ORDER BY dv.verification_id DESC
+    SELECT dv.verification_id, dv.driver_id, dv.license_number, dv.license_issue_date, dv.license_expiry_date, dv.profile_photo, dv.license_photo_front, dv.license_photo_back, dv.status, dv.created_at, u.name, u.email, u.phone FROM driver_verification dv INNER JOIN users u ON dv.driver_id = u.user_id WHERE dv.status = 'pending' ORDER BY dv.verification_id DESC
 ");
-
             $stmt->execute();
-
             $result = $stmt->get_result();
-
             while ($row = $result->fetch_assoc()) {
                 $driverVerificationRows[] = $row;
             }
-
             $stmt->close();
             ?>
-
             <?php if (count($driverVerificationRows) > 0): ?>
-
                 <div class="table-box">
-
-                    <h2>
-                        <i class="fa fa-id-card"></i>
-                        Pending Driver Verification
-                    </h2>
-
+                    <h2> <i class="fa fa-id-card"></i> Pending Driver Verification </h2>
                     <div class="table-scroll">
-
                         <table>
-
                             <thead>
-
                                 <tr>
                                     <th>ID</th>
                                     <th>Driver</th>
@@ -275,81 +235,28 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
-
                             </thead>
-
                             <tbody>
-
                                 <?php foreach ($driverVerificationRows as $row): ?>
-
                                     <tr>
-
+                                        <td><?= htmlspecialchars($row['verification_id']) ?></td>
+                                        <td> <?= htmlspecialchars($row['name']) ?> </td>
+                                        <td> <?= htmlspecialchars($row['email']) ?> </td>
+                                        <td> <?= htmlspecialchars($row['phone']) ?> </td>
+                                        <td> <?= htmlspecialchars($row['license_number']) ?> </td>
+                                        <td> <?= htmlspecialchars($row['license_expiry_date']) ?> </td>
+                                        <td> <span class="pending-text"> Pending </span></td>
                                         <td>
-                                            <?= htmlspecialchars($row['verification_id']) ?>
+                                            <a href="view_driver.php?id=<?= (int)$row['driver_id'] ?>" class="approve"> View </a>
+                                            <a href="verify_driver.php?id=<?= (int)$row['verification_id'] ?>" class="approve" onclick="return confirm('Verify this driver?')"> Verify </a>
+                                            <a href="reject_driver.php?id=<?= (int)$row['verification_id'] ?>" class="reject" onclick="return confirm('Reject this driver?')"> Reject </a>
                                         </td>
-
-                                        <td>
-                                            <?= htmlspecialchars($row['name']) ?>
-                                        </td>
-
-                                        <td>
-                                            <?= htmlspecialchars($row['email']) ?>
-                                        </td>
-
-                                        <td>
-                                            <?= htmlspecialchars($row['phone']) ?>
-                                        </td>
-
-                                        <td>
-                                            <?= htmlspecialchars($row['license_number']) ?>
-                                        </td>
-
-                                        <td>
-                                            <?= htmlspecialchars($row['license_expiry_date']) ?>
-                                        </td>
-
-                                        <td>
-                                            <span class="pending-text">
-                                                Pending
-                                            </span>
-                                        </td>
-
-                                        <td>
-
-                                            <a
-                                                href="view_driver.php?id=<?= (int)$row['driver_id'] ?>"
-                                                class="approve">
-                                                View
-                                            </a>
-
-                                            <a
-                                                href="verify_driver.php?id=<?= (int)$row['verification_id'] ?>"
-                                                class="approve"
-                                                onclick="return confirm('Verify this driver?')">
-                                                Verify
-                                            </a>
-
-                                            <a
-                                                href="reject_driver.php?id=<?= (int)$row['verification_id'] ?>"
-                                                class="reject"
-                                                onclick="return confirm('Reject this driver?')">
-                                                Reject
-                                            </a>
-
-                                        </td>
-
                                     </tr>
-
                                 <?php endforeach; ?>
-
                             </tbody>
-
                         </table>
-
                     </div>
-
                 </div>
-
             <?php endif; ?>
             <?php if ($totalPassengerVerification > 0): ?>
                 <div class="table-box">

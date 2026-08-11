@@ -10,12 +10,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     exit;
 }
 $passenger_id = (int)$_GET['id'];
-$stmt = $conn->prepare("
-    SELECT user_id,name,email,phone,profile_image,verification_status,created_at
-    FROM users
-    WHERE user_id = ? AND role = 'passenger'
-    LIMIT 1
-");
+$stmt = $conn->prepare("SELECT user_id,name,email,phone,profile_image,verification_status,created_at FROM users WHERE user_id=? AND role='passenger' LIMIT 1");
 $stmt->bind_param("i", $passenger_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -24,12 +19,7 @@ if ($result->num_rows === 0) {
     exit;
 }
 $passenger = $result->fetch_assoc();
-$booking_stmt = $conn->prepare("
-    SELECT booking_id,user_id,bus_name,bus_number,route,travel_date,seat_number,amount,status,created_at
-    FROM bookings
-    WHERE user_id = ?
-    ORDER BY booking_id DESC
-");
+$booking_stmt = $conn->prepare("SELECT booking_id,user_id,bus_name,bus_number,route,travel_date,seat_number,amount,status,created_at FROM bookings WHERE user_id=? ORDER BY booking_id DESC");
 $booking_stmt->bind_param("i", $passenger_id);
 $booking_stmt->execute();
 $booking_result = $booking_stmt->get_result();
@@ -39,10 +29,7 @@ while ($row = $booking_result->fetch_assoc()) {
 }
 $total_bookings = count($bookings);
 $profile_image = trim((string)($passenger['profile_image'] ?? ''));
-$image = "";
-if ($profile_image !== '') {
-    $image = "../uploads/profile/" . basename($profile_image);
-}
+$image = $profile_image !== '' ? "../uploads/profile/" . basename($profile_image) : "";
 $verification = $passenger['verification_status'] ?? 'pending';
 ?>
 <!DOCTYPE html>
@@ -90,11 +77,11 @@ $verification = $passenger['verification_status'] ?? 'pending';
         }
 
         .back-btn {
-            text-decoration: none;
             background: #1560bd;
             color: #fff;
             padding: 11px 18px;
             border-radius: 7px;
+            text-decoration: none;
             font-size: 14px
         }
 
@@ -102,11 +89,15 @@ $verification = $passenger['verification_status'] ?? 'pending';
             background: #0d4f9c
         }
 
-        .profile-card {
+        .profile-card,
+        .booking-card {
             background: #fff;
             border-radius: 14px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, .08)
+        }
+
+        .profile-card {
             padding: 30px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, .08);
             margin-bottom: 25px
         }
 
@@ -146,26 +137,33 @@ $verification = $passenger['verification_status'] ?? 'pending';
             font-size: 14px
         }
 
-        .status {
+        .status,
+        .booking-status {
             display: inline-block;
-            margin-top: 8px;
-            padding: 7px 13px;
             border-radius: 20px;
-            font-size: 12px;
             font-weight: bold
         }
 
-        .status.verified {
+        .status {
+            margin-top: 8px;
+            padding: 7px 13px;
+            font-size: 12px
+        }
+
+        .status.verified,
+        .booking-status.confirmed {
             background: #d1e7dd;
             color: #0f5132
         }
 
-        .status.pending {
+        .status.pending,
+        .booking-status.pending {
             background: #fff3cd;
             color: #856404
         }
 
-        .status.rejected {
+        .status.rejected,
+        .booking-status.cancelled {
             background: #f8d7da;
             color: #842029
         }
@@ -196,9 +194,6 @@ $verification = $passenger['verification_status'] ?? 'pending';
         }
 
         .booking-card {
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, .08);
             overflow: hidden
         }
 
@@ -250,26 +245,8 @@ $verification = $passenger['verification_status'] ?? 'pending';
         }
 
         .booking-status {
-            display: inline-block;
             padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold
-        }
-
-        .booking-status.pending {
-            background: #fff3cd;
-            color: #856404
-        }
-
-        .booking-status.confirmed {
-            background: #d1e7dd;
-            color: #0f5132
-        }
-
-        .booking-status.cancelled {
-            background: #f8d7da;
-            color: #842029
+            font-size: 11px
         }
 
         .no-bookings {
@@ -337,61 +314,20 @@ $verification = $passenger['verification_status'] ?? 'pending';
                     <p><?= htmlspecialchars($passenger['email']) ?></p>
                     <p><?= htmlspecialchars($passenger['phone']) ?></p>
                     <span class="status <?= htmlspecialchars($verification) ?>">
-                        <?php if ($verification === 'verified'): ?>
-                            Verified
-                        <?php elseif ($verification === 'rejected'): ?>
-                            Rejected
-                        <?php else: ?>
-                            Pending
-                        <?php endif; ?>
+                        <?= $verification === 'verified' ? 'Verified' : ($verification === 'rejected' ? 'Rejected' : 'Pending') ?>
                     </span>
                 </div>
             </div>
             <div class="details-grid">
-                <div class="detail-box">
-                    <small>Passenger ID</small>
-                    <strong><?= (int)$passenger['user_id'] ?></strong>
-                </div>
-                <div class="detail-box">
-                    <small>Full Name</small>
-                    <strong><?= htmlspecialchars($passenger['name']) ?></strong>
-                </div>
-                <div class="detail-box">
-                    <small>Email</small>
-                    <strong><?= htmlspecialchars($passenger['email']) ?></strong>
-                </div>
-                <div class="detail-box">
-                    <small>Phone</small>
-                    <strong><?= htmlspecialchars($passenger['phone']) ?></strong>
-                </div>
-                <div class="detail-box">
-                    <small>Account Role</small>
-                    <strong>Passenger</strong>
-                </div>
-                <div class="detail-box">
-                    <small>Verification</small>
-                    <strong>
-                        <?php if ($verification === 'verified'): ?>
-                            Verified
-                        <?php elseif ($verification === 'rejected'): ?>
-                            Rejected
-                        <?php else: ?>
-                            Pending
-                        <?php endif; ?>
-                    </strong>
-                </div>
-                <div class="detail-box">
-                    <small>Total Bookings</small>
-                    <strong><?= $total_bookings ?> Booking(s)</strong>
-                </div>
-                <div class="detail-box">
-                    <small>Registered Date</small>
-                    <strong><?= date("d M Y", strtotime($passenger['created_at'])) ?></strong>
-                </div>
-                <div class="detail-box">
-                    <small>Account Status</small>
-                    <strong>Active</strong>
-                </div>
+                <div class="detail-box"><small>Passenger ID</small><strong><?= (int)$passenger['user_id'] ?></strong></div>
+                <div class="detail-box"><small>Full Name</small><strong><?= htmlspecialchars($passenger['name']) ?></strong></div>
+                <div class="detail-box"><small>Email</small><strong><?= htmlspecialchars($passenger['email']) ?></strong></div>
+                <div class="detail-box"><small>Phone</small><strong><?= htmlspecialchars($passenger['phone']) ?></strong></div>
+                <div class="detail-box"><small>Account Role</small><strong>Passenger</strong></div>
+                <div class="detail-box"><small>Verification</small><strong><?= $verification === 'verified' ? 'Verified' : ($verification === 'rejected' ? 'Rejected' : 'Pending') ?></strong></div>
+                <div class="detail-box"><small>Total Bookings</small><strong><?= $total_bookings ?> Booking(s)</strong></div>
+                <div class="detail-box"><small>Registered Date</small><strong><?= date("d M Y", strtotime($passenger['created_at'])) ?></strong></div>
+                <div class="detail-box"><small>Account Status</small><strong>Active</strong></div>
             </div>
         </div>
         <div class="booking-card">

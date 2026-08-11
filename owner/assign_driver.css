@@ -1,0 +1,272 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f4f6f9;
+    color: #222;
+}
+
+.page {
+    width: 94%;
+    max-width: 1350px;
+    margin: 30px auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.header h1 {
+    font-size: 28px;
+    margin-bottom: 6px;
+}
+
+.header p {
+    font-size: 14px;
+    color: #777;
+}
+
+.back {
+    background: #1560bd;
+    color: #fff;
+    text-decoration: none;
+    padding: 11px 18px;
+    border-radius: 7px;
+}
+
+.message {
+    padding: 14px 17px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.success {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.error {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.card h2 {
+    font-size: 20px;
+    margin-bottom: 6px;
+}
+
+.card p {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+.form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 15px;
+    align-items: end;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+select {
+    width: 100%;
+    height: 44px;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    padding: 0 12px;
+    background: #fff;
+    font-size: 14px;
+    outline: none;
+}
+
+button {
+    border: 0;
+    border-radius: 7px;
+    height: 44px;
+    padding: 0 20px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.assign {
+    background: #198754;
+    color: #fff;
+}
+
+.assign:hover {
+    background: #146c43;
+}
+
+.table-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-head {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+}
+
+.table-head h2 {
+    font-size: 19px;
+}
+
+.table-head span {
+    font-size: 13px;
+    color: #777;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    min-width: 1000px;
+    border-collapse: collapse;
+}
+
+th {
+    background: #f7f9fc;
+    padding: 15px;
+    text-align: left;
+    font-size: 13px;
+    color: #555;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.driver {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.driver img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #1560bd;
+}
+
+.driver-name {
+    font-weight: 600;
+}
+
+.email {
+    font-size: 12px;
+    color: #888;
+    margin-top: 3px;
+}
+
+.bus {
+    color: #1560bd;
+    font-weight: 700;
+}
+
+.bus-name {
+    font-size: 12px;
+    color: #777;
+    margin-top: 3px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.verified {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.assigned {
+    background: #cff4fc;
+    color: #055160;
+}
+
+.actions {
+    display: flex;
+    gap: 6px;
+}
+
+.edit {
+    background: #1560bd;
+    color: #fff;
+}
+
+.delete {
+    background: #dc3545;
+    color: #fff;
+}
+
+.empty {
+    text-align: center;
+    padding: 55px 20px;
+    color: #777;
+}
+
+.edit-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto auto;
+    gap: 8px;
+}
+
+.edit-form select {
+    height: 36px;
+}
+
+.small-btn {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 12px;
+}
+
+@media(max-width:900px) {
+    .form {
+        grid-template-columns: 1fr;
+    }
+
+    .edit-form {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}

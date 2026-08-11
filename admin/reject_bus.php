@@ -1,19 +1,15 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "admin") {
     header("Location: ../login.php");
     exit();
 }
-
 require_once "../db.php";
-
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header("Location: dashboard.php");
     exit();
 }
 $bus_id = (int)$_GET['id'];
-/* Check bus exists */
 $stmt = $conn->prepare("
 SELECT bus_id,bus_name,bus_number
 FROM bus
@@ -22,12 +18,10 @@ WHERE bus_id=?
 $stmt->bind_param("i", $bus_id);
 $stmt->execute();
 $result = $stmt->get_result();
-
 if ($result->num_rows == 0) {
     die("Bus not found.");
 }
 $bus = $result->fetch_assoc();
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $reason = trim($_POST['reason']);
     if ($reason == "") {
@@ -57,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Reject Bus</title>
     <style>
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             background: #f4f4f4;
         }
 

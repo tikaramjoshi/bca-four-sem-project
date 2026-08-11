@@ -117,24 +117,24 @@ if (isset($_POST['submit'])) {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif
+            font-family: Arial, sans-serif;
         }
 
         html,
         body {
             min-height: 100%;
-            background: #f5f7fb
+            background: #f5f7fb;
         }
 
         .main {
             background: #1560BD;
-            padding: 10px 25px
+            padding: 10px 25px;
         }
 
         nav {
             display: flex;
             justify-content: flex-start;
-            align-items: center
+            align-items: center;
         }
 
         nav a {
@@ -143,17 +143,17 @@ if (isset($_POST['submit'])) {
             background: #a59aef;
             padding: 8px 15px;
             font-weight: bold;
-            border-radius: 4px
+            border-radius: 4px;
         }
 
         nav a:hover {
             color: #fff;
-            background: #0fa070
+            background: #0fa070;
         }
 
         .last-policy {
             padding: 20px 40px;
-            min-height: calc(100vh - 115px)
+            min-height: calc(100vh - 115px);
         }
 
         .verification-box {
@@ -163,13 +163,12 @@ if (isset($_POST['submit'])) {
             background: #fff;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, .15)
         }
 
         .verification-box h2 {
             text-align: center;
             margin: 0 0 25px;
-            color: #1e3a8a
+            color: #1e3a8a;
         }
 
         .verification-box label {
@@ -177,7 +176,7 @@ if (isset($_POST['submit'])) {
             margin-top: 15px;
             margin-bottom: 6px;
             font-weight: bold;
-            color: #333
+            color: #333;
         }
 
         .verification-box input[type=text] {
@@ -185,11 +184,11 @@ if (isset($_POST['submit'])) {
             padding: 12px;
             border: 1px solid #ccc;
             border-radius: 6px;
-            outline: none
+            outline: none;
         }
 
         .verification-box input[type=text]:focus {
-            border-color: #1560BD
+            border-color: #1560BD;
         }
 
         .verification-box input[type=file] {
@@ -197,7 +196,7 @@ if (isset($_POST['submit'])) {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 6px;
-            background: #fafafa
+            background: #fafafa;
         }
 
         .verification-box button {
@@ -210,11 +209,11 @@ if (isset($_POST['submit'])) {
             color: #fff;
             font-size: 17px;
             cursor: pointer;
-            transition: .3s
+            transition: .3s;
         }
 
         .verification-box button:hover {
-            background: #1d4ed8
+            background: #1d4ed8;
         }
 
         .success {
@@ -223,7 +222,7 @@ if (isset($_POST['submit'])) {
             padding: 12px;
             border-radius: 6px;
             margin-bottom: 20px;
-            text-align: center
+            text-align: center;
         }
 
         .error {
@@ -232,7 +231,7 @@ if (isset($_POST['submit'])) {
             padding: 12px;
             border-radius: 6px;
             margin-bottom: 20px;
-            text-align: center
+            text-align: center;
         }
 
         .current-file {
@@ -241,7 +240,7 @@ if (isset($_POST['submit'])) {
             border: 1px solid #ddd;
             border-radius: 10px;
             background: #f8f9fa;
-            text-align: center
+            text-align: center;
         }
 
         .preview {
@@ -251,7 +250,7 @@ if (isset($_POST['submit'])) {
             border-radius: 10px;
             border: 2px solid #1560BD;
             display: block;
-            margin: 0 auto 15px
+            margin: 0 auto 15px;
         }
 
         .view-btn {
@@ -261,11 +260,11 @@ if (isset($_POST['submit'])) {
             text-decoration: none;
             padding: 10px 18px;
             border-radius: 6px;
-            margin-bottom: 15px
+            margin-bottom: 15px;
         }
 
         .view-btn:hover {
-            background: #0d4e9e
+            background: #0d4e9e;
         }
 
         .pdf-box {
@@ -279,7 +278,7 @@ if (isset($_POST['submit'])) {
             border-radius: 10px;
             background: #eee;
             font-size: 18px;
-            font-weight: bold
+            font-weight: bold;
         }
 
         .last {
@@ -287,17 +286,17 @@ if (isset($_POST['submit'])) {
             color: #fff;
             text-align: center;
             padding: 15px 0;
-            width: 100%
+            width: 100%;
         }
 
         @media(max-width:600px) {
             .verification-box {
                 width: 95%;
-                padding: 20px
+                padding: 20px;
             }
 
             .last-policy {
-                padding: 15px
+                padding: 15px;
             }
         }
     </style>

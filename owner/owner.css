@@ -9,7 +9,7 @@ html {
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
     background: #eef4fb;
     min-height: 100vh;
     display: flex;
@@ -22,7 +22,6 @@ body {
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, .2);
 }
 
 nav {
@@ -73,7 +72,6 @@ a:hover {
     width: 180px;
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .2);
     overflow: hidden;
     opacity: 0;
     visibility: hidden;
@@ -114,7 +112,6 @@ a:hover {
     border-radius: 18px;
     padding: 25px;
     text-align: center;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, .15);
     transition: .35s;
 }
 
@@ -129,7 +126,6 @@ a:hover {
     padding: 30px;
     background: #fff;
     border-radius: 18px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -152,13 +148,11 @@ a:hover {
     text-align: center;
     overflow: hidden;
     cursor: pointer;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, .1);
     transition: .35s;
 }
 
 .route:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 35px rgba(0, 0, 0, .18);
 }
 
 .route i {
@@ -192,7 +186,6 @@ a:hover {
     background: #fff;
     padding: 30px;
     border-radius: 18px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, .1);
 }
 
 .form-box h2 {
@@ -236,7 +229,6 @@ a:hover {
 .input-group input:focus,
 .input-group select:focus {
     border-color: #1560BD;
-    box-shadow: 0 0 8px rgba(21, 96, 189, .25);
 }
 
 .save-btn:hover {
@@ -262,7 +254,6 @@ a:hover {
 
 .search-box input:focus {
     border-color: #1560BD;
-    box-shadow: 0 0 8px rgba(21, 96, 189, .2);
 }
 
 .search-box button,
@@ -297,7 +288,6 @@ a:hover {
     background: #fff;
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
 }
 
 .bus-table th {

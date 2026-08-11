@@ -152,7 +152,6 @@ if (isset($_POST['update'])) {
 
         textarea:focus {
             border-color: #0d4d99;
-            box-shadow: 0 0 8px rgba(21, 96, 189, .3);
         }
 
         button {

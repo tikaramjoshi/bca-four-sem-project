@@ -19,7 +19,7 @@ if (isset($_POST['register_bus'])) {
     $seat = (int) $_POST['seat'];
     $facilities = trim($_POST['facilities']);
     $image_name = "";
-    /* ================= IMAGE UPLOAD ================= */
+
     if (!isset($_FILES['bus_image']) || $_FILES['bus_image']['error'] != 0) {
         $message = "Bus image is required.";
         $message_type = "error";
@@ -60,9 +60,9 @@ if (isset($_POST['register_bus'])) {
             }
         }
     }
-    /* ================= INSERT BUS ================= */
+
     if (empty($message)) {
-        // Check duplicate bus number
+
         $check = $conn->prepare(
             "SELECT bus_id FROM bus WHERE bus_number=?"
         );
@@ -127,7 +127,7 @@ if (isset($_POST['register_bus'])) {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Arial, sans-serif;
         }
 
         body {
@@ -147,7 +147,6 @@ if (isset($_POST['register_bus'])) {
             background: #fff;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, .15);
         }
 
         .register-box h2 {
@@ -282,17 +281,9 @@ if (isset($_POST['register_bus'])) {
             <?php } ?>
             <form method="POST" enctype="multipart/form-data">
                 <label>Bus Number</label>
-                <input
-                    type="text"
-                    name="bus_number"
-                    placeholder="BA-2-KHA-1234"
-                    required>
+                <input type="text" name="bus_number" placeholder="BA-2-KHA-1234" required>
                 <label>Bus Name</label>
-                <input
-                    type="text"
-                    name="bus_name"
-                    placeholder="Green Line"
-                    required>
+                <input type="text" name="bus_name" placeholder="Green Line" required>
                 <label>Bus Type</label>
                 <select name="bus_type" required>
                     <option value="">Select Bus Type</option>
@@ -302,41 +293,17 @@ if (isset($_POST['register_bus'])) {
                     <option value="VIP">VIP</option>
                 </select>
                 <label>Total Seats</label>
-                <input
-                    type="number"
-                    name="seat"
-                    min="10"
-                    max="80"
-                    required>
+                <input type="number" name="seat" min="10" max="80" required>
                 <label>Bus Image</label>
-                <input
-                    type="file"
-                    name="bus_image"
-                    id="image"
-                    accept="image/*"
-                    onchange="previewImage(event)"
-                    required>
+                <input type="file" name="bus_image" id="image" accept="image/*" onchange="previewImage(event)" required>
                 <br>
-                <img id="preview"
-                    src="../images/bus.png"
-                    width="180"
-                    height="120">
+                <img id="preview" src="../images/bus.png" width="180" height="120">
                 <br><br>
                 <label>Facilities</label>
-                <textarea
-                    name="facilities"
-                    rows="3"
-                    placeholder="WiFi, Charging, AC..."></textarea>
+                <textarea name="facilities" rows="3" placeholder="WiFi, Charging, AC..."></textarea>
                 <div class="button-group">
-                    <button
-                        type="submit"
-                        name="register_bus"
-                        class="submit-btn">
-                        Register Bus
-                    </button>
-                    <a href="dashboard.php" class="cancel-btn">
-                        Cancel
-                    </a>
+                    <button type="submit" name="register_bus" class="submit-btn"> Register Bus</button>
+                    <a href="dashboard.php" class="cancel-btn"> Cancel</a>
                 </div>
             </form>
         </div>

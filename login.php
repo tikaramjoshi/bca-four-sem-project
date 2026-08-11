@@ -10,7 +10,6 @@ unset($_SESSION['message']);
 unset($_SESSION['message_type']);
 $locked = false;
 
-
 if (isset($_SESSION['login_lock_time'])) {
     if (time() < $_SESSION['login_lock_time']) {
         $locked = true;

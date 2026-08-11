@@ -1,356 +1,178 @@
+<?php
+session_start();
+include "db.php";
+$today = date('Y-m-d');
+$max_date = date('Y-m-d', strtotime('+7 days'));
+$routes = [];
+$route_result = mysqli_query($conn, "SELECT route_id,city_name FROM routes ORDER BY city_name ASC");
+if ($route_result) {
+    while ($row = mysqli_fetch_assoc($route_result)) {
+        $routes[] = $row;
+    }
+}
+if (isset($_GET['book'])) {
+    $schedule_id = (int)($_GET['schedule_id'] ?? 0);
+    $bus_id = (int)($_GET['bus_id'] ?? 0);
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: login.php");
+        exit;
+    }
+    $user_id = (int)$_SESSION['user_id'];
+    $stmt = $conn->prepare("SELECT role,verification_status FROM users WHERE user_id=?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $user_result = $stmt->get_result();
+    $user = $user_result->fetch_assoc();
+    if (!$user || $user['role'] != 'passenger') {
+        echo "<script>alert('Only passenger can book tickets.');window.location.href='index.php';</script>";
+        exit;
+    }
+    if ($user['verification_status'] != 'verified') {
+        echo "<script>alert('You have not login please login first');window.location.href='index.php';</script>";
+        exit;
+    }
+    header("Location: passenger/seat_selection.php?schedule_id=" . $schedule_id . "&bus_id=" . $bus_id);
+    exit;
+}
+$buses = [];
+if (isset($_GET['search'])) {
+    $from = trim($_GET['from'] ?? '');
+    $to = trim($_GET['to'] ?? '');
+    $date = $_GET['date'] ?? '';
+    if ($from != '' && $to != '' && $date != '') {
+        $stmt = $conn->prepare("SELECT s.schedule_id,s.bus_id,s.from_city,s.to_city,s.departure_date,s.departure_time,s.ticket_price,s.available_seats,b.bus_number,b.bus_name,b.bus_type FROM schedule s INNER JOIN bus b ON s.bus_id=b.bus_id WHERE LOWER(TRIM(s.from_city))=LOWER(TRIM(?)) AND LOWER(TRIM(s.to_city))=LOWER(TRIM(?)) AND s.departure_date=? AND s.status='active' ORDER BY s.departure_time ASC");
+        $stmt->bind_param("sss", $from, $to, $date);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $buses[] = $row;
+        }
+    }
+}
+if (isset($_GET['book'])) {
+    $schedule_id = (int)($_GET['schedule_id'] ?? 0);
+    $bus_id = (int)($_GET['bus_id'] ?? 0);
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: login.php");
+        exit;
+    }
+    $user_id = (int)$_SESSION['user_id'];
+    $stmt = $conn->prepare("SELECT role,verification_status FROM users WHERE user_id=?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $user_result = $stmt->get_result();
+    $user = $user_result->fetch_assoc();
+    if (!$user || $user['role'] != 'passenger') {
+        echo "<script>alert('Only passenger can book tickets.');window.location.href='index.php';</script>";
+        exit;
+    }
+    if ($user['verification_status'] != 'verified') {
+        echo "<script>alert('You have not login please login first');window.location.href='index.php';</script>";
+        exit;
+    }
+    header("Location: passenger/seat_selection.php?schedule_id=" . $schedule_id . "&bus_id=" . $bus_id);
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashbord</title>
-    <style>
-        * {
-            padding: 0;
-            margin: 0;
-            box-sizing: border-box;
-        }
-        body{
-            font-family: Arial, Helvetica, sans-serif;
-            background-color: #f4f7f6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .main {
-            background-color: #1560bd;
-            padding: 15px;
-        }
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Online Bus Ticket Booking System</title>
+    <link rel="stylesheet" href="index.css">
 
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            color: #fff;
-        }
-
-        nav a {
-            text-decoration: none;
-            color: black;
-            background-color: rgb(165, 154, 239);
-            padding: 8px 15px;
-            font-weight: bold;
-            border-radius: 4px;
-            margin: 0 8px;
-        }
-
-        nav a:hover,
-        nav a.active:hover,
-        button:hover,
-        .first button:hover {
-            color: white;
-            background-color: rgb(15, 160, 112);
-        }
-
-        button {
-            background-color: #ffc107;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 15px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-
-        nav a.active {
-            background-color: rgb(17, 127, 134);
-            color: white;
-        }
-
-        .datetime{
-            width: 130px;
-            height: 130px;
-            margin: 20px 0 0 40px;
-            color: #1560BD;
-            background-color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%;
-            border: 5px solid #1560BD;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(0, 0, 0, .2);
-        }
-
-        .datetime h4{
-            font-size: 13px;
-            margin-top: 7px;
-        }
-
-        .datetime p{
-            margin: 0;
-            font-size: 22px;
-        }
-        .first {
-            background-color: #f2f2f2;
-            width: 350px;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgb(0, 0, 0, .2);
-            margin: -10px auto 0;
-        }
-
-        .first input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid#ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-
-        .first button {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 5px;
-            background: #1560bd;
-            color: white;
-            font-size: 16px;
-        }
-
-        .second {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            margin: 100px auto 50px;
-            width: 95%;
-            background-color: #ebebe6;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .second h1 {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .route {
-            height: 320px;
-            width: 220px;
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            text-align: center;
-            box-shadow: 0 0 10px rgb(0, 0, 0, .2);
-        }
-
-        .route img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-
-        .route h4 {
-            margin: 10px 0;
-            font-size: 18px;
-        }
-
-        .route p {
-            margin: 8px 0 15px;
-            font-size: 15px;
-        }
-
-        .route button {
-            width: 80%;
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #1560BD;
-            color: white;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-
-        .route button:hover {
-            background-color: rgb(15, 160, 112);
-        }
-
-        .last {
-            background-color: #1560BD;
-            color: #fff;
-            padding: 30px 40px 10px;
-        }
-
-        .last-main {
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-start;
-            gap: 60px;
-            width: 100%;
-        }
-
-        .last-link,
-        .last-contact,
-        .link-about {
-            width: 280px;
-        }
-
-        .link h3 {
-            font-size: 24px;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #ffc107;
-            padding-bottom: 8px;
-        }
-
-        .last a {
-            color: #fff;
-            text-decoration:underline ;
-            display: block;
-            margin: 8px 0;
-            transition: .3s;
-        }
-
-        .last a:hover {
-            color: #ffc107;
-            padding-left: 5px;
-        }
-
-        .last ul li {
-            margin: 8px 0;
-        }
-
-        .last-mission {
-            width: 90%;
-            margin-top: 25px;
-            text-align: center;
-        }
-
-        .last-mission h3 {
-            margin-bottom: 10px;
-        }
-
-        .last hr {
-            width: 100%;
-            margin: 10px auto 20px;
-            border: none;
-            border: 1px solid rgb(255, 255, 255, .4);
-        }
-
-        .copy {
-            width: 100%;
-            text-align: center;
-            font-size: 16px;
-            color: #eee;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-              
-@media  (max-width: 500px) {
-    .main{
-        padding: 10px;
-    }
-    nav{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-
-    nav div{
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-nav a, nav button{
-    padding: 6px 10px;
-    font-size: 13px;
-    margin: 0;
-}
-    .datetime{
-        margin: 20px auto;
-    }
-
-        .first{
-        width:95%;
-    }
-
-    .second{
-        width:95%;
-        margin-top:30px;
-    }
-
-    .route{
-        width:100%;
-        max-width:300px;
-    }
-
-    .last-main{
-        flex-direction:column;
-        align-items:center;
-        text-align:center;
-    }
-
-    .last-link,
-    .last-contact,
-    .last-about{
-        width:100%;
-        max-width:320px;
-    }
-}
- 
-    </style>
 </head>
 
 <body>
     <div class="main">
         <nav>
             <div>
-                <a href="#" id="home" class="active">Home</a>
-                <a href="#contactSection" id="contact"> Contact</a>
-                <a href="#aboutSection" id="about">About</a>
+                <a href="index.php" class="active">Home</a>
+                <a href="#contactSection">Contact</a>
+                <a href="#aboutSection">About</a>
             </div>
             <div>
-                <button type="button" id="login" onclick="location.href='login.php'">Login</button>
-                <button type="button" id="register" onclick="location.href='register.php'">Register</button>
+                <button type="button" onclick="location.href='login.php'">Login</button>
+                <button type="button" onclick="location.href='register.php'">Register</button>
             </div>
         </nav>
     </div>
-
-     <div class="datetime">
-        <p id="time"> </p>
-        <h4 id="today"> </h4>
-    </div> 
-
-    <div class="first">
-        <input type="text" id="form" list="formList" placeholder="From" required> <datalist id="formList"></datalist>
-        <input type="text" id="to" list="toList" placeholder="To" required>
-        <datalist id="toList"></datalist>
-        <input type="date" id="date" min="<?php echo date('Y-m-d'); ?>" 
-        max="<?php echo date('Y-m-d', strtotime('+7 days'));?>" required>
-        <button type="button" id="search">Search Bus</button>
+    <div class="datetime">
+        <p id="time"></p>
+        <h4 id="today"></h4>
     </div>
-    <div class="second" id="box">
-        <h1>Popular Route</h1>
-        <div class="route">
-            <img src="Bus Image/b1.jpg" alt="">
-            <h4><span>To:</span><span>From:</span></h4>
-            <p>Price: Rs.</p>
-            <button> Booking </button>
-        </div>
+    <form class="first" method="GET" action="index.php">
+        <select name="from" required>
+            <option value="">From</option>
+            <?php foreach ($routes as $route) { ?>
+                <option value="<?= htmlspecialchars($route['city_name']) ?>" <?= (($_GET['from'] ?? '') == $route['city_name']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars(ucfirst(strtolower($route['city_name']))) ?>
+                </option>
+            <?php } ?>
+        </select>
+        <select name="to" required>
+            <option value="">To</option>
+            <?php foreach ($routes as $route) { ?>
+                <option value="<?= htmlspecialchars($route['city_name']) ?>" <?= (($_GET['to'] ?? '') == $route['city_name']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars(ucfirst(strtolower($route['city_name']))) ?>
+                </option>
+            <?php } ?>
+        </select>
+        <input type="date" name="date" min="<?= $today ?>" max="<?= $max_date ?>" value="<?= htmlspecialchars($_GET['date'] ?? '') ?>" required>
+        <button type="submit" name="search">Search Bus</button>
+    </form>
+    <div class="second">
+        <?php if (isset($_GET['search'])) { ?>
+            <div class="second">
+                <h1>Search Result</h1>
+                <?php if (count($buses) == 0) { ?>
+                    <div class="no-result">
+                        No bus available for the selected route and date.
+                    </div>
+                <?php } ?>
+                <?php foreach ($buses as $bus) { ?>
+                    <div class="route">
+                        <img src="Bus Image" alt="Bus">
+                        <h4><?= htmlspecialchars($bus['bus_name']) ?></h4>
+                        <p>Bus Number: <?= htmlspecialchars($bus['bus_number']) ?></p>
+                        <p>Bus Type: <?= htmlspecialchars($bus['bus_type']) ?></p>
+                        <p>
+                            <?= htmlspecialchars(ucfirst(strtolower($bus['from_city']))) ?>
+                            &nbsp; To &nbsp;
+                            <?= htmlspecialchars(ucfirst(strtolower($bus['to_city']))) ?>
+                        </p>
+                        <p>Date: <?= htmlspecialchars($bus['departure_date']) ?></p>
+                        <p>
+                            Departure:
+                            <?= date('h:i A', strtotime($bus['departure_time'])) ?>
+                        </p>
+                        <p>Price: Rs. <?= htmlspecialchars($bus['ticket_price']) ?></p>
+                        <?php if ((int)$bus['available_seats'] > 0) { ?>
+                            <p class="available">
+                                Available Seats: <?= htmlspecialchars($bus['available_seats']) ?>
+                            </p>
+                            <form method="GET" action="index.php">
+                                <input type="hidden" name="book" value="1">
+                                <input type="hidden" name="schedule_id" value="<?= $bus['schedule_id'] ?>">
+                                <input type="hidden" name="bus_id" value="<?= $bus['bus_id'] ?>">
+                                <button type="submit">Book Now</button>
+                            </form>
+                        <?php } else { ?>
+                            <p class="no-seat">No Available Seats</p>
+                            <button type="button" disabled>Full</button>
+                        <?php } ?>
+                    </div>
+                <?php } ?>
+            </div>
+        <?php } ?>
     </div>
     <footer class="last">
         <div class="last-main">
             <div class="last-link">
                 <h3>Quick Link</h3>
-                <a href="#">Home</a>
-                <a href="#">Gallery</a>
+                <a href="index.php">Home</a>
                 <a href="policy.php">Policy</a>
                 <a href="login.php">Login</a>
                 <a href="register.php?role=passenger">Register Passenger</a>
@@ -359,9 +181,9 @@ nav a, nav button{
             </div>
             <div class="last-contact" id="contactSection">
                 <h3>Contact</h3>
-                <p>Email:<a href="#" id="mail">tikaramj519@gmail.com</a></p>
-                <p>Phone:<a href="#" id="call">+9779840792553</a></p>
-                <p>Whatsapp:<a href="#" id="what">+9779840792553</a></p>
+                <p>Email: <a href="mailto:tikaramj519@://gmail.com">tikaramj519@gmail.com</a></p>
+                <p>Phone:<a href="tel:+9779840792553">+9779840792553</a></p>
+                <p>Whatsapp:<a href="https://wa.me/9779840792553">+9779840792553</a></p>
             </div>
             <div class="last-about" id="aboutSection">
                 <h3>About</h3>
@@ -383,26 +205,25 @@ nav a, nav button{
             <p>&copy;2026 Online Bus Ticket Booking System | All rights reserved.</p>
         </div>
     </footer>
+    <script>
+        let menu = document.querySelectorAll("nav a");
+        menu.forEach(link => {
+            link.onclick = () => {
+                menu.forEach(item => item.classList.remove("active"));
+                link.classList.add("active");
+            };
+        });
+        let time = document.getElementById("time");
+        let today = document.getElementById("today");
+
+        function clock() {
+            let now = new Date();
+            time.innerHTML = now.toLocaleTimeString();
+            today.innerHTML = now.toDateString();
+        }
+        clock();
+        setInterval(clock, 1000);
+    </script>
 </body>
-<script>
-let menu = document.querySelectorAll("nav a");
 
-menu.forEach(link =>{
-    link.onclick =() => {
-        menu.forEach(item => item.classList.remove("active"));
-        link.classList.add("active");
-    };
-});
-
-let time = document.getElementById("time");
-let today = document.getElementById("today");
-
-function clock(){
-    let now = new Date();
-    time.innerHTML = now.toLocaleTimeString();
-    today.innerHTML = now.toDateString();
-}
-clock();
-setInterval(clock,1000);
-</script>
 </html>

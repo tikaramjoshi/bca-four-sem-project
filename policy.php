@@ -89,9 +89,7 @@
 <body>
     <div class="main">
         <nav>
-            <a href="index.php" id="home">
-                Home
-            </a>
+            <a href="index.php" id="home">Home</a>
         </nav>
     </div>
     <div class="last-policy">
@@ -108,7 +106,7 @@
         ?>
     </div>
     <footer class="last">
-   <p>&copy;2026 Online Bus Ticket Booking System | All rights reserved.</p>
+        <p>&copy;2026 Online Bus Ticket Booking System | All rights reserved.</p>
     </footer>
 </body>
 
