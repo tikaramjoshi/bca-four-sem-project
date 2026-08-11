@@ -95,28 +95,20 @@
         </nav>
     </div>
     <div class="last-policy">
-        <h2>Booking Policy</h2>
-<?php
-
-require_once "db.php";
-
-$stmt=$pdo->query("SELECT * FROM policy ORDER BY ID ASC");
-$i = 1;
-
-while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
-
-echo "<p>";
-echo $i++ . ". ";
-echo htmlspecialchars($row['policy_text']);
-
-echo "</p>";
-
-}
-
-?>
+        <?php
+        require_once "db.php";
+        $result = $conn->query("SELECT * FROM policy ORDER BY id ASC");
+        $i = 1;
+        while ($row = $result->fetch_assoc()) {
+            echo "<p>";
+            echo $i++ . ". ";
+            echo htmlspecialchars($row['policy_text']);
+            echo "</p>";
+        }
+        ?>
     </div>
     <footer class="last">
-        <p>&copy; Tikaram Joshi || All rights reserved.</p>
+   <p>&copy;2026 Online Bus Ticket Booking System | All rights reserved.</p>
     </footer>
 </body>
 

@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-require_once "db.php";
-require_once "mail_config.php";
-require "vendor/autoload.php";
+require_once "../db.php";
+require_once "../mail_config.php";
+require "../vendor/autoload.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -15,11 +15,14 @@ if ($_SERVER["REQUEST_METHOD"] != "POST") {
 
 $email = trim($_POST['email']);
 
-// Check email exists
-$stmt = $pdo->prepare("SELECT user_id,name,email FROM users WHERE email=?");
-$stmt->execute([$email]);
+$stmt = $conn->prepare("SELECT user_id, name, email FROM users WHERE email=?");
+$stmt->bind_param("s", $email);
+$stmt->execute();
 
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+$stmt->close();
 
 if (!$user) {
 
@@ -28,13 +31,11 @@ if (!$user) {
     exit();
 }
 
-// Generate OTP
-$otp = rand(100000,999999);
+$otp = rand(100000, 999999);
 
-// Save OTP in Session
 $_SESSION['reset_email'] = $email;
 $_SESSION['reset_otp'] = $otp;
-$_SESSION['otp_expire'] = time() + 300; // 5 Minutes
+$_SESSION['otp_expire'] = time() + 180;
 
 $mail = new PHPMailer(true);
 
@@ -65,7 +66,7 @@ try {
 
         <h1 style='letter-spacing:8px;color:red'>$otp</h1>
 
-        <p>This OTP is valid for <b>5 minutes</b>.</p>
+        <p>This OTP is valid for <b>3 minutes</b>.</p>
 
         <p>If you did not request a password reset, please ignore this email.</p>
 
@@ -81,10 +82,9 @@ try {
 
     header("Location: verify_otp.php");
     exit();
-
 } catch (Exception $e) {
 
-    $_SESSION['error'] = "Mail Error : ".$mail->ErrorInfo;
+    $_SESSION['error'] = "Mail Error : " . $mail->ErrorInfo;
 
     header("Location: forgot_password.php");
     exit();

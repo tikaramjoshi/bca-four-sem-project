@@ -1,5 +1,8 @@
 <?php
 session_start();
+
+unset($_SESSION['message']);
+unset($_SESSION['message_type']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,6 +18,7 @@ session_start();
             box-sizing: border-box;
             font-family: Arial, Helvetica, sans-serif;
         }
+
         body {
             background: #f4f7f6;
             display: flex;
@@ -22,6 +26,7 @@ session_start();
             align-items: center;
             height: 100vh;
         }
+
         .box {
             width: 400px;
             background: #fff;
@@ -29,11 +34,13 @@ session_start();
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0, 0, 0, .2);
         }
+
         h2 {
             text-align: center;
             color: #1560BD;
             margin-bottom: 20px;
         }
+
         input {
             width: 100%;
             padding: 12px;
@@ -42,6 +49,7 @@ session_start();
             border-radius: 5px;
             font-size: 16px;
         }
+
         button {
             width: 100%;
             margin-top: 20px;
@@ -53,20 +61,25 @@ session_start();
             border-radius: 5px;
             cursor: pointer;
         }
+
         button:hover {
             background: #0d4d9c;
         }
+
         .msg {
             margin-bottom: 15px;
             text-align: center;
             font-weight: bold;
         }
+
         .success {
             color: green;
         }
+
         .error {
             color: red;
         }
+
         a {
             display: block;
             margin-top: 20px;
@@ -76,6 +89,7 @@ session_start();
         }
     </style>
 </head>
+
 <body>
     <div class="box">
         <h2>Forgot Password</h2>
@@ -90,18 +104,11 @@ session_start();
         }
         ?>
         <form action="send_otp.php" method="POST">
-            <input
-                type="email"
-                name="email"
-                placeholder="Enter your registered email"
-                required>
-            <button type="submit">
-                Send OTP
-            </button>
+            <input type="email" name="email" placeholder="Enter your registered email" required>
+            <button type="submit"> Send OTP </button>
         </form>
-        <a href="login.php">
-            Back to Login
-        </a>
+        <a href="../login.php"> Back to Login </a>
     </div>
 </body>
+
 </html>

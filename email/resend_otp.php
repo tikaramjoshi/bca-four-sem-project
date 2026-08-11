@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-require_once "db.php";
-require_once "mail_config.php";
-require "vendor/autoload.php";
+require_once "../db.php";
+require_once "../mail_config.php";
+require "../vendor/autoload.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -14,23 +14,28 @@ if (!isset($_SESSION['reset_email'])) {
 
 $email = $_SESSION['reset_email'];
 
-$stmt = $pdo->prepare("SELECT name FROM users WHERE email=?");
-$stmt->execute([$email]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
+$stmt = $conn->prepare("SELECT name FROM users WHERE email=?");
+$stmt->bind_param("s", $email);
+$stmt->execute();
+
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+$stmt->close();
 
 if (!$user) {
     header("Location: forgot_password.php");
     exit();
 }
 
-$otp = rand(100000,999999);
+$otp = rand(100000, 999999);
 
 $_SESSION['reset_otp'] = $otp;
-$_SESSION['otp_expire'] = time() + 300;
+$_SESSION['otp_expire'] = time() + 180;
 
 $mail = new PHPMailer(true);
 
-try{
+try {
 
     $mail->isSMTP();
     $mail->Host = MAIL_HOST;
@@ -40,13 +45,13 @@ try{
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = MAIL_PORT;
 
-    $mail->setFrom(MAIL_USERNAME,"Online Bus Booking");
-    $mail->addAddress($email,$user['name']);
+    $mail->setFrom(MAIL_USERNAME, "Online Bus Booking");
+    $mail->addAddress($email, $user['name']);
 
     $mail->isHTML(true);
-    $mail->Subject="New OTP";
+    $mail->Subject = "New OTP";
 
-    $mail->Body="
+    $mail->Body = "
     <h2>Online Bus Booking</h2>
     <p>Your New OTP:</p>
     <h1>$otp</h1>
@@ -55,12 +60,10 @@ try{
 
     $mail->send();
 
-    $_SESSION['success']="New OTP Sent Successfully.";
+    $_SESSION['success'] = "New OTP Sent Successfully.";
+} catch (Exception $e) {
 
-}catch(Exception $e){
-
-    $_SESSION['error']="Failed to Send OTP.";
-
+    $_SESSION['error'] = "Failed to Send OTP.";
 }
 
 header("Location: verify_otp.php");

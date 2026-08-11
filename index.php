@@ -329,7 +329,7 @@ nav a, nav button{
     </div> 
 
     <div class="first">
-        <input type="text" id="form" list="formList" placeholder="Form" required> <datalist id="formList"></datalist>
+        <input type="text" id="form" list="formList" placeholder="From" required> <datalist id="formList"></datalist>
         <input type="text" id="to" list="toList" placeholder="To" required>
         <datalist id="toList"></datalist>
         <input type="date" id="date" min="<?php echo date('Y-m-d'); ?>" 
@@ -386,27 +386,6 @@ nav a, nav button{
 </body>
 <script>
 let menu = document.querySelectorAll("nav a");
-
-// let home = document.getElementById("home");
-// let contact = document.getElementById("contact");
-// let about = document.getElementById("about");
-
-// window.addEventListener("scroll", function(){
-//     let scroll = window.scrollY;
-//     menu.forEach(function(item){
-//         item.classList.remove("active");
-//     });
-//     if(scroll < 300){
-//         home.classList.add("active");
-//     }
-//     else if(scroll < 700){
-//         contact.classList.add("active");
-//     }
-//     else{
-//         about.classList.add("active");
-//     }
-// });
-
 
 menu.forEach(link =>{
     link.onclick =() => {

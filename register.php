@@ -39,13 +39,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $message = "BOSS Password does not match!";
         $message_type = "error";
     } else {
-        $emailCheck = $pdo->prepare("SELECT 1 FROM users WHERE email=?");
-        $emailCheck->execute([$email]);
-        $emailExists = $emailCheck->fetch();
+   
+$emailCheck = $conn->prepare("SELECT 1 FROM users WHERE email=?");
+$emailCheck->bind_param("s", $email);
+$emailCheck->execute();
+$emailResult = $emailCheck->get_result();
+$emailExists = $emailResult->fetch_assoc();
+$emailCheck->close();
 
-        $phoneCheck = $pdo->prepare("SELECT 1 FROM users WHERE phone=?");
-        $phoneCheck->execute([$phone]);
-        $phoneExists = $phoneCheck->fetch();
+ $phoneCheck = $conn->prepare("SELECT 1 FROM users WHERE phone=?");
+$phoneCheck->bind_param("s", $phone);
+$phoneCheck->execute();
+$phoneResult = $phoneCheck->get_result();
+$phoneExists = $phoneResult->fetch_assoc();
+$phoneCheck->close();     
 
         if ($emailExists && $phoneExists) {
 
@@ -64,22 +71,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             try {
 
-                $query = "INSERT INTO users(name,email,phone,password,role)VALUES(:name,:email,:phone,:password,:role)";
+$query = "INSERT INTO users(name,email,phone,password,role)
+VALUES(?,?,?,?,?)";
 
-                $stmt = $pdo->prepare($query);
+$stmt = $conn->prepare($query);
 
-                $stmt->execute([
-                    ":name" => $name,
-                    ":email" => $email,
-                    ":phone" => $phone,
-                    ":password" => $password,
-                    ":role" => $role
+$stmt->bind_param(
+    "sssss",
+    $name,
+    $email,
+    $phone,
+    $password,
+    $role
+);
 
-                ]);
+$stmt->execute();
+$stmt->close();
 
                 $message = ucfirst($role) . " Registration Successful!";
                 $message_type = "success";
-            } catch (PDOException $e) {
+            } catch (Exception $e) {
 
                 $message = "BOSS Something went wrong. Please try again.";
                 error_log($e->getMessage());
