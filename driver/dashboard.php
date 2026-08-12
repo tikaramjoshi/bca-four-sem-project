@@ -64,26 +64,27 @@ $notifications[] = ["title" => !empty($today_schedule) ? "Today's Trip" : "No Tr
         <div class="driver-profile" onclick="toggleProfileMenu()">
             <div class="driver-info"><strong><?= htmlspecialchars($driver['name']) ?></strong><span class="driver-status"><i></i><?= htmlspecialchars($driver_status) ?></span></div>
             <img src="../uploads/profile/<?= htmlspecialchars($profile_image) ?>" class="profile-image" alt="Driver Profile" onerror="this.onerror=null;this.src='../images/default.png';">
-            <span class="dropdown-arrow">▼</span>
             <div class="profile-menu" id="profileMenu">
                 <div class="menu-profile">
                     <img src="../uploads/profile/<?= htmlspecialchars($profile_image) ?>" alt="Profile" onerror="this.onerror=null;this.src='../images/default.png';">
                     <div><strong><?= htmlspecialchars($driver['name']) ?></strong><small>Driver</small><?php if (isset($driver['verification_status']) && $driver['verification_status'] === 'verified'): ?><span class="verified">✓ Verified</span><?php else: ?><span class="unverified">✗ Unverified</span><?php endif; ?></div>
                 </div>
                 <div class="menu-divider"></div>
-                <a href="profile.php">👤 <span>My Profile</span></a>
+                <a href="profile.php"> <span>My Profile</span></a>
                 <a href="driver_verification.php">✓ <span>Verification</span></a>
-                <a href="my_bus.php">🚌 <span>My Bus</span></a>
-                <a href="trips.php">📅 <span>My Trips</span></a>
-                <a href="notifications.php">🔔 <span>Notifications</span></a>
+                <a href="my_bus.php"> <span>My Bus</span></a>
+                <a href="trips.php"> <span>My Trips</span></a>
+                <a href="notifications.php"><span>Notifications</span></a>
+                <a href="../changepassword.php">Change Password</a>
+                <hr>
                 <div class="menu-divider"></div>
-                <a href="../logout.php" class="logout-link">🚪 <span>Logout</span></a>
+                <a href="../logout.php" class="logout-link"> <span>Logout</span></a>
             </div>
         </div>
     </header>
     <div class="container">
         <div class="welcome">
-            <h1>Welcome, <?= htmlspecialchars($driver['name']) ?> 👋</h1>
+            <h1>Welcome, <?= htmlspecialchars($driver['name']) ?> </h1>
             <p>Manage your assigned bus, trips and passenger information.</p>
             <div class="status-row"><span class="status-dot"></span><span class="status-text"><?= htmlspecialchars($driver_status) ?></span></div>
         </div>

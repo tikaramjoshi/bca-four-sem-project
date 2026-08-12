@@ -58,6 +58,8 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
                 <a href="profile.php"><i class="fa fa-user"></i> My Profile</a>
                 <a href="edit_profile.php"><i class="fa fa-edit"></i> Edit Profile</a>
                 <a href="policy.php"><i class="fa fa-file"></i> Manage Policy</a>
+                <a href="../changepassword.php">Change Password</a>
+                <hr>
                 <a href="../logout.php"><i class="fa fa-sign-out-alt"></i> Logout</a>
             </div>
         </div>
