@@ -1,4 +1,4 @@
-# Online Bus Ticket Booking System (Western Nepal)
+# Online Bus Ticket Booking System 
 
 An **Online Bus Ticket Booking System** developed using **PHP, MySQL, JavaScript, HTML, CSS, and Bootstrap**. This system allows passengers to search routes, book bus tickets online, and enables administrators to manage buses, routes, schedules, bookings, and users.
 
