@@ -91,10 +91,10 @@ VALUES(?,?,?,?,?)";
 <body>
     <div class="main">
         <nav>
-            <div> <a href="index.php">Home</a> </div>
+            <div> <a href="index.php"><i class="fa fa-home"></i>&nbsp; Home</a> </div>
             <div class="submit">
-                <button type="button" id="login" onclick="location.href='login.php'">Login</button>
-                <button type="button" id="register" class="active">Register</button>
+                <button type="button" id="login" onclick="location.href='login.php'"><i class="fa fa-sign-in"></i>&nbsp; Login</button>
+                <button type="button" id="register" class="active"><i class="fa fa-plus"></i>&nbsp; Register</button>
             </div>
         </nav>
     </div>
@@ -112,8 +112,8 @@ VALUES(?,?,?,?,?)";
                 <div class="lab-inp"><input type="text" name="name" placeholder="Enter your full name" required value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>"></div>
                 <div class="lab-inp"><input type="email" name="email" placeholder="Enter your email" required value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"> </div>
                 <div class="lab-inp"><input type="text" name="phone" placeholder="Enter your phone number" maxlength="10" id="phone" required value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>"></div>
-                <div class="lab-inp pass"><input type="password" name="password" id="pas" placeholder="Enter your password" required><span class="pass_view" onclick="passView('pas', this)"><i class="fa-solid fa-eye"></i></span></div>
-                <div class="lab-inp pass"><input type="password" name="confirm_password" id="c_pas" placeholder="Confirm password" required><span class="pass_view" onclick="passView('c_pas', this)"><i class="fa-solid fa-eye"></i></span> </div>
+                <div class="lab-inp pass"><input type="password" name="password" id="pas" placeholder="Enter your password" minlength="6" required><span class="pass_view" onclick="passView('pas', this)"><i class="fa-solid fa-eye"></i></span></div>
+                <div class="lab-inp pass"><input type="password" name="confirm_password" id="c_pas" placeholder="Confirm password" minlength="6" required><span class="pass_view" onclick="passView('c_pas', this)"><i class="fa-solid fa-eye"></i></span> </div>
                 <button type="submit" class="btn-register"> Register </button>
                 <a href="login.php">I already have an account?</a>
             </form>

@@ -1,32 +1,30 @@
-.schedule-page {
+.schedules-page {
     width: 100%
 }
 
-.schedule-header,
-.schedule-form-box,
-.schedule-table-box {
+.schedules-header,
+.schedules-form-box,
+.schedules-table-box {
     background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, .08)
-}
-
-.schedule-header {
-    padding: 22px 25px;
+    border-radius: 10px;
+    padding: 20px;
     margin-bottom: 20px
 }
 
-.schedule-header h2 {
+.schedules-header h2,
+.schedules-form-box h3,
+.table-title h3 {
     margin: 0;
     color: #1560BD
 }
 
-.schedule-header p {
-    margin: 6px 0 0;
+.schedules-header p {
+    margin: 6px 0;
     color: #777
 }
 
 .message {
-    padding: 13px 16px;
+    padding: 12px 15px;
     border-radius: 7px;
     margin-bottom: 20px;
     font-weight: bold
@@ -42,20 +40,11 @@
     color: #c62828
 }
 
-.schedule-form-box {
-    padding: 22px;
-    margin-bottom: 20px
-}
-
-.schedule-form-box h3 {
-    margin: 0 0 20px;
-    color: #1560BD
-}
-
-.schedule-form {
+.schedules-form {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px
+    gap: 15px;
+    margin-top: 20px
 }
 
 .form-group {
@@ -72,13 +61,11 @@
 
 .form-group input,
 .form-group select {
-    height: 42px;
-    padding: 0 12px;
+    height: 40px;
+    padding: 0 10px;
     border: 1px solid #ccc;
-    border-radius: 7px;
-    outline: none;
-    font-size: 14px;
-    background: #fff
+    border-radius: 6px;
+    outline: 0
 }
 
 .form-group input:focus,
@@ -93,14 +80,13 @@
 }
 
 .btn {
-    height: 42px;
-    padding: 0 17px;
+    height: 40px;
+    padding: 0 15px;
     border: 0;
-    border-radius: 7px;
+    border-radius: 6px;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 6px;
     font-weight: bold;
     cursor: pointer
@@ -116,107 +102,81 @@
     color: #555
 }
 
-.schedule-table-box {
+.schedules-table-box {
+    padding: 0;
     overflow: hidden
 }
 
 .table-title {
-    padding: 20px 22px;
+    padding: 18px 20px;
     border-bottom: 1px solid #eee
 }
 
-.table-title h3 {
-    margin: 0;
-    color: #1560BD
-}
-
 .table-wrapper {
-    width: 100%;
     overflow-x: auto
 }
 
-.schedule-table {
+.schedules-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1000px
+    min-width: 900px
 }
 
-.schedule-table th {
+.schedules-table th {
     background: #1560BD;
     color: #fff;
-    padding: 13px;
+    padding: 12px;
     text-align: left;
     font-size: 13px
 }
 
-.schedule-table td {
-    padding: 13px;
+.schedules-table td {
+    padding: 12px;
     border-bottom: 1px solid #eee;
-    color: #444;
     font-size: 14px
 }
 
-.schedule-table tr:hover {
+.schedules-table tr:hover {
     background: #f7faff
 }
 
-.status {
-    padding: 5px 10px;
-    border-radius: 15px;
+.status,
+.edit,
+.delete {
+    display: inline-flex;
+    padding: 5px 9px;
+    border-radius: 5px;
     font-size: 12px;
-    font-weight: bold
+    font-weight: bold;
+    text-decoration: none
 }
 
-.active {
-    background: #dff6e5;
-    color: #16803c
-}
-
-.cancelled {
+.cancelled,
+.delete {
     background: #ffe1e1;
     color: #d62828
 }
 
-.completed {
-    background: #e4edff;
-    color: #1560BD
-}
-
-.edit,
-.delete {
-    display: inline-flex;
-    padding: 6px 10px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: bold;
-    margin-right: 5px
-}
-
+.completed,
 .edit {
     background: #e4edff;
     color: #1560BD
 }
 
-.delete {
-    background: #ffe1e1;
-    color: #d62828
-}
-
 .empty {
     text-align: center;
     color: #999;
-    padding: 40px !important
+    padding: 35px !important
 }
 
 @media(max-width:1000px) {
-    .schedule-form {
+    .schedules-form {
         grid-template-columns: repeat(2, 1fr)
     }
 }
 
 @media(max-width:600px) {
-    .schedule-form {
+    .schedules-form {
         grid-template-columns: 1fr
     }
 }

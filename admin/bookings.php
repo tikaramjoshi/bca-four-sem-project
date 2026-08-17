@@ -54,6 +54,7 @@ $bookings = $stmt->get_result();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Manage Bookings</title>
+    <link rel="stylesheet" href="side.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -188,53 +189,56 @@ $bookings = $stmt->get_result();
 </head>
 
 <body>
-    <main class="wrap">
-        <div class="top">
-            <div>
-                <h1>Booking Management</h1>
-                <p>Manage passenger bookings.</p>
-            </div><a class="button" href="dashboard.php">Dashboard</a>
-        </div>
-        <section class="card">
-            <?php if ($message): ?><p class="message"><?= htmlspecialchars($message) ?></p><?php endif; ?>
-            <form class="search" method="get"><input name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search passenger, bus, route or booking ID"><button class="button">Search</button></form>
-            <?php if ($bookings->num_rows): ?><div class="table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Passenger</th>
-                                <th>Bus</th>
-                                <th>Route</th>
-                                <th>Travel Date</th>
-                                <th>Seat</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($booking = $bookings->fetch_assoc()): ?><tr>
-                                    <td>#<?= (int)$booking['booking_id'] ?></td>
-                                    <td><strong><?= htmlspecialchars($booking['name'] ?? 'Unknown') ?></strong><br><small><?= htmlspecialchars($booking['email'] ?? '') ?></small></td>
-                                    <td><?= htmlspecialchars($booking['bus_number'] . ' - ' . $booking['bus_name']) ?></td>
-                                    <td><?= htmlspecialchars($booking['route']) ?></td>
-                                    <td><?= htmlspecialchars(date('d M Y', strtotime($booking['travel_date']))) ?></td>
-                                    <td><?= htmlspecialchars($booking['seat_number']) ?></td>
-                                    <td>Rs. <?= htmlspecialchars(number_format((float)$booking['amount'], 2)) ?></td>
-                                    <td><span class="status <?= htmlspecialchars($booking['status']) ?>"><?= htmlspecialchars(ucfirst($booking['status'])) ?></span></td>
-                                    <td>
-                                        <div class="actions">
-                                            <form method="post"><input type="hidden" name="booking_id" value="<?= (int)$booking['booking_id'] ?>"><input type="hidden" name="action" value="status"><select name="status"><?php foreach ($statusOptions as $option): ?><option value="<?= htmlspecialchars($option) ?>" <?= $booking['status'] === $option ? ' selected' : '' ?>><?= htmlspecialchars(ucfirst($option)) ?></option><?php endforeach; ?></select><button class="button">Save</button></form>
-                                            <form method="post" onsubmit="return confirm('Delete this booking?')"><input type="hidden" name="booking_id" value="<?= (int)$booking['booking_id'] ?>"><input type="hidden" name="action" value="delete"><button class="button delete">Delete</button></form>
-                                        </div>
-                                    </td>
-                                </tr><?php endwhile; ?>
-                        </tbody>
-                    </table>
-                </div><?php else: ?><p class="empty">No bookings found.</p><?php endif; ?>
-        </section>
-    </main>
+    <?php include "admin_header.php"; ?>
+    <div class="content">
+        <main class="wrap">
+            <div class="top">
+                <div>
+                    <h1>Booking Management</h1>
+                    <p>Manage passenger bookings.</p>
+                </div><a class="button" href="dashboard.php">Home</a>
+            </div>
+            <section class="card">
+                <?php if ($message): ?><p class="message"><?= htmlspecialchars($message) ?></p><?php endif; ?>
+                <form class="search" method="get"><input name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search passenger, bus, route or booking ID"><button class="button">Search</button></form>
+                <?php if ($bookings->num_rows): ?><div class="table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Passenger</th>
+                                    <th>Bus</th>
+                                    <th>Route</th>
+                                    <th>Travel Date</th>
+                                    <th>Seat</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($booking = $bookings->fetch_assoc()): ?><tr>
+                                        <td>#<?= (int)$booking['booking_id'] ?></td>
+                                        <td><strong><?= htmlspecialchars($booking['name'] ?? 'Unknown') ?></strong><br><small><?= htmlspecialchars($booking['email'] ?? '') ?></small></td>
+                                        <td><?= htmlspecialchars($booking['bus_number'] . ' - ' . $booking['bus_name']) ?></td>
+                                        <td><?= htmlspecialchars($booking['route']) ?></td>
+                                        <td><?= htmlspecialchars(date('d M Y', strtotime($booking['travel_date']))) ?></td>
+                                        <td><?= htmlspecialchars($booking['seat_number']) ?></td>
+                                        <td>Rs. <?= htmlspecialchars(number_format((float)$booking['amount'], 2)) ?></td>
+                                        <td><span class="status <?= htmlspecialchars($booking['status']) ?>"><?= htmlspecialchars(ucfirst($booking['status'])) ?></span></td>
+                                        <td>
+                                            <div class="actions">
+                                                <form method="post"><input type="hidden" name="booking_id" value="<?= (int)$booking['booking_id'] ?>"><input type="hidden" name="action" value="status"><select name="status"><?php foreach ($statusOptions as $option): ?><option value="<?= htmlspecialchars($option) ?>" <?= $booking['status'] === $option ? ' selected' : '' ?>><?= htmlspecialchars(ucfirst($option)) ?></option><?php endforeach; ?></select><button class="button">Save</button></form>
+                                                <form method="post" onsubmit="return confirm('Delete this booking?')"><input type="hidden" name="booking_id" value="<?= (int)$booking['booking_id'] ?>"><input type="hidden" name="action" value="delete"><button class="button delete">Delete</button></form>
+                                            </div>
+                                        </td>
+                                    </tr><?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div><?php else: ?><p class="empty">No bookings found.</p><?php endif; ?>
+            </section>
+        </main>
+    </div>
 </body>
 
 </html>

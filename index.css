@@ -6,10 +6,12 @@
 
 body {
     font-family: Arial, sans-serif;
-    background: #f4f7f6;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    background-image: url(IMG/b10.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+      background-position: center top;
+    background-attachment: fixed;
 }
 
 .main {
@@ -29,7 +31,7 @@ nav {
 nav a {
     text-decoration: none;
     color: #000;
-    background: rgb(165, 154, 239);
+    background: rgb(226, 223, 246);
     padding: 8px 15px;
     font-weight: bold;
     border-radius: 4px;
@@ -62,34 +64,34 @@ nav a.active {
 .datetime {
     width: 130px;
     height: 130px;
-    margin: 20px 0 0 40px;
+    margin: 25px 0 0 40px;
     color: #1560bd;
-    background: #fff;
+    background:rgba(255, 255, 255, 0.45);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    border: 5px solid #1560bd;
+    border: 5px solid #1561bdfc;
     text-align: center;
 }
 
 .datetime h4 {
-    font-size: 13px;
+    font-size: 12px;
     margin-top: 7px;
 }
 
 .datetime p {
     margin: 0;
-    font-size: 22px;
+    font-size: 20px;
 }
 
 .first {
-    background: #d0c5c5bd;
+    background: #ece7e7bd;
     width: 350px;
     padding: 25px;
     border-radius: 10px;
-    margin: -10px auto 0;
+    margin: -10px auto 100px;
 }
 
 .first input,
@@ -114,7 +116,10 @@ nav a.active {
     margin: 0;
 }
 
-.second {
+.second>.space{
+    margin-top: 250px;
+}
+.second-search {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -122,8 +127,9 @@ nav a.active {
     margin: 60px auto 50px;
     width: 95%;
     background: #ebebe6;
-    padding: 20px;
+    padding: 10px;
     border-radius: 10px;
+
 }
 
 .second h1 {

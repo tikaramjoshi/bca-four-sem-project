@@ -1,0 +1,181 @@
+CREATE DATABASE IF NOT EXISTS project_bus;
+USE project_bus;
+
+DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS seats;
+DROP TABLE IF EXISTS schedules;
+DROP TABLE IF EXISTS bus_driver;
+DROP TABLE IF EXISTS driver_verification;
+DROP TABLE IF EXISTS passenger_verification;
+DROP TABLE IF EXISTS owner_verification;
+DROP TABLE IF EXISTS popular_routes;
+DROP TABLE IF EXISTS routes;
+DROP TABLE IF EXISTS policy;
+DROP TABLE IF EXISTS bus;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin','owner','driver','passenger') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE policy (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    policy_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE bus (
+    bus_id INT AUTO_INCREMENT PRIMARY KEY,
+    owner_id INT NOT NULL,
+    bus_number VARCHAR(30) UNIQUE NOT NULL,
+    bus_name VARCHAR(100) NOT NULL,
+    bus_type VARCHAR(50) NOT NULL,
+    seats INT NOT NULL,
+    facilities TEXT,
+    bus_image VARCHAR(255),
+    status ENUM('pending','approved','rejected') DEFAULT 'pending',
+    reject_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (owner_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE routes (
+    route_id INT AUTO_INCREMENT PRIMARY KEY,
+    city_name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE popular_routes (
+    popular_id INT AUTO_INCREMENT PRIMARY KEY,
+    bus_id INT NULL,
+    from_city VARCHAR(100) NOT NULL,
+    to_city VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    image VARCHAR(255) DEFAULT 'Bus Image/b1.jpg',
+    status ENUM('active','inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_popular_routes_bus FOREIGN KEY (bus_id) REFERENCES bus(bus_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE owner_verification (
+    verification_id INT AUTO_INCREMENT PRIMARY KEY,
+    owner_id INT NOT NULL,
+    company_name VARCHAR(150) NOT NULL,
+    company_registration_no VARCHAR(100) NOT NULL,
+    owner_photo VARCHAR(255),
+    company_certificate VARCHAR(255),
+    status ENUM('pending','verified','rejected') DEFAULT 'pending',
+    reject_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (owner_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE passenger_verification (
+    verification_id INT AUTO_INCREMENT PRIMARY KEY,
+    passenger_id INT NOT NULL,
+    photo VARCHAR(255) NOT NULL,
+    document VARCHAR(255) NOT NULL,
+    status ENUM('pending','verified','rejected') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (passenger_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE driver_verification (
+    verification_id INT AUTO_INCREMENT PRIMARY KEY,
+    driver_id INT NOT NULL,
+    license_number VARCHAR(100) NOT NULL,
+    license_issue_date DATE NOT NULL,
+    license_expiry_date DATE NOT NULL,
+    profile_photo VARCHAR(255),
+    license_photo_front VARCHAR(255) NOT NULL,
+    license_photo_back VARCHAR(255),
+    status ENUM('pending','verified','rejected') DEFAULT 'pending',
+    reject_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (driver_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE bus_driver (
+    bus_driver_id INT AUTO_INCREMENT PRIMARY KEY,
+    bus_id INT NOT NULL,
+    driver_id INT NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (bus_id)
+        REFERENCES bus(bus_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (driver_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE schedules (
+    schedule_id INT AUTO_INCREMENT PRIMARY KEY,
+    bus_id INT NOT NULL,
+    from_city VARCHAR(100) NOT NULL,
+    to_city VARCHAR(100) NOT NULL,
+    departure_date DATE NOT NULL,
+    departure_time TIME NOT NULL,
+    ticket_price DECIMAL(10,2) NOT NULL,
+    available_seats INT NOT NULL,
+    status ENUM('active','inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (bus_id)
+        REFERENCES bus(bus_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE seats (
+    seat_id INT AUTO_INCREMENT PRIMARY KEY,
+    seat_no VARCHAR(10) NOT NULL,
+    bus_id INT NOT NULL,
+    seat_type VARCHAR(30) NOT NULL,
+    FOREIGN KEY (bus_id)
+        REFERENCES bus(bus_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE bookings (
+    booking_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    schedule_id INT NOT NULL,
+    bus_name VARCHAR(100) NOT NULL,
+    bus_number VARCHAR(50) NOT NULL,
+    route VARCHAR(150) NOT NULL,
+    travel_date DATE NOT NULL,
+    seat_number VARCHAR(20) NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    status ENUM('pending','confirmed','cancelled') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (schedule_id)
+        REFERENCES schedules(schedule_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);

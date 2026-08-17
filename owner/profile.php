@@ -47,9 +47,15 @@ $verification_status = $owner['verification_status'] ?? 'unverified';
         </div>
         <div class="profile-container">
             <div class="profile-card">
-                <img src="../uploads/profile/<?= htmlspecialchars($profile_image) ?>" class="profile-image" alt="Profile">
+
+                <?php if (!empty($profile_image)): ?>
+                    <img src="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($verification['owner_photo']) ?>" alt="Owner Photo" class="profile-image">
+                <?php else: ?>
+                    <img src="../uploads/default.png" class="profile-image" alt="Profile">
+                <?php endif; ?>
+
                 <h2><?= htmlspecialchars($owner['name']) ?></h2>
-                <span class="role"><i class="fa fa-user-tie"></i> Owner</span>
+                <span class="role"><i class="fa fa-user"></i> Owner</span>
                 <a href="edit_profile.php" class="edit-btn"><i class="fa fa-edit"></i> Edit Profile</a>
             </div>
             <div>
@@ -124,9 +130,11 @@ $verification_status = $owner['verification_status'] ?? 'unverified';
                             <div class="document">
                                 <h4>Owner Photo</h4>
                                 <?php if (!empty($verification['owner_photo'])): ?>
-                                    <img src="../uploads/<?= htmlspecialchars($verification['owner_photo']) ?>" alt="Owner Photo">
+                                    <img src="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($verification['owner_photo']) ?>" alt="Owner Photo">
                                     <br>
-                                    <a href="../uploads/<?= htmlspecialchars($verification['owner_photo']) ?>" target="_blank" class="view-btn"><i class="fa fa-eye"></i> View Photo</a>
+                                    <a href="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($verification['owner_photo']) ?>" target="_blank" class="view-btn">
+                                        <i class="fa fa-eye"></i> View Photo
+                                    </a>
                                 <?php else: ?>
                                     <p>No photo uploaded</p>
                                 <?php endif; ?>
@@ -136,14 +144,19 @@ $verification_status = $owner['verification_status'] ?? 'unverified';
                                 <?php if (!empty($verification['company_certificate'])): ?>
                                     <?php
                                     $certificate_ext = strtolower(pathinfo($verification['company_certificate'], PATHINFO_EXTENSION));
-                                    if (in_array($certificate_ext, ['jpg', 'jpeg', 'png', 'webp'])):
+                                    $certificate_path = "../uploads/profile/" . $owner_id . "/profile/" . htmlspecialchars($verification['company_certificate']);
                                     ?>
-                                        <img src="../uploads/<?= htmlspecialchars($verification['company_certificate']) ?>" alt="Certificate">
+                                    <?php if (in_array($certificate_ext, ['jpg', 'jpeg', 'png', 'webp'])): ?>
+                                        <img src="<?= $certificate_path ?>" alt="Certificate">
                                     <?php else: ?>
-                                        <div style="font-size:55px;color:#d62828;margin:35px 0"><i class="fa fa-file-pdf"></i></div>
+                                        <div style="font-size:55px;color:#d62828;margin:35px 0">
+                                            <i class="fa fa-file-pdf"></i>
+                                        </div>
                                     <?php endif; ?>
                                     <br>
-                                    <a href="../uploads/<?= htmlspecialchars($verification['company_certificate']) ?>" target="_blank" class="view-btn"><i class="fa fa-eye"></i> View Certificate</a>
+                                    <a href="<?= $certificate_path ?>" target="_blank" class="view-btn">
+                                        <i class="fa fa-eye"></i> View Certificate
+                                    </a>
                                 <?php else: ?>
                                     <p>No certificate uploaded</p>
                                 <?php endif; ?>
@@ -161,7 +174,7 @@ $verification_status = $owner['verification_status'] ?? 'unverified';
         </div>
     </div>
     <footer class="footer">
-        <p>&copy;2026 Online Bus Ticket Booking System | All rights reserved.</p>
+        <p>&copy;2026 Online Bus Ticket Booking System || All rights reserved.</p>
     </footer>
 </body>
 

@@ -15,13 +15,13 @@ if (!$conn instanceof mysqli) {
 $userId = (int)$_SESSION['user_id'];
 
 if (isset($_POST['confirm_booking'])) {
-
     if (empty($_SESSION['pending_booking'])) {
         header('Location: dashboard.php');
         exit;
     }
 
     $booking = $_SESSION['pending_booking'];
+
     $scheduleId = (int)$booking['schedule_id'];
     $busId = (int)$booking['bus_id'];
     $seats = $booking['seats'];
@@ -29,31 +29,42 @@ if (isset($_POST['confirm_booking'])) {
     $busNumber = $booking['bus_number'];
     $route = $booking['route'];
     $travelDate = $booking['travel_date'];
-    $amount = $booking['amount'];
+    $amount = (float)$booking['amount'];
 
     $stmt = $conn->prepare("
         SELECT verification_status
         FROM users
-        WHERE user_id = ?
-        AND role = 'passenger'
+        WHERE user_id=? AND role='passenger'
         LIMIT 1
     ");
     $stmt->bind_param('i', $userId);
     $stmt->execute();
     $user = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
 
-    $status = strtolower($user['verification_status'] ?? 'pending');
+    if (!$user || strtolower($user['verification_status'] ?? '') !== 'verified') {
+        $_SESSION['booking_error'] = 'Your account is not verified. You cannot book a seat.';
+        header("Location: booking.php?schedule_id=$scheduleId&bus_id=$busId");
+        exit;
+    }
 
-    if ($status !== 'verified') {
+    $stmt = $conn->prepare("
+        SELECT schedule_id, bus_id, from_city, to_city,
+               departure_date, departure_time,
+               ticket_price, available_seats, status
+        FROM schedules
+        WHERE schedule_id=?
+        AND bus_id=?
+        AND status='active'
+        LIMIT 1
+    ");
+    $stmt->bind_param('ii', $scheduleId, $busId);
+    $stmt->execute();
+    $schedule = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
 
-        if ($status === 'rejected') {
-            $_SESSION['booking_error'] = 'Your account status is REJECTED. You cannot book a seat.';
-        } elseif ($status === 'pending') {
-            $_SESSION['booking_error'] = 'Your account status is PENDING. Please wait for admin verification before booking.';
-        } else {
-            $_SESSION['booking_error'] = 'Your account is not verified. You cannot book a seat.';
-        }
-
+    if (!$schedule) {
+        $_SESSION['booking_error'] = 'This schedule is no longer available.';
         header("Location: booking.php?schedule_id=$scheduleId&bus_id=$busId");
         exit;
     }
@@ -62,59 +73,54 @@ if (isset($_POST['confirm_booking'])) {
 
     try {
         $checkStmt = $conn->prepare("
-            SELECT booking_id
-            FROM bookings
-            WHERE bus_number = ?
-            AND route = ?
-            AND travel_date = ?
-            AND seat_number = ?
-            AND (status IS NULL OR status != 'cancelled')
-            LIMIT 1
-            FOR UPDATE
-        ");
+        SELECT booking_id
+        FROM bookings
+        WHERE schedule_id=?
+        AND seat_number=?
+        AND (status IS NULL OR status!='cancelled')
+        LIMIT 1
+        FOR UPDATE
+    ");
 
         $insertStmt = $conn->prepare("
-            INSERT INTO bookings
-            (
-                user_id,
-                bus_name,
-                bus_number,
-                route,
-                travel_date,
-                seat_number,
-                amount,
-                status
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')
-        ");
+        INSERT INTO bookings
+        (
+            user_id,
+            schedule_id,
+            bus_name,
+            bus_number,
+            route,
+            travel_date,
+            seat_number,
+            amount,
+            status
+        )
+        VALUES (?,?,?,?,?,?,?,?,?)
+    ");
+
+        $bookingStatus = 'pending';
 
         foreach ($seats as $seat) {
+            $seat = (string)$seat;
 
-            $checkStmt->bind_param(
-                'ssss',
-                $busNumber,
-                $route,
-                $travelDate,
-                $seat
-            );
-
+            $checkStmt->bind_param('is', $scheduleId, $seat);
             $checkStmt->execute();
 
             if ($checkStmt->get_result()->num_rows > 0) {
-                throw new Exception(
-                    "Seat $seat has already been booked. Please select another seat."
-                );
+                throw new Exception("Seat $seat has already been booked. Please select another seat.");
             }
 
             $insertStmt->bind_param(
-                'isssssd',
+                'iisssssds',
                 $userId,
+                $scheduleId,
                 $busName,
                 $busNumber,
                 $route,
                 $travelDate,
                 $seat,
-                $amount
+                $amount,
+                $bookingStatus
             );
 
             if (!$insertStmt->execute()) {
@@ -122,13 +128,42 @@ if (isset($_POST['confirm_booking'])) {
             }
         }
 
+        $checkStmt->close();
+        $insertStmt->close();
+
+        $updateStmt = $conn->prepare("
+        UPDATE schedules s
+        INNER JOIN bus b ON s.bus_id = b.bus_id
+        SET s.available_seats = GREATEST(
+            0,
+            b.seats - (
+                SELECT COUNT(*)
+                FROM bookings bk
+                WHERE bk.schedule_id = s.schedule_id
+                AND bk.status IN ('pending','confirmed','paid')
+            )
+        )
+        WHERE s.schedule_id = ?
+    ");
+
+        $updateStmt->bind_param('i', $scheduleId);
+
+        if (!$updateStmt->execute()) {
+            throw new Exception('Unable to update available seats.');
+        }
+
+        $updateStmt->close();
+
         $conn->commit();
 
         unset($_SESSION['pending_booking']);
 
         $_SESSION['booking_success'] = [
+            'booking_id' => $scheduleId,
             'bus_name' => $busName,
+            'bus_number' => $busNumber,
             'route' => $route,
+            'travel_date' => $travelDate,
             'seats' => implode(', ', $seats),
             'total' => $amount * count($seats)
         ];
@@ -136,7 +171,6 @@ if (isset($_POST['confirm_booking'])) {
         header('Location: booking_success.php');
         exit;
     } catch (Throwable $error) {
-
         $conn->rollback();
 
         $_SESSION['booking_error'] = $error->getMessage();
@@ -164,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['confirm_booking'])) 
 
     $seats = array_values(array_unique(array_filter(
         $seats,
-        fn($seat) => preg_match('/^[1-9][0-9]*$/', $seat)
+        fn($seat) => preg_match('/^[1-9][0-9]*$/', (string)$seat)
     )));
 
     if (!$scheduleId || !$busId || !$seats || count($seats) > 4) {
@@ -172,12 +206,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['confirm_booking'])) 
     }
 
     $stmt = $conn->prepare("
-        SELECT s.*, b.*
-        FROM schedule s
-        JOIN bus b ON s.bus_id = b.bus_id
-        WHERE s.schedule_id = ?
-        AND s.bus_id = ?
-        AND s.status = 'active'
+        SELECT
+            s.schedule_id,
+            s.bus_id,
+            s.from_city,
+            s.to_city,
+            s.departure_date,
+            s.departure_time,
+            s.ticket_price,
+            s.available_seats,
+            s.status,
+            b.bus_name,
+            b.bus_number,
+            b.bus_type,
+            b.seats
+        FROM schedules s
+        INNER JOIN bus b ON s.bus_id=b.bus_id
+        WHERE s.schedule_id=?
+        AND s.bus_id=?
+        AND s.status='active'
+        AND b.status='approved'
         LIMIT 1
     ");
 
@@ -185,22 +233,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['confirm_booking'])) 
     $stmt->execute();
 
     $trip = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
 
     if (!$trip) {
-        exit('Schedule not found.');
+        exit('Schedule not found or bus is not available.');
     }
 
-    $from = $trip['from_city'] ?? $trip['departure_city'] ?? $trip['source'] ?? '';
-    $to = $trip['to_city'] ?? $trip['arrival_city'] ?? $trip['destination'] ?? '';
+    if ((int)$trip['available_seats'] < count($seats)) {
+        exit('Not enough available seats.');
+    }
 
-    $route = trim($from . ' to ' . $to);
+    $from = trim($trip['from_city']);
+    $to = trim($trip['to_city']);
+    $route = $from . ' to ' . $to;
 
-    $travelDate = $trip['departure_date'] ?? $trip['travel_date'] ?? '';
-    $busName = $trip['bus_name'] ?? $trip['name'] ?? '';
-    $busNumber = $trip['bus_number'] ?? '';
-    $amount = $trip['ticket_price'] ?? $trip['price'] ?? $trip['fare'] ?? 0;
+    $travelDate = $trip['departure_date'];
+    $busName = $trip['bus_name'];
+    $busNumber = $trip['bus_number'];
+    $amount = (float)$trip['ticket_price'];
 
-    if (!$route || !$travelDate || !$busNumber) {
+    if (!$scheduleId || !$busId || !$busNumber || !$travelDate) {
         exit('Schedule details are incomplete.');
     }
 
@@ -227,9 +279,10 @@ $scheduleId = (int)$booking['schedule_id'];
 $busId = (int)$booking['bus_id'];
 $seats = $booking['seats'];
 $busName = $booking['bus_name'];
+$busNumber = $booking['bus_number'];
 $route = $booking['route'];
 $travelDate = $booking['travel_date'];
-$amount = $booking['amount'];
+$amount = (float)$booking['amount'];
 ?>
 
 <!DOCTYPE html>
@@ -240,8 +293,13 @@ $amount = $booking['amount'];
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Confirm Booking</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
             min-height: 100vh;
             display: grid;
             place-items: center;
@@ -251,7 +309,7 @@ $amount = $booking['amount'];
         }
 
         .box {
-            width: 400px;
+            width: 420px;
             max-width: calc(100% - 30px);
             background: #fff;
             padding: 30px;
@@ -261,12 +319,34 @@ $amount = $booking['amount'];
         }
 
         h2 {
-            margin: 0 0 20px;
+            margin-bottom: 22px;
+            color: #1560bd;
         }
 
-        p {
+        .info {
+            text-align: left;
+            background: #f7f9fc;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .info p {
+            margin: 9px 0;
             color: #475569;
-            margin: 10px 0;
+        }
+
+        .info strong {
+            color: #263238;
+        }
+
+        .total {
+            margin-top: 15px;
+            padding: 13px;
+            background: #e8f5e9;
+            color: #198754;
+            border-radius: 7px;
+            font-size: 18px;
+            font-weight: bold;
         }
 
         .buttons {
@@ -288,12 +368,20 @@ $amount = $booking['amount'];
 
         .confirm {
             background: #0f766e;
-            color: white;
+            color: #fff;
+        }
+
+        .confirm:hover {
+            background: #0b5f59;
         }
 
         .cancel {
             background: #64748b;
-            color: white;
+            color: #fff;
+        }
+
+        .cancel:hover {
+            background: #475569;
         }
 
         .message {
@@ -320,11 +408,18 @@ $amount = $booking['amount'];
 
         <h2>Confirm Booking</h2>
 
-        <p>Bus: <?= htmlspecialchars($busName) ?></p>
-        <p>Route: <?= htmlspecialchars($route) ?></p>
-        <p>Date: <?= htmlspecialchars($travelDate) ?></p>
-        <p>Seats: <?= htmlspecialchars(implode(', ', $seats)) ?></p>
-        <p>Total: NPR. <?= htmlspecialchars((string)($amount * count($seats))) ?></p>
+        <div class="info">
+            <p><strong>Bus:</strong> <?= htmlspecialchars($busName) ?></p>
+            <p><strong>Bus Number:</strong> <?= htmlspecialchars($busNumber) ?></p>
+            <p><strong>Route:</strong> <?= htmlspecialchars($route) ?></p>
+            <p><strong>Date:</strong> <?= htmlspecialchars($travelDate) ?></p>
+            <p><strong>Seats:</strong> <?= htmlspecialchars(implode(', ', $seats)) ?></p>
+            <p><strong>Price:</strong> NPR <?= number_format($amount, 2) ?> per seat</p>
+        </div>
+
+        <div class="total">
+            Total: NPR <?= number_format($amount * count($seats), 2) ?>
+        </div>
 
         <div class="buttons">
 

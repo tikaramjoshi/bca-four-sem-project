@@ -69,7 +69,7 @@ a:hover {
     position: absolute;
     top: 58px;
     right: 0;
-    width: 180px;
+    width: 200px;
     background: #fff;
     border-radius: 12px;
     overflow: hidden;
@@ -372,7 +372,7 @@ a:hover {
 
 .last h3 {
     margin-bottom: 15px;
-    color: #FFD54F;
+    color: #fff;
     font-size: 22px;
 }
 
@@ -397,13 +397,12 @@ a:hover {
 }
 
 .last a:hover {
-    color: #FFD54F;
+    color: #f35428;
     padding-left: 6px;
 }
 
 .last p {
-    margin: 8px 0;
-    line-height: 1.7;
+    margin: 3px 0;
 }
 
 .copy {

@@ -292,21 +292,7 @@ tr:hover td {
     font-size: 14px;
 }
 
-@media(max-width:900px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .assign-btn {
-        width: 100%;
-    }
-
-    .stats {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media(max-width:600px) {
+@media(max-width:500px) {
     .page {
         width: 94%;
         margin: 20px auto;

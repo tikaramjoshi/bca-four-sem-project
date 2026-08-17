@@ -74,9 +74,10 @@ if (isset($_POST['update'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking Policy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Arial, sans-serif;
             background: #f4f7f6;
             margin: 0;
             padding-top: 80px;
@@ -212,7 +213,7 @@ if (isset($_POST['update'])) {
 
 <body>
     <div class="nav-links navbar">
-        <a href="dashboard.php" class="active">Home</a>
+        <a href="dashboard.php" class="active"> <i class="fa fa-home"></i>&nbsp;Home</a>
     </div>
 
     <h2>Manage Booking Policy</h2>
@@ -225,7 +226,7 @@ if (isset($_POST['update'])) {
             <button type="submit" name="update"> Update Policy </button>
             <a href="policy.php"> Cancel </a>
         <?php } else { ?>
-            <button type="submit" name="save"> Add Policy </button>
+            <button type="submit" name="save"> <i class="fa fa-plus"></i>&nbsp; Add Policy </button>
         <?php } ?>
     </form>
     <table>

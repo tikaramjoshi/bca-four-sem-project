@@ -1,82 +1,127 @@
 <?php
+session_start();
 require_once __DIR__ . '/../db.php';
-$scheduleTable = 'schedule';
-$busTable = 'bus';
-$bookingTable = 'bookings';
-$scheduleIdColumn = 'schedule_id';
-$busIdColumn = 'bus_id';
-$seatColumn = 'seat_number';
-$bookingStatusColumn = 'status';
-$activeBookingStatuses = "'pending','confirmed','paid'";
-if (!isset($conn)) {
-    $conn = isset($connection) ? $connection : (isset($mysqli) ? $mysqli : null);
-}
-if (!$conn instanceof mysqli) {
-    exit('Database connection is not available.');
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'passenger') {
+    header("Location: ../login.php");
+    exit;
 }
 $scheduleId = filter_input(INPUT_GET, 'schedule_id', FILTER_VALIDATE_INT);
 $busId = filter_input(INPUT_GET, 'bus_id', FILTER_VALIDATE_INT);
 if (!$scheduleId || !$busId) {
     exit('Invalid schedule or bus.');
 }
-$scheduleSql = "SELECT s.*, b.* FROM `$scheduleTable` s JOIN `$busTable` b ON s.`$busIdColumn` = b.`$busIdColumn` WHERE s.`$scheduleIdColumn` = ? AND s.`$busIdColumn` = ? LIMIT 1";
-$scheduleStmt = $conn->prepare($scheduleSql);
-$scheduleStmt->bind_param('ii', $scheduleId, $busId);
-$scheduleStmt->execute();
-$trip = $scheduleStmt->get_result()->fetch_assoc();
+$stmt = $conn->prepare("
+    SELECT 
+        s.schedule_id,
+        s.bus_id,
+        s.from_city,
+        s.to_city,
+        s.departure_date,
+        s.departure_time,
+        s.ticket_price,
+        s.available_seats,
+        s.status,
+        b.bus_number,
+        b.bus_name,
+        b.bus_type,
+        b.seats
+    FROM schedules s
+    INNER JOIN bus b ON s.bus_id = b.bus_id
+    WHERE s.schedule_id = ?
+    AND s.bus_id = ?  
+    AND s.status = 'active'
+    AND b.status = 'approved'
+  
+    LIMIT 1
+");
+$stmt->bind_param("ii", $scheduleId, $busId);
+$stmt->execute();
+$trip = $stmt->get_result()->fetch_assoc();
+$stmt->close();
 if (!$trip) {
     exit('Schedule not found.');
 }
-$from = $trip['from_city'] ?? $trip['departure_city'] ?? $trip['source'] ?? '';
-$to = $trip['to_city'] ?? $trip['arrival_city'] ?? $trip['destination'] ?? '';
-$date = $trip['travel_date'] ?? $trip['departure_date'] ?? $trip['date'] ?? '';
-$time = $trip['departure_time'] ?? $trip['time'] ?? '';
-$time = $time ? date('h:i A', strtotime($time)) : '';
-$price = $trip['ticket_price'] ?? $trip['price'] ?? $trip['fare'] ?? 0;
-$busName = $trip['bus_name'] ?? $trip['name'] ?? ('Bus ' . $busId);
-$route = $trip['route'] ?? trim($from . ' to ' . $to);
-$busNumber = $trip['bus_number'] ?? '';
-$bookedSql = "SELECT `$seatColumn` FROM `$bookingTable` WHERE `bus_number` = ? AND `route` = ? AND `travel_date` = ? AND (`$bookingStatusColumn` IS NULL OR `$bookingStatusColumn` != 'cancelled')";
-$bookedStmt = $conn->prepare($bookedSql);
-$bookedStmt->bind_param('sss', $busNumber, $route, $date);
-$bookedStmt->execute();
-$bookedSeats = array_flip(array_column($bookedStmt->get_result()->fetch_all(MYSQLI_ASSOC), $seatColumn));
-function seatRows($busId)
+$from = $trip['from_city'];
+$to = $trip['to_city'];
+$date = $trip['departure_date'];
+$time = date("h:i A", strtotime($trip['departure_time']));
+$price = $trip['ticket_price'];
+$busName = $trip['bus_name'];
+$busNumber = $trip['bus_number'];
+$totalSeats = (int)$trip['seats'];
+$bookedSeats = [];
+
+$stmt = $conn->prepare("
+    SELECT seat_number
+    FROM bookings
+    WHERE schedule_id = ?
+    AND status IN ('pending','confirmed','paid')
+");
+$stmt->bind_param("i", $scheduleId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+while ($row = $result->fetch_assoc()) {
+    $bookedSeats[] = (string)$row['seat_number'];
+}
+$stmt->close();
+
+$bookedCount = count($bookedSeats);
+$availableSeats = max(0, $totalSeats - $bookedCount);
+
+function generateSeats($totalSeats)
 {
     $rows = [];
     $seat = 1;
-    if ($busId == 3) {
-        for ($i = 0; $i < 10; $i++) {
-            $rows[] = [$seat++, $seat++, null, $seat++, $seat++];
+    while ($seat <= $totalSeats - 5) {
+        $row = [];
+        if ($seat <= $totalSeats - 5) {
+            $row[] = $seat++;
         }
-        $rows[] = [$seat++, $seat++, null, $seat++, null];
-        $rows[] = [$seat++, $seat++, $seat++, $seat++, $seat++];
-        return $rows;
-    }
-    if ($busId == 2) {
-        for ($i = 0; $i < 2; $i++) {
-            $rows[] = [$seat++, null, $seat++, $seat++];
+        if ($seat <= $totalSeats - 5) {
+            $row[] = $seat++;
         }
+        $row[] = null;
+        if ($seat <= $totalSeats - 5) {
+            $row[] = $seat++;
+        }
+        if ($seat <= $totalSeats - 5) {
+            $row[] = $seat++;
+        }
+        $rows[] = $row;
     }
-    $total = $busId == 2 ? 42 : 40;
-    while ($seat <= $total) {
-        $rows[] = [$seat++, $seat++, null, $seat++, $seat++];
+    $remaining = $totalSeats - $seat + 1;
+    if ($remaining > 0) {
+        $lastRow = [];
+        while ($seat <= $totalSeats) {
+            $lastRow[] = $seat++;
+        }
+        while (count($lastRow) < 5) {
+            $lastRow[] = null;
+        }
+        $rows[] = $lastRow;
     }
     return $rows;
 }
+$seatRows = generateSeats($totalSeats);
 ?>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Select Seat</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background: #f4f6f8;
-            margin: 0;
             color: #263238;
         }
 
@@ -87,132 +132,58 @@ function seatRows($busId)
         }
 
         .card {
-            background: #fff;
-            border-radius: 10px;
-            padding: 24px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 3px 15px #ddd;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #1560bd;
         }
 
         .trip {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
-            border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 18px;
-            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #ddd;
         }
 
         .trip div {
-            min-width: 120px;
+            background: #f5f7fa;
+            padding: 12px;
+            border-radius: 7px;
         }
 
         .trip small {
             display: block;
-            color: #6b7280;
-            margin-bottom: 4px;
+            color: #777;
+            font-size: 12px;
+            margin-bottom: 5px;
         }
 
         .layout {
-            max-width: 390px;
+            max-width: 400px;
             margin: auto;
             border: 2px solid #334155;
             border-radius: 22px;
             padding: 20px;
+            background: #fafafa;
         }
 
         .driver {
             text-align: right;
-            margin: 0 0 18px;
-            color: #475569;
+            color: #555;
             font-size: 14px;
+            margin-bottom: 18px;
         }
 
         .row {
             display: grid;
-            grid-template-columns: repeat(2, 1fr) 24px repeat(2, 1fr);
-            gap: 9px;
-            margin: 9px 0;
-        }
-
-        .seat {
-            border: 0;
-            border-radius: 5px;
-            padding: 11px 2px;
-            background: #118215;
-            color: #ffffff;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .seat:hover {
-            background: #1130f8;
-            color: white;
-        }
-
-        .seat.booked {
-            background: #ce4f3993;
-            color: #d0d6deac;
-            cursor: not-allowed;
-        }
-
-        .gap {
-            grid-column: 3;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 22px;
-        }
-
-        .actions button {
-            background: #0f766e;
-            border: 0;
-            color: white;
-            padding: 11px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .actions button:disabled {
-            background: #246cd0;
-            cursor: not-allowed
-        }
-
-        .notice {
-            text-align: center;
-            margin-top: 15px;
-            color: #475569;
-        }
-
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            font-size: 13px;
-            margin: 16px 0;
-        }
-
-        .dot {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-            margin-right: 5px;
-            vertical-align: -1px;
-        }
-
-        .available {
-            background: #59ea76;
-        }
-
-        .unavailable {
-            background: #e61414;
-        }
-
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 22px 1fr 1fr;
+            grid-template-columns: 1fr 1fr 25px 1fr 1fr;
             gap: 9px;
             margin: 9px 0;
         }
@@ -220,70 +191,245 @@ function seatRows($busId)
         .last-row {
             grid-template-columns: repeat(5, 1fr);
         }
+
+        .gap {
+            width: 100%;
+        }
+
+        .seat {
+            border: 0;
+            border-radius: 5px;
+            padding: 11px 3px;
+            background: #198754;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .seat:hover {
+            background: #1560bd;
+        }
+
+        .seat.selected {
+            background: #2312df;
+            outline: 2px solid #0f766e;
+        }
+
+        .seat.booked {
+            background: #dc3545;
+            color: #fff;
+            cursor: not-allowed;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 13px;
+            height: 13px;
+            border-radius: 3px;
+            margin-right: 5px;
+            vertical-align: -2px;
+        }
+
+        .available {
+            background: #198754;
+        }
+
+        .unavailable {
+            background: #dc3545;
+        }
+
+        .selected-dot {
+            background: #2312df;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .actions button {
+            border: 0;
+            background: #1560bd;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .actions button:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+
+        .notice {
+            text-align: center;
+            color: #666;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .back {
+            display: inline-block;
+            height: 30px;
+            text-align: center;
+            border-radius: 10px;
+            padding: 5px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #0d36ed;
+        }
+
+        @media(max-width:500px) {
+            .card {
+                padding: 15px;
+            }
+
+            .trip {
+                grid-template-columns: 1fr;
+            }
+
+            .layout {
+                padding: 12px;
+            }
+
+            .row {
+                gap: 5px;
+                grid-template-columns: 1fr 1fr 18px 1fr 1fr;
+            }
+
+            .seat {
+                padding: 9px 2px;
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 
 <body>
     <main class="wrap">
         <section class="card">
-            <h2>Select your seat</h2>
+            <a href="search_bus.php?from=<?= urlencode($from) ?>&to=<?= urlencode($to) ?>&date=<?= urlencode($date) ?>" class="back">Back to Bus List</a>
+            <h2>Select Your Seat</h2>
             <div class="trip">
-                <div><small>Bus</small><?= htmlspecialchars($busName) ?></div>
-                <div><small>Route</small><?= htmlspecialchars($route) ?></div>
-                <div><small>Departure</small><?= htmlspecialchars(trim($date . ' ' . $time)) ?></div>
-                <div><small>Price per seat</small>Rs. <?= htmlspecialchars((string)$price) ?></div>
+                <div>
+                    <small>Bus</small>
+                    <?= htmlspecialchars($busName) ?>
+                </div>
+                <div>
+                    <small>Bus Number</small>
+                    <?= htmlspecialchars($busNumber) ?>
+                </div>
+                <div>
+                    <small>Route</small>
+                    <?= htmlspecialchars($from) ?> <strong> - </strong> <?= htmlspecialchars($to) ?>
+                </div>
+                <div>
+                    <small>Departure</small>
+                    <?= htmlspecialchars($date) ?> <?= htmlspecialchars($time) ?>
+                </div>
+                <div>
+                    <small>Price Per Seat</small>
+                    Rs. <?= number_format((float)$price, 2) ?>
+                </div>
+                <div>
+                    <small>Available Seats</small>
+                    <strong id="availableSeats"><?= $availableSeats ?></strong>
+                </div>
+                <div>
+                    <small>Booked Seats</small>
+                    <strong id="bookedSeats"><?= $bookedCount ?></strong>
+                </div>
             </div>
             <form method="post" action="booking.php" id="seatForm">
                 <input type="hidden" name="schedule_id" value="<?= $scheduleId ?>">
                 <input type="hidden" name="bus_id" value="<?= $busId ?>">
+                <input type="hidden" name="from_city" value="<?= htmlspecialchars($from) ?>">
+                <input type="hidden" name="to_city" value="<?= htmlspecialchars($to) ?>">
+                <input type="hidden" name="travel_date" value="<?= htmlspecialchars($date) ?>">
+                <input type="hidden" name="ticket_price" value="<?= htmlspecialchars($price) ?>">
                 <div id="selectedSeats"></div>
                 <div class="layout">
-                    <p class="driver">Driver</p>
-                    <?php foreach (seatRows($busId) as $row): ?>
-                        <?php $lastRow = count($row) == 5 && !in_array(null, $row); ?>
-                        <div class="row<?= $lastRow ? ' last-row' : '' ?>">
+                    <div class="driver"> Driver</div>
+                    <?php foreach ($seatRows as $row): ?>
+                        <?php $lastRow = count($row) === 5 && !in_array(null, $row, true); ?>
+                        <div class="row <?= $lastRow ? 'last-row' : '' ?>">
                             <?php foreach ($row as $seat): ?>
                                 <?php if ($seat === null): ?>
                                     <span class="gap"></span>
                                 <?php else: ?>
-                                    <button type="button" class="seat<?= isset($bookedSeats[$seat]) ? ' booked' : '' ?>" data-seat="<?= $seat ?>" <?= isset($bookedSeats[$seat]) ? 'disabled' : '' ?>><?= $seat ?></button>
+                                    <?php $isBooked = in_array((string)$seat, $bookedSeats, true); ?>
+                                    <button
+                                        type="button"
+                                        class="seat <?= $isBooked ? 'booked' : '' ?>"
+                                        data-seat="<?= $seat ?>"
+                                        <?= $isBooked ? 'disabled' : '' ?>>
+                                        <?= $seat ?>
+                                    </button>
                                 <?php endif; ?>
                             <?php endforeach; ?>
                         </div>
                     <?php endforeach; ?>
                 </div>
-                <div class="legend"><span><i class="dot available"></i>Available</span><span><i class="dot unavailable"></i>Booked</span></div>
-                <div class="actions"><button type="submit" id="continueButton" disabled>Continue</button></div>
-                <p class="notice" id="selectedText">Choose min 1 and max 4 available seats.</p>
+                <div class="legend">
+                    <span><i class="dot available"></i>Available</span>
+                    <span><i class="dot selected-dot"></i>Selected</span>
+                    <span><i class="dot unavailable"></i>Booked</span>
+                </div>
+                <div class="actions">
+                    <button type="submit" id="continueButton" disabled>
+                        Continue
+                    </button>
+                </div>
+                <p class="notice" id="selectedText">
+                    Choose minimum 1 and maximum 4 seats.
+                </p>
             </form>
         </section>
     </main>
     <script>
-        const buttons = document.querySelectorAll('.seat:not(.booked)'),
-            selectedSeats = document.getElementById('selectedSeats'),
-            continueButton = document.getElementById('continueButton'),
-            selectedText = document.getElementById('selectedText'),
-            chosen = [];
-        buttons.forEach(button => button.addEventListener('click', () => {
-            const seat = button.dataset.seat,
-                index = chosen.indexOf(seat);
-            if (index > -1) {
-                chosen.splice(index, 1);
-                button.style.background = '';
-                button.style.outline = ''
-            } else {
-                if (chosen.length === 4) {
-                    alert('You can select a maximum of 4 seats.');
-                    return
+        const availableSeatsElement = document.getElementById("availableSeats");
+        const initialAvailableSeats = <?= $availableSeats ?>;
+        const buttons = document.querySelectorAll(".seat:not(.booked)");
+        const selectedSeats = document.getElementById("selectedSeats");
+        const continueButton = document.getElementById("continueButton");
+        const selectedText = document.getElementById("selectedText");
+        const chosen = [];
+        buttons.forEach(button => {
+            button.addEventListener("click", () => {
+                const seat = button.dataset.seat;
+                const index = chosen.indexOf(seat);
+                if (index !== -1) {
+                    chosen.splice(index, 1);
+                    button.classList.remove("selected");
+                } else {
+                    if (chosen.length >= 4) {
+                        alert("You can select maximum 4 seats.");
+                        return;
+                    }
+                    chosen.push(seat);
+                    button.classList.add("selected");
                 }
-                chosen.push(seat);
-                button.style.background = '#2312df';
-                button.style.outline = '2px solid #0f766e'
-            }
-            selectedSeats.innerHTML = chosen.map(seat => '<input type="hidden" name="seat_numbers[]" value="' + seat + '">').join('');
-            continueButton.disabled = chosen.length === 0;
-            selectedText.textContent = chosen.length ? 'Selected seats: ' + chosen.join(', ') + ' (' + chosen.length + '/4)' : 'Choose up to 4 available seats.';
-        }));
+                selectedSeats.innerHTML = chosen.map(seat => {
+                    return '<input type="hidden" name="seat_numbers[]" value="' + seat + '">';
+                }).join("");
+                continueButton.disabled = chosen.length === 0;
+                if (chosen.length) {
+                    selectedText.textContent = "Selected seats: " + chosen.join(", ") + " (" + chosen.length + "/4)";
+                } else {
+                    selectedText.textContent = "Choose minimum 1 and maximum 4 seats.";
+                }
+                availableSeatsElement.textContent = initialAvailableSeats - chosen.length;
+            });
+        });
     </script>
 </body>
 

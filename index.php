@@ -40,7 +40,7 @@ if (isset($_GET['search'])) {
     $to = trim($_GET['to'] ?? '');
     $date = $_GET['date'] ?? '';
     if ($from != '' && $to != '' && $date != '') {
-        $stmt = $conn->prepare("SELECT s.schedule_id,s.bus_id,s.from_city,s.to_city,s.departure_date,s.departure_time,s.ticket_price,s.available_seats,b.bus_number,b.bus_name,b.bus_type FROM schedule s INNER JOIN bus b ON s.bus_id=b.bus_id WHERE LOWER(TRIM(s.from_city))=LOWER(TRIM(?)) AND LOWER(TRIM(s.to_city))=LOWER(TRIM(?)) AND s.departure_date=? AND s.status='active' ORDER BY s.departure_time ASC");
+        $stmt = $conn->prepare("SELECT s.schedule_id,s.bus_id,s.from_city,s.to_city,s.departure_date,s.departure_time,s.ticket_price,s.available_seats,b.bus_number,b.bus_name,b.bus_type FROM schedules s INNER JOIN bus b ON s.bus_id=b.bus_id WHERE LOWER(TRIM(s.from_city))=LOWER(TRIM(?)) AND LOWER(TRIM(s.to_city))=LOWER(TRIM(?)) AND s.departure_date=? AND s.status='active' ORDER BY s.departure_time ASC");
         $stmt->bind_param("sss", $from, $to, $date);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -82,6 +82,7 @@ if (isset($_GET['book'])) {
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Online Bus Ticket Booking System</title>
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
 
@@ -89,13 +90,13 @@ if (isset($_GET['book'])) {
     <div class="main">
         <nav>
             <div>
-                <a href="index.php" class="active">Home</a>
-                <a href="#contactSection">Contact</a>
-                <a href="#aboutSection">About</a>
+                <a href="index.php" class="active"><i class="fa fa-home"></i>&nbsp; Home</a>
+                <a href="#contactSection"><i class="fa fa-phone"></i>&nbsp;Contact</a>
+                <a href="#aboutSection"><i class="fa fa-info-circle"></i>&nbsp;About</a>
             </div>
             <div>
-                <button type="button" onclick="location.href='login.php'">Login</button>
-                <button type="button" onclick="location.href='register.php'">Register</button>
+                <button type="button" onclick="location.href='login.php'"><i class="fa fa-sign-in"></i>&nbsp;Login</button>
+                <button type="button" onclick="location.href='register.php'"> <i class="fa fa-plus"></i>&nbsp;Sign Up</button>
             </div>
         </nav>
     </div>
@@ -103,8 +104,8 @@ if (isset($_GET['book'])) {
         <p id="time"></p>
         <h4 id="today"></h4>
     </div>
-    <form class="first" method="GET" action="index.php">
-        <select name="from" required>
+    <form class="first" method="GET" action="index.php" onsubmit="return checkRoute()">
+        <select name="from" id="fromCity" required>
             <option value="">From</option>
             <?php foreach ($routes as $route) { ?>
                 <option value="<?= htmlspecialchars($route['city_name']) ?>" <?= (($_GET['from'] ?? '') == $route['city_name']) ? 'selected' : '' ?>>
@@ -112,7 +113,7 @@ if (isset($_GET['book'])) {
                 </option>
             <?php } ?>
         </select>
-        <select name="to" required>
+        <select name="to" id="toCity" required>
             <option value="">To</option>
             <?php foreach ($routes as $route) { ?>
                 <option value="<?= htmlspecialchars($route['city_name']) ?>" <?= (($_GET['to'] ?? '') == $route['city_name']) ? 'selected' : '' ?>>
@@ -121,11 +122,11 @@ if (isset($_GET['book'])) {
             <?php } ?>
         </select>
         <input type="date" name="date" min="<?= $today ?>" max="<?= $max_date ?>" value="<?= htmlspecialchars($_GET['date'] ?? '') ?>" required>
-        <button type="submit" name="search">Search Bus</button>
+        <button type="submit" name="search"><i class="fa fa-search"></i>&nbsp;Search Bus</button>
     </form>
     <div class="second">
         <?php if (isset($_GET['search'])) { ?>
-            <div class="second">
+            <div class="second-search">
                 <h1>Search Result</h1>
                 <?php if (count($buses) == 0) { ?>
                     <div class="no-result">
@@ -167,6 +168,7 @@ if (isset($_GET['book'])) {
                 <?php } ?>
             </div>
         <?php } ?>
+        <div class="space"> </div>
     </div>
     <footer class="last">
         <div class="last-main">
@@ -175,9 +177,9 @@ if (isset($_GET['book'])) {
                 <a href="index.php">Home</a>
                 <a href="policy.php">Policy</a>
                 <a href="login.php">Login</a>
-                <a href="register.php?role=passenger">Register Passenger</a>
                 <a href="register.php?role=owner">Register Owner</a>
                 <a href="register.php?role=driver">Register Driver</a>
+                <a href="register.php?role=passenger">Register Passenger</a>
             </div>
             <div class="last-contact" id="contactSection">
                 <h3>Contact</h3>
@@ -206,6 +208,29 @@ if (isset($_GET['book'])) {
         </div>
     </footer>
     <script>
+        const fromCity = document.getElementById("fromCity");
+        const toCity = document.getElementById("toCity");
+
+        function updateToCity() {
+            [...toCity.options].forEach(option => {
+                option.disabled = option.value !== "" && option.value === fromCity.value;
+            });
+            if (toCity.value === fromCity.value) {
+                toCity.value = "";
+            }
+        }
+
+        fromCity.addEventListener("change", updateToCity);
+        updateToCity();
+
+        function checkRoute() {
+            if (fromCity.value === toCity.value) {
+                alert("From City and To City cannot be the same.");
+                return false;
+            }
+            return true;
+        }
+
         let menu = document.querySelectorAll("nav a");
         menu.forEach(link => {
             link.onclick = () => {
@@ -213,6 +238,7 @@ if (isset($_GET['book'])) {
                 link.classList.add("active");
             };
         });
+
         let time = document.getElementById("time");
         let today = document.getElementById("today");
 

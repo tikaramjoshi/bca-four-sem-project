@@ -7,7 +7,17 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 $message = "";
 $message_type = "";
+$edit_route = null;
+if (isset($_GET['edit'])) {
+    $id = (int)$_GET['edit'];
+    $stmt = $conn->prepare("SELECT * FROM popular_routes WHERE popular_id=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $edit_route = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+}
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $edit_id = (int)($_POST['edit_id'] ?? 0);
     $from_city = trim($_POST['from_city'] ?? '');
     $to_city = trim($_POST['to_city'] ?? '');
     $price = trim($_POST['price'] ?? '');
@@ -25,8 +35,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $message = "Invalid status.";
         $message_type = "error";
     } else {
-        $check = $conn->prepare("SELECT popular_id FROM popular_routes WHERE LOWER(from_city)=LOWER(?) AND LOWER(to_city)=LOWER(?) LIMIT 1");
-        $check->bind_param("ss", $from_city, $to_city);
+        $check = $conn->prepare("SELECT popular_id FROM popular_routes WHERE LOWER(from_city)=LOWER(?) AND LOWER(to_city)=LOWER(?) AND popular_id!=? LIMIT 1");
+        $check->bind_param("ssi", $from_city, $to_city, $edit_id);
         $check->execute();
         $check->store_result();
         if ($check->num_rows > 0) {
@@ -35,9 +45,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $check->close();
         } else {
             $check->close();
-            $image = "Bus Image/b1.jpg";
+            $image = $edit_route['image'] ?? "Bus Image/b1.jpg";
             if (isset($_FILES['route_image']) && $_FILES['route_image']['error'] === UPLOAD_ERR_OK) {
-                $file_tmp = $_FILES['route_image']['tmp_name'];
                 $extension = strtolower(pathinfo($_FILES['route_image']['name'], PATHINFO_EXTENSION));
                 $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
                 if (in_array($extension, $allowed)) {
@@ -46,33 +55,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     if (!is_dir($upload_dir)) {
                         mkdir($upload_dir, 0777, true);
                     }
-                    if (move_uploaded_file($file_tmp, $upload_dir . $new_file_name)) {
+                    if (move_uploaded_file($_FILES['route_image']['tmp_name'], $upload_dir . $new_file_name)) {
+                        if ($edit_id > 0 && !empty($image) && $image !== "Bus Image/b1.jpg") {
+                            $old_image = "../" . $image;
+                            if (file_exists($old_image)) {
+                                unlink($old_image);
+                            }
+                        }
                         $image = "Bus Image/" . $new_file_name;
                     } else {
-                        $message = "Image upload failed. Default image used.";
+                        $message = "Image upload failed.";
                         $message_type = "error";
                     }
                 } else {
-                    $message = "Invalid image format. Default image used.";
+                    $message = "Invalid image format.";
                     $message_type = "error";
                 }
             }
-            $stmt = $conn->prepare("INSERT INTO popular_routes (from_city,to_city,price,image,status) VALUES (?,?,?,?,?)");
-            $price = (float)$price;
-            $stmt->bind_param("ssdss", $from_city, $to_city, $price, $image, $status);
-            if ($stmt->execute()) {
-                $message = "Popular route assigned successfully.";
-                $message_type = "success";
-            } else {
-                $message = "Error adding popular route.";
-                $message_type = "error";
+            if ($message_type !== "error") {
+                $price = (float)$price;
+                if ($edit_id > 0) {
+                    $stmt = $conn->prepare("UPDATE popular_routes SET from_city=?,to_city=?,price=?,image=?,status=? WHERE popular_id=?");
+                    $stmt->bind_param("ssdssi", $from_city, $to_city, $price, $image, $status, $edit_id);
+                    $message = $stmt->execute() ? "Popular route updated successfully." : "Error updating popular route.";
+                    $message_type = $stmt->execute() ? "success" : "error";
+                } else {
+                    $stmt = $conn->prepare("INSERT INTO popular_routes (from_city,to_city,price,image,status) VALUES (?,?,?,?,?)");
+                    $stmt->bind_param("ssdss", $from_city, $to_city, $price, $image, $status);
+                    $message = $stmt->execute() ? "Popular route assigned successfully." : "Error adding popular route.";
+                    $message_type = $stmt->execute() ? "success" : "error";
+                }
+                $stmt->close();
+                if ($message_type === "success") {
+                    header("Location: popular_routes.php");
+                    exit;
+                }
             }
-            $stmt->close();
         }
     }
 }
 if (isset($_GET['delete'])) {
-    $id = intval($_GET['delete']);
+    $id = (int)$_GET['delete'];
     if ($id > 0) {
         $stmt = $conn->prepare("SELECT image FROM popular_routes WHERE popular_id=?");
         $stmt->bind_param("i", $id);
@@ -93,6 +116,11 @@ if (isset($_GET['delete'])) {
     exit;
 }
 $result = $conn->query("SELECT * FROM popular_routes ORDER BY popular_id DESC");
+$city_result = $conn->query("SELECT city_name FROM routes ORDER BY city_name ASC");
+$cities = [];
+while ($city = $city_result->fetch_assoc()) {
+    $cities[] = $city['city_name'];
+}
 $routes = [];
 if ($result) {
     while ($row = $result->fetch_assoc()) {
@@ -107,262 +135,107 @@ if ($result) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Manage Popular Routes</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f7f6;
-        }
-
-        .container {
-            width: 92%;
-            max-width: 1200px;
-            margin: 40px auto;
-        }
-
-        .route-box {
-            background: #fff;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-        }
-
-        .route-box h2 {
-            margin: 0 0 20px;
-            color: #1560bd;
-        }
-
-        .message {
-            padding: 12px 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-
-        .success {
-            background: #dff5e8;
-            color: #087443;
-        }
-
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 130px 130px 180px;
-            gap: 15px;
-            align-items: end;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            margin-bottom: 6px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 11px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background: white;
-        }
-
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: #1560bd;
-        }
-
-        input[type=file] {
-            padding: 8px;
-        }
-
-        .add-btn {
-            margin-top: 20px;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 5px;
-            background: #1560bd;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .add-btn:hover {
-            background: #0fa070;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        th {
-            background: #1560bd;
-            color: white;
-        }
-
-        .route-thumb {
-            width: 80px;
-            height: 55px;
-            object-fit: cover;
-            border-radius: 5px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .badge-active {
-            background: #dff5e8;
-            color: #087443;
-        }
-
-        .badge-inactive {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .delete-btn {
-            display: inline-block;
-            background: #dc3545;
-            color: white;
-            padding: 7px 12px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 13px;
-        }
-
-        .delete-btn:hover {
-            background: #b52a37;
-        }
-
-        .no-route {
-            padding: 20px;
-            text-align: center;
-            color: #777;
-        }
-
-        @media(max-width:900px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .route-box {
-                overflow-x: auto;
-            }
-
-            table {
-                min-width: 750px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="popular_routes.css">
+    <link rel="stylesheet" href="side.css">
 </head>
 
 <body>
+    <?php include "admin_header.php"; ?>
     <div class="container">
-        <div class="route-box">
-            <h2>Manage Popular Routes</h2>
-            <?php if ($message !== ""): ?>
-                <div class="message <?= $message_type ?>"><?= htmlspecialchars($message) ?></div>
-            <?php endif; ?>
-            <form method="POST" enctype="multipart/form-data">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>From City</label>
-                        <input type="text" name="from_city" placeholder="Kathmandu" required>
+        <div class="content">
+            <div><a href="dashboard.php" class="add-btn">Home</a></div>
+            <div class="route-box">
+                <h2><?= $edit_route ? 'Edit Popular Route' : 'Manage Popular Routes' ?></h2>
+                <?php if ($message !== ""): ?>
+                    <div class="message <?= htmlspecialchars($message_type) ?>"><?= htmlspecialchars($message) ?></div>
+                <?php endif; ?>
+                <form method="POST" enctype="multipart/form-data">
+                    <?php if ($edit_route): ?>
+                        <input type="hidden" name="edit_id" value="<?= (int)$edit_route['popular_id'] ?>">
+                    <?php endif; ?>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>From City</label>
+                            <select name="from_city" required>
+                                <option value="">Select From City</option>
+                                <?php foreach ($cities as $city): ?>
+                                    <option value="<?= htmlspecialchars($city) ?>" <?= ($edit_route['from_city'] ?? '') === $city ? 'selected' : '' ?>><?= htmlspecialchars(ucwords($city)) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>To City</label>
+                            <select name="to_city" required>
+                                <option value="">Select To City</option>
+                                <?php foreach ($cities as $city): ?>
+                                    <option value="<?= htmlspecialchars($city) ?>" <?= ($edit_route['to_city'] ?? '') === $city ? 'selected' : '' ?>><?= htmlspecialchars(ucwords($city)) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="number" name="price" value="<?= htmlspecialchars($edit_route['price'] ?? '') ?>" placeholder="Enter Price" min="0" step="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select name="status">
+                                <option value="active" <?= ($edit_route['status'] ?? '') === 'active' ? 'selected' : '' ?>>Active</option>
+                                <option value="inactive" <?= ($edit_route['status'] ?? '') === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Bus Image</label>
+                            <input type="file" name="route_image" accept=".jpg,.jpeg,.png,.gif,.webp">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>To City</label>
-                        <input type="text" name="to_city" placeholder="Pokhara" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Price</label>
-                        <input type="number" name="price" placeholder="700" min="0" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select name="status">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Route Image</label>
-                        <input type="file" name="route_image" accept=".jpg,.jpeg,.png,.gif,.webp">
-                    </div>
-                </div>
-                <button type="submit" class="add-btn">Assign Popular Route</button>
-            </form>
-        </div>
-        <div class="route-box">
-            <h2>Assigned Popular Routes</h2>
-            <?php if (count($routes) > 0): ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Image</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($routes as $route): ?>
+                    <button type="submit" class="add-btn"><?= $edit_route ? 'Update Popular Route' : 'Assign Popular Route' ?></button>
+                    <?php if ($edit_route): ?>
+                        <a href="popular_routes.php" class="add-btn">Cancel</a>
+                    <?php endif; ?>
+                </form>
+            </div>
+            <div class="route-box">
+                <h2>Assigned Popular Routes</h2>
+                <?php if (count($routes) > 0): ?>
+                    <table>
+                        <thead>
                             <tr>
-                                <td><?= (int)$route['popular_id'] ?></td>
-                                <td>
-                                    <img src="<?= htmlspecialchars("../" . $route['image']) ?>" class="route-thumb" alt="Route Image">
-                                </td>
-                                <td><?= htmlspecialchars($route['from_city']) ?></td>
-                                <td><?= htmlspecialchars($route['to_city']) ?></td>
-                                <td>Rs. <?= htmlspecialchars($route['price']) ?></td>
-                                <td>
-                                    <?php if ($route['status'] === 'active'): ?>
-                                        <span class="badge badge-active">Active</span>
-                                    <?php else: ?>
-                                        <span class="badge badge-inactive">Inactive</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <a href="?delete=<?= (int)$route['popular_id'] ?>" class="delete-btn" onclick="return confirm('Are you sure you want to delete this route?');">Delete</a>
-                                </td>
+                                <th>ID</th>
+                                <th>Image</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Action</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <div class="no-route">No popular routes assigned yet.</div>
-            <?php endif; ?>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($routes as $route): ?>
+                                <tr>
+                                    <td><?= (int)$route['popular_id'] ?></td>
+                                    <td><img src="<?= htmlspecialchars("../" . $route['image']) ?>" class="route-thumb" alt="Route Image"></td>
+                                    <td><?= htmlspecialchars($route['from_city']) ?></td>
+                                    <td><?= htmlspecialchars($route['to_city']) ?></td>
+                                    <td>Rs. <?= htmlspecialchars($route['price']) ?></td>
+                                    <td>
+                                        <?php if ($route['status'] === 'active'): ?>
+                                            <span class="badge badge-active">Active</span>
+                                        <?php else: ?>
+                                            <span class="badge badge-inactive">Inactive</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <a href="?edit=<?= (int)$route['popular_id'] ?>" class="edit-btn">Edit</a>
+                                        <a href="?delete=<?= (int)$route['popular_id'] ?>" class="delete-btn" onclick="return confirm('Are you sure you want to delete this route?');">Delete</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <div class="no-route">No popular routes assigned yet.</div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </body>

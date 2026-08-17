@@ -70,6 +70,7 @@ if ($stmt) {
 
         nav a {
             color: white;
+            background: rgb(100, 94, 141);
             text-decoration: none;
             padding: 12px 16px;
             border-radius: 6px;
@@ -92,7 +93,7 @@ if ($stmt) {
         }
 
         .profile-name {
-            color: white;
+            color: orange;
             font-weight: bold;
         }
 
@@ -134,7 +135,6 @@ if ($stmt) {
             width: 250px;
             background: white;
             border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, .25);
             overflow: hidden;
             z-index: 9999;
         }
@@ -217,7 +217,6 @@ if ($stmt) {
             border-radius: 12px;
             padding: 22px;
             margin-bottom: 20px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, .10);
             border-left: 5px solid #1560bd;
         }
 
@@ -301,7 +300,6 @@ if ($stmt) {
             border-radius: 12px;
             padding: 50px 20px;
             text-align: center;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, .10);
         }
 
         .empty-history h2 {
@@ -355,23 +353,13 @@ if ($stmt) {
         <nav>
             <div class="nav-links">
                 <a href="dashboard.php">Home</a>
-
             </div>
             <div class="profile-dropdown">
                 <div class="profile-button">
                     <span class="profile-name"><?= htmlspecialchars($passenger_name) ?></span>
-
                     <img src="../uploads/profile/<?= htmlspecialchars($profile_image) ?>" alt="Profile" class="profile-image" onclick="toggleProfileMenu(event)">
                 </div>
                 <div class="profile-menu" id="profileMenu">
-                    <div class="profile-menu-header">
-                        <img src="../uploads/profile/<?= htmlspecialchars($profile_image) ?>" alt="Profile" class="dropdown-profile-image">
-                        <div>
-                            <strong><?= htmlspecialchars($passenger_name) ?></strong>
-                            <small>Passenger</small>
-                        </div>
-                    </div>
-                    <hr>
                     <a href="profile.php"> My Profile</a>
                     <a href="booking_history.php"> My Bookings</a>
                     <a href="settings.php"> Settings</a>

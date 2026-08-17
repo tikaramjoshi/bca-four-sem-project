@@ -35,8 +35,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute();
         $result = $stmt->get_result();
         $admin = $result->fetch_assoc();
-        if ($admin['total'] >= 5) {
-            $message = "Maximum 5 admins are allowed!";
+        if ($admin['total'] >= 3) {
+            $message = "Maximum 3 admins are allowed!";
             $message_type = "error";
         } else {
             $stmt = $conn->prepare("
@@ -136,11 +136,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="text" name="phone" id="phone" maxlength="10" placeholder="Enter your phone number" required value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>">
                 </div>
                 <div class="lab-inp pass">
-                    <input type="password" name="password" id="pas" placeholder="Enter your password" required>
+                    <input type="password" name="password" id="pas" placeholder="Enter your password" minlength="6" required>
                     <span class="pass_view" onclick="passView('pas',this)"> <i class="fa-solid fa-eye"></i> </span>
                 </div>
                 <div class="lab-inp pass">
-                    <input type="password" name="confirm_password" id="c_pas" placeholder="Confirm password" required>
+                    <input type="password" name="confirm_password" id="c_pas" placeholder="Confirm password" minlength="6" required>
                     <span class="pass_view" onclick="passView('c_pas',this)"> <i class="fa-solid fa-eye"></i> </span>
                 </div>
                 <button type="submit" class="btn-register"> Register Admin </button>
@@ -163,15 +163,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         function closePopup() {
 
             <?php if ($message_type == "success") { ?>
-
                 window.location.href = "../login.php";
-
             <?php } else { ?>
-
                 document.querySelector(".popup-bg").style.display = "none";
-
             <?php } ?>
-
         }
         const phone = document.getElementById("phone");
         phone.addEventListener("input", function() {

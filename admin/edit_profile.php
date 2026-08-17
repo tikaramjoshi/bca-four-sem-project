@@ -12,7 +12,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $phone = trim($_POST['phone']);
-    $image_name = "";
 
     $stmt = $conn->prepare("SELECT user_id FROM users WHERE email=? AND user_id!=?");
     $stmt->bind_param("si", $email, $user_id);
@@ -53,10 +52,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 $target = $folder . $image_name;
 
-                move_uploaded_file(
-                    $image['tmp_name'],
-                    $target
-                );
+                if (move_uploaded_file($image['tmp_name'], $target)) {
+                    $image_uploaded = true;
+                    $message = "<div class='success'>Image uploaded successfully.</div>";
+                } else {
+                    $message = "<div class='error'>Image upload failed.</div>";
+                }
             } else {
                 $stmt = $conn->prepare("SELECT profile_image FROM users WHERE user_id=?");
                 $stmt->bind_param("i", $user_id);
@@ -65,12 +66,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $image_name = $old['profile_image'];
             }
 
-            $stmt = $conn->prepare("UPDATE users SET name=?, email=?, phone=?, profile_image=? WHERE user_id=?");
-            $stmt->bind_param("ssssi", $name, $email, $phone, $image_name, $user_id);
+            if ($image_uploaded) {
+                $stmt = $conn->prepare("
+        UPDATE users
+        SET name=?, email=?, phone=?, profile_image=?,
+            verification_status='verified'
+        WHERE user_id=?
+    ");
+
+                $stmt->bind_param(
+                    "ssssi",
+                    $name,
+                    $email,
+                    $phone,
+                    $image_name,
+                    $user_id
+                );
+            } else {
+                $stmt = $conn->prepare("
+        UPDATE users
+        SET name=?, email=?, phone=?
+        WHERE user_id=?
+    ");
+
+                $stmt->bind_param(
+                    "sssi",
+                    $name,
+                    $email,
+                    $phone,
+                    $user_id
+                );
+            }
+
             $stmt->execute();
 
             $_SESSION['name'] = $name;
-            $message = "<div class='success'>Profile updated successfully.</div>";
+
+            if ($image_uploaded) {
+                $message = "<div class='success'>
+        Profile image uploaded and verified successfully.
+    </div>";
+            } else {
+                $message = "<div class='success'>
+        Profile updated successfully.
+    </div>";
+            }
         }
     }
 }
@@ -103,7 +143,7 @@ $user = $result->fetch_assoc();
         .header {
             background: #1560BD;
             color: white;
-            padding: 18px 25px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -111,10 +151,15 @@ $user = $result->fetch_assoc();
 
         .header a {
             text-decoration: none;
-            background: red;
-            color: white;
-            padding: 10px 18px;
+            background: #ffc107;
+            font-size: 20px;
+            padding: 6px 13px;
             border-radius: 5px;
+        }
+
+        .header a:hover {
+            background-color: #0f8c63;
+            color: #fff;
         }
 
         .container {
@@ -127,7 +172,6 @@ $user = $result->fetch_assoc();
             background: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, .15);
         }
 
         .box h2 {
@@ -216,10 +260,10 @@ $user = $result->fetch_assoc();
 
 <body>
     <div class="header">
-        <h2><strong>Edit
+        <h2><strong>Edit Profile
                 <?= htmlspecialchars($_SESSION['name']) ?>
-                Profile </strong></h2>
-        <a href="dashboard.php">Dashboard</a>
+            </strong></h2>
+        <a href="dashboard.php">Home</a>
     </div>
     <div class="container">
         <div class="box">
@@ -233,11 +277,25 @@ $user = $result->fetch_assoc();
                 <input type="email" name="email"
                     value="<?php echo htmlspecialchars($user['email']); ?>" required>
                 <label>Phone</label>
-                <input type="text" name="phone"
+
+                <input type="text" name="phone" id="phone" maxlength="10"
                     value="<?php echo htmlspecialchars($user['phone']); ?>" required>
                 <label>Profile Picture</label>
                 <div class="profile-preview">
-                    <img src="../uploads/profile/admin/<?= htmlspecialchars($user['name']) ?>/<?= htmlspecialchars($user['profile_image']) ?>" alt="Profile">
+                    <?php
+                    if (!empty($user['profile_image'])) {
+                        $preview_image =
+                            "../uploads/profile/admin/" .
+                            $user['name'] . "/" .
+                            $user['profile_image'];
+                    } else {
+                        $preview_image =
+                            "../uploads/profile/admin/default.png";
+                    }
+                    ?>
+
+                    <img src="<?= htmlspecialchars($preview_image) ?>"
+                        alt="Profile">
                 </div>
                 <input type="file" name="profile_image" accept="image/*">
                 <button type="submit">Update Profile</button>
@@ -245,6 +303,12 @@ $user = $result->fetch_assoc();
             <a class="back" href="dashboard.php"> Back to Home</a>
         </div>
     </div>
+    <script>
+        const phone = document.getElementById("phone");
+        phone.addEventListener("input", function() {
+            this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
+        })
+    </script>
 </body>
 
 </html>

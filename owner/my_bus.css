@@ -369,21 +369,7 @@ tr:hover td {
     align-items: center;
 }
 
-@media(max-width:1000px) {
-    .stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .search-form {
-        flex-wrap: wrap;
-    }
-
-    .search-input {
-        min-width: 250px;
-    }
-}
-
-@media(max-width:650px) {
+@media(max-width:500px) {
     .page {
         width: 94%;
         margin: 20px auto;

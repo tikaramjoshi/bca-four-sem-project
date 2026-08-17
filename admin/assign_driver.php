@@ -134,137 +134,138 @@ $total_assignments = count($assignments);
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Assign Driver</title>
     <link rel="stylesheet" href="assign_driver.css">
+    <link rel="stylesheet" href="side.css">
 
 </head>
 
 <body>
-    <div class="page">
-        <div class="page-header">
-            <div>
-                <h1>Driver Assignment</h1>
-                <p>Assign verified drivers to approved buses.</p>
+    <?php include "admin_header.php"; ?>
+    <div class="content">
+        <div class="page">
+            <div class="page-header">
+                <div>
+                    <h1>Driver Assignment</h1>
+                    <p>Assign verified drivers to approved buses.</p>
+                </div>
+                <a href="dashboard.php" class="back-btn">Home</a>
             </div>
-            <a href="dashboard.php" class="back-btn">← Dashboard</a>
-        </div>
-        <?php if ($message): ?><div class="message <?= htmlspecialchars($message_type) ?>"><?= htmlspecialchars($message) ?></div><?php endif; ?>
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-title">Approved Buses</div>
-                <div class="stat-value"><?= $total_buses ?></div>
+            <?php if ($message): ?><div class="message <?= htmlspecialchars($message_type) ?>"><?= htmlspecialchars($message) ?></div><?php endif; ?>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-title">Approved Buses</div>
+                    <div class="stat-value"><?= $total_buses ?></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Available Verified Drivers</div>
+                    <div class="stat-value"><?= $total_available_drivers ?></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Current Assignments</div>
+                    <div class="stat-value"><?= $total_assignments ?></div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-title">Available Verified Drivers</div>
-                <div class="stat-value"><?= $total_available_drivers ?></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">Current Assignments</div>
-                <div class="stat-value"><?= $total_assignments ?></div>
-            </div>
-        </div>
-        <div class="assign-box">
-            <div class="box-title">
-                <h2>Assign Driver to Bus</h2>
-                <p>Only approved buses and verified available drivers are shown.</p>
-            </div>
-            <?php if ($buses && $drivers): ?>
-                <form method="POST" onsubmit="return confirmAssignment()">
-                    <div class="form-grid">
-                        <div class="form-group"><label>Select Bus</label><select name="bus_id" required>
-                                <option value="">Select approved bus</option><?php foreach ($buses as $bus): ?><option value="<?= $bus['bus_id'] ?>"><?= htmlspecialchars($bus['bus_number']) ?> - <?= htmlspecialchars($bus['bus_name']) ?> | <?= htmlspecialchars($bus['bus_type']) ?></option><?php endforeach; ?>
-                            </select></div>
-                        <div class="form-group"><label>Select Verified Driver</label><select name="driver_id" required>
-                                <option value="">Select driver</option><?php foreach ($drivers as $driver): ?><option value="<?= $driver['user_id'] ?>"><?= htmlspecialchars($driver['name']) ?> - <?= htmlspecialchars($driver['phone']) ?></option><?php endforeach; ?>
-                            </select></div>
-                        <button type="submit" name="assign_driver" class="assign-btn">✓ Assign Driver</button>
+            <div class="assign-box">
+                <div class="box-title">
+                    <h2>Assign Driver to Bus</h2>
+                    <p>Only approved buses and verified available drivers are shown.</p>
+                </div>
+                <?php if ($buses && $drivers): ?>
+                    <form method="POST" onsubmit="return confirmAssignment()">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Select Bus</label><select name="bus_id" required>
+                                    <option value="">Select approved bus</option><?php foreach ($buses as $bus): ?><option value="<?= $bus['bus_id'] ?>"><?= htmlspecialchars($bus['bus_number']) ?> - <?= htmlspecialchars($bus['bus_name']) ?> | <?= htmlspecialchars($bus['bus_type']) ?></option><?php endforeach; ?>
+                                </select></div>
+                            <div class="form-group"><label>Select Verified Driver</label><select name="driver_id" required>
+                                    <option value="">Select driver</option><?php foreach ($drivers as $driver): ?><option value="<?= $driver['user_id'] ?>"><?= htmlspecialchars($driver['name']) ?> - <?= htmlspecialchars($driver['phone']) ?></option><?php endforeach; ?>
+                                </select></div>
+                            <button type="submit" name="assign_driver" class="assign-btn">Assign Driver</button>
+                        </div>
+                    </form>
+                <?php elseif (!$buses): ?>
+                    <div class="empty">
+                        <h3>No Approved Buses</h3>
+                        <p>Approve a bus before assigning a driver.</p>
                     </div>
-                </form>
-            <?php elseif (!$buses): ?>
-                <div class="empty">
-                    <div class="empty-icon">🚌</div>
-                    <h3>No Approved Buses</h3>
-                    <p>Approve a bus before assigning a driver.</p>
-                </div>
-            <?php else: ?>
-                <div class="empty">
-                    <div class="empty-icon">👤</div>
-                    <h3>No Available Drivers</h3>
-                    <p>You need a verified driver who is not already assigned.</p>
-                </div>
-            <?php endif; ?>
-        </div>
-        <div class="filter-box">
-            <form method="GET" class="filter-form">
-                <input type="text" name="search" class="filter-input" placeholder="Search driver, bus number, email or phone..." value="<?= htmlspecialchars($search) ?>">
-                <select name="bus_id" class="filter-select">
-                    <option value="0">All Buses</option><?php foreach ($buses as $bus): ?><option value="<?= $bus['bus_id'] ?>" <?= $bus_id_filter == $bus['bus_id'] ? 'selected' : '' ?>><?= htmlspecialchars($bus['bus_number']) ?></option><?php endforeach; ?>
-                </select>
-                <select name="driver_id" class="filter-select">
-                    <option value="0">All Assigned Drivers</option>
-                    <?php $assigned_driver_list = [];
-                    foreach ($assignments as $assignment) $assigned_driver_list[$assignment['driver_id']] = $assignment['driver_name'];
-                    foreach ($assigned_driver_list as $id => $name): ?>
-                        <option value="<?= $id ?>" <?= $driver_id_filter == $id ? 'selected' : '' ?>><?= htmlspecialchars($name) ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <button type="submit" class="filter-btn">Search</button>
-                <a href="assign_driver.php" class="clear-btn">Clear</a>
-            </form>
-        </div>
-        <div class="table-box">
-            <div class="table-header">
-                <h2>Current Driver Assignments</h2><span><?= $total_assignments ?> assignment(s)</span>
+                <?php else: ?>
+                    <div class="empty">
+                        <h3>No Available Drivers</h3>
+                        <p>You need a verified driver who is not already assigned.</p>
+                    </div>
+                <?php endif; ?>
             </div>
-            <?php if ($assignments): ?>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Driver</th>
-                                <th>Phone</th>
-                                <th>Assigned Bus</th>
-                                <th>Bus Type</th>
-                                <th>Verification</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($assignments as $assignment): ?>
-                                <?php $image = $assignment['profile_image'] ?: 'default.png'; ?>
+            <div class="filter-box">
+                <form method="GET" class="filter-form">
+                    <input type="text" name="search" class="filter-input" placeholder="Search driver, bus number, email or phone..." value="<?= htmlspecialchars($search) ?>">
+                    <select name="bus_id" class="filter-select">
+                        <option value="0">All Buses</option><?php foreach ($buses as $bus): ?><option value="<?= $bus['bus_id'] ?>" <?= $bus_id_filter == $bus['bus_id'] ? 'selected' : '' ?>><?= htmlspecialchars($bus['bus_number']) ?></option><?php endforeach; ?>
+                    </select>
+                    <select name="driver_id" class="filter-select">
+                        <option value="0">All Assigned Drivers</option>
+                        <?php $assigned_driver_list = [];
+                        foreach ($assignments as $assignment) $assigned_driver_list[$assignment['driver_id']] = $assignment['driver_name'];
+                        foreach ($assigned_driver_list as $id => $name): ?>
+                            <option value="<?= $id ?>" <?= $driver_id_filter == $id ? 'selected' : '' ?>><?= htmlspecialchars($name) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="submit" class="filter-btn">Search</button>
+                    <a href="assign_driver.php" class="clear-btn">Clear</a>
+                </form>
+            </div>
+            <div class="table-box">
+                <div class="table-header">
+                    <h2>Current Driver Assignments</h2><span><?= $total_assignments ?> assignment(s)</span>
+                </div>
+                <?php if ($assignments): ?>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <div class="driver-info"><img src="../uploads/profile/<?= htmlspecialchars($image) ?>" class="driver-image" alt="Driver" onerror="this.src='../images/default.png'">
-                                            <div>
-                                                <div class="driver-name"><?= htmlspecialchars($assignment['driver_name']) ?></div>
-                                                <div class="driver-email"><?= htmlspecialchars($assignment['driver_email']) ?></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><?= htmlspecialchars($assignment['driver_phone']) ?></td>
-                                    <td>
-                                        <div class="bus-number"><?= htmlspecialchars($assignment['bus_number']) ?></div>
-                                        <div class="bus-name"><?= htmlspecialchars($assignment['bus_name']) ?></div>
-                                    </td>
-                                    <td><?= htmlspecialchars($assignment['bus_type']) ?></td>
-                                    <td><span class="badge verified">✓ Verified</span></td>
-                                    <td><span class="badge assigned">● Assigned</span></td>
-                                    <td>
-                                        <div class="actions"><a href="view_driver.php?id=<?= $assignment['driver_id'] ?>" class="action-btn view-btn">View Driver</a>
-                                            <form method="POST" onsubmit="return confirmRemove()"><input type="hidden" name="assignment_id" value="<?= $assignment['bus_driver_id'] ?>"><button type="submit" name="remove_assignment" class="action-btn remove-btn">Remove</button></form>
-                                        </div>
-                                    </td>
+                                    <th>Driver</th>
+                                    <th>Phone</th>
+                                    <th>Assigned Bus</th>
+                                    <th>Bus Type</th>
+                                    <th>Verification</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php else: ?>
-                <div class="empty">
-                    <div class="empty-icon">🔗</div>
-                    <h3>No Driver Assignments</h3>
-                    <p>No driver has been assigned to a bus yet.</p>
-                </div>
-            <?php endif; ?>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($assignments as $assignment): ?>
+                                    <?php $image = $assignment['profile_image'] ?: 'default.png'; ?>
+                                    <tr>
+                                        <td>
+                                            <div class="driver-info"><img src="../uploads/profile/<?= htmlspecialchars($image) ?>" class="driver-image" alt="Driver" onerror="this.src='../images/default.png'">
+                                                <div>
+                                                    <div class="driver-name"><?= htmlspecialchars($assignment['driver_name']) ?></div>
+                                                    <div class="driver-email"><?= htmlspecialchars($assignment['driver_email']) ?></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><?= htmlspecialchars($assignment['driver_phone']) ?></td>
+                                        <td>
+                                            <div class="bus-number"><?= htmlspecialchars($assignment['bus_number']) ?></div>
+                                            <div class="bus-name"><?= htmlspecialchars($assignment['bus_name']) ?></div>
+                                        </td>
+                                        <td><?= htmlspecialchars($assignment['bus_type']) ?></td>
+                                        <td><span class="badge verified">Verified</span></td>
+                                        <td><span class="badge assigned">Assigned</span></td>
+                                        <td>
+                                            <div class="actions"><a href="view_driver.php?id=<?= $assignment['driver_id'] ?>" class="action-btn view-btn">View Driver</a>
+                                                <form method="POST" onsubmit="return confirmRemove()"><input type="hidden" name="assignment_id" value="<?= $assignment['bus_driver_id'] ?>"><button type="submit" name="remove_assignment" class="action-btn remove-btn">Remove</button></form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="empty">
+                        <h3>No Driver Assignments</h3>
+                        <p>No driver has been assigned to a bus yet.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
     <script>

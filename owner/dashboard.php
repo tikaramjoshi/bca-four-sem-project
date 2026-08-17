@@ -18,16 +18,7 @@ if (isset($_SESSION['error'])) {
     $message_type = "error";
     unset($_SESSION['error']);
 }
-$ownerQuery = $conn->prepare("
-SELECT users.name, users.email, users.verification_status,
-owner_verification.owner_photo
-FROM users
-LEFT JOIN owner_verification
-ON users.user_id = owner_verification.owner_id
-WHERE users.user_id = ?
-ORDER BY owner_verification.verification_id DESC
-LIMIT 1
-");
+$ownerQuery = $conn->prepare(" SELECT users.name, users.email, users.verification_status, owner_verification.owner_photo FROM users LEFT JOIN owner_verification ON users.user_id = owner_verification.owner_id WHERE users.user_id = ? ORDER BY owner_verification.verification_id DESC LIMIT 1 ");
 $ownerQuery->bind_param("i", $owner_id);
 $ownerQuery->execute();
 $result = $ownerQuery->get_result();
@@ -38,13 +29,7 @@ $owner_email = $owner['email'];
 $verification_status = $owner['verification_status'];
 $isVerified = ($verification_status === "verified");
 $profile_image = $owner['owner_photo'];
-$verifyStmt = $conn->prepare("
-SELECT status, reject_reason
-FROM owner_verification
-WHERE owner_id=?
-ORDER BY verification_id DESC
-LIMIT 1
-");
+$verifyStmt = $conn->prepare(" SELECT status, reject_reason FROM owner_verification WHERE owner_id=? ORDER BY verification_id DESC LIMIT 1 ");
 $verifyStmt->bind_param("i", $owner_id);
 $verifyStmt->execute();
 $result = $verifyStmt->get_result();
@@ -106,11 +91,7 @@ if (isset($_POST['register_bus'])) {
                                 $image_path
                             )
                         ) {
-                            $insert = $conn->prepare("
-INSERT INTO bus
-(owner_id,bus_number,bus_name,bus_type,seats,bus_image,status)
-VALUES(?,?,?,?,?,?,'pending')
-");
+                            $insert = $conn->prepare(" INSERT INTO bus (owner_id,bus_number,bus_name,bus_type,seats,bus_image,status) VALUES(?,?,?,?,?,?,'pending') ");
                             $insert->bind_param(
                                 "isssis",
                                 $owner_id,
@@ -138,17 +119,12 @@ VALUES(?,?,?,?,?,?,'pending')
     }
 }
 $search = "";
-$sql = "
-SELECT * FROM bus WHERE owner_id=? ";
+$sql = " SELECT * FROM bus WHERE owner_id=? ";
 if (!empty($_GET['search'])) {
     $search = trim($_GET['search']);
-    $sql .= " 
-    AND ( bus_number LIKE ? OR bus_name LIKE ? )
-    ";
+    $sql .= "  AND ( bus_number LIKE ? OR bus_name LIKE ? ) ";
 }
-$sql .= "
-ORDER BY bus_id DESC
-";
+$sql .= " ORDER BY bus_id DESC ";
 $stmt = $conn->prepare($sql);
 
 if (!empty($search)) {
@@ -188,37 +164,17 @@ $rejectedResult = $rejectedStmt->get_result();
 $rejected = $rejectedResult->fetch_row()[0];
 $rejectedStmt->close();
 
-$sql = "
-    SELECT COUNT(*)
-    FROM users
-    WHERE role = 'driver'
-    AND verification_status = 'verified'
-";
+$sql = " SELECT COUNT(*) FROM users WHERE role = 'driver' AND verification_status = 'verified' ";
 $driverResult = $conn->query($sql);
 $drivers = $driverResult->fetch_row()[0];
 
-$assignStmt = $conn->prepare("
-    SELECT COUNT(*)
-    FROM bus_driver bd
-    INNER JOIN bus b
-        ON bd.bus_id = b.bus_id
-    INNER JOIN users u
-        ON bd.driver_id = u.user_id
-    WHERE b.owner_id = ?
-    AND u.role = 'driver'
-    AND u.verification_status = 'verified'
-");
+$assignStmt = $conn->prepare(" SELECT COUNT(*) FROM bus_driver bd INNER JOIN bus b     ON bd.bus_id = b.bus_id INNER JOIN users u     ON bd.driver_id = u.user_id WHERE b.owner_id = ? AND u.role = 'driver' AND u.verification_status = 'verified' ");
 $assignStmt->bind_param("i", $owner_id);
 $assignStmt->execute();
 $assignResult = $assignStmt->get_result();
 $totalDrivers = $assignResult->fetch_row()[0];
 $assignStmt->close();
-$totalDriverStmt = $conn->prepare("
-    SELECT COUNT(*)
-    FROM bus_driver bd
-    INNER JOIN bus b ON bd.bus_id = b.bus_id
-    WHERE b.owner_id = ?
-");
+$totalDriverStmt = $conn->prepare(" SELECT COUNT(*) FROM bus_driver bd INNER JOIN bus b ON bd.bus_id = b.bus_id WHERE b.owner_id = ? ");
 $totalDriverStmt->bind_param("i", $owner_id);
 $totalDriverStmt->execute();
 $totalDriverResult = $totalDriverStmt->get_result();
@@ -255,7 +211,7 @@ $totalDriverStmt->close();
         <div style="display: flex; gap:10px ; color:white;align-items:center">
 
 
-            <h3>Welcome-<span class="profile-name">
+            <h3>Welcome, <span class="profile-name">
                     <?= htmlspecialchars($owner_name) ?></span>
             </h3>&nbsp;&nbsp;&nbsp;&nbsp;
             <span class="status <?= strtolower($verification_status) ?>">
@@ -264,20 +220,27 @@ $totalDriverStmt->close();
 
             <div class="settings-menu">
                 <div class="image" onclick="toggleMenu()">
-
                     <?php if (!empty($profile_image)) { ?>
-                        <img src="../uploads/<?= htmlspecialchars($profile_image) ?>" class="nav-profile-img">
+                        <img src="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($profile_image) ?>" class="nav-profile-img" alt="Profile">
                     <?php } else { ?>
-                        <img src="../images/default-profile.png" class="nav-profile-img">
+                        <img src="../uploads/default.png" class="nav-profile-img" alt="Default Profile">
                     <?php } ?>
                 </div>
                 <div class="dropdown" id="dropdownMenu">
                     <a href="profile.php"><i class="fa fa-user"></i>Profile</a>
+<<<<<<< HEAD
                     <a href="edit_profile.php"><i class="fa fa-edit"></i> Edit Profile</a>
                     <a href="verified.php"><i class="fa fa-file"></i>Verified Account </a>
                     <a href="../changepassword.php">Change Password</a>
                     <hr>
                     <a href="../logout.php"><i class="fa fa-sign-out-alt"></i> Logout</a>
+=======
+                    <!-- <a href="edit_profile.php"><i class="fa fa-edit"></i> Edit Profile</a> -->
+                    <a href="verification.php"><i class="fa fa-file"></i>Verified Account </a>
+                    <a href="../changepassword.php"><i class="fa fa-key"></i>Change Password</a>
+                    <hr>
+                    <a href="../logout.php"><i class="fa fa-sign-out-alt"></i>Logout</a>
+>>>>>>> b1d3c0b (Create reusable admin header and sidebar include)
                 </div>
             </div>
         </div>
@@ -287,14 +250,11 @@ $totalDriverStmt->close();
     <?php if ($verification_status == "rejected") { ?>
         <div class="verify-banner" style="border-left:6px solid red;">
             <h2>Verification Rejected</h2>
-            <p>Your verification request has been rejected.</p>
             <p><b>Reason:</b><br><?= htmlspecialchars($verify['reject_reason']) ?> </p>
             <a href="verification.php" class="verify-btn"> Submit Again </a>
         </div>
     <?php } elseif (!$isVerified) { ?>
         <div class="verify-banner">
-            <h2>⚠ Account Verification Required</h2>
-            <p>Your account is currently<strong><?= ucfirst($verification_status) ?></strong> Complete your company verification.</p>
             <a href="verification.php" class="verify-btn">Complete Verification </a>
         </div>
     <?php } else { ?>
@@ -413,10 +373,17 @@ $totalDriverStmt->close();
                 <div class="last-link">
                     <h3>Quick Links</h3>
                     <a href="#">Home</a>
-                    <a href="register_bus.php">Add Bus</a>
-                    <a href="my_bus.php">My Bus</a>
-                    <a href="driver.php">Driver</a>
-                    <a href="schedule.php">Schedule</a>
+
+                    <?php
+                    function verifyLink($page, $isVerified)
+                    {
+                        return $isVerified ? "href='$page'" : "href='#' onclick=\"alert('Please complete account verification first.'); return false;\"";
+                    }
+                    ?>
+                    <a <?= verifyLink('register_bus.php', $isVerified) ?>>Add Bus</a>
+                    <a <?= verifyLink('my_bus.php', $isVerified) ?>>My Bus</a>
+                    <a <?= verifyLink('driver.php', $isVerified) ?>>Driver</a>
+                    <a <?= verifyLink('schedule.php', $isVerified) ?>>Schedule</a>
                     <a href="logout.php">Logout</a>
                 </div>
                 <div class="last-contact" id="contactSection">
@@ -437,7 +404,7 @@ $totalDriverStmt->close();
             </div>
             <hr>
             <div class="copy">
-                <p> &copy; 2026 Online Bus Ticket Booking System | All Rights Reserved. </p>
+                <p> &copy; 2026 Online Bus Ticket Booking System || All Rights Reserved. </p>
             </div>
         </footer>
         <script>

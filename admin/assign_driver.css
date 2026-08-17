@@ -7,13 +7,13 @@
 
 body {
     background: #f4f6f9;
-    color: #222
+    color: #222;
 }
 
 .page {
     width: 94%;
     max-width: 1400px;
-    margin: 30px auto
+    margin: 30px auto;
 }
 
 .page-header {
@@ -21,19 +21,19 @@ body {
     justify-content: space-between;
     align-items: center;
     gap: 20px;
-    margin-bottom: 25px
+    margin-bottom: 25px;
 }
 
 .page-header h1 {
     font-size: 28px;
-    margin-bottom: 6px
+    margin-bottom: 6px;
 }
 
 .page-header p,
 .table-header span,
 .box-title p {
     color: #777;
-    font-size: 13px
+    font-size: 13px;
 }
 
 .back-btn,
@@ -41,37 +41,41 @@ body {
 .clear-btn {
     color: #fff;
     text-decoration: none;
-    border-radius: 7px
+    border-radius: 7px;
+}
+
+.back-btn:hover {
+    background-color: #0f8c63;
 }
 
 .back-btn {
     background: #1560bd;
     padding: 11px 18px;
-    font-size: 14px
+    font-size: 14px;
 }
 
 .message {
     padding: 14px 17px;
     border-radius: 8px;
     margin-bottom: 20px;
-    font-size: 14px
+    font-size: 14px;
 }
 
 .success {
     background: #d1e7dd;
-    color: #0f5132
+    color: #0f5132;
 }
 
 .error {
     background: #f8d7da;
-    color: #842029
+    color: #842029;
 }
 
 .stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 18px;
-    margin-bottom: 25px
+    margin-bottom: 25px;
 }
 
 .stat-card,
@@ -79,45 +83,45 @@ body {
 .filter-box,
 .table-box {
     background: #fff;
-    border-radius: 12px
+    border-radius: 12px;
 }
 
 .stat-card {
-    padding: 20px
+    padding: 20px;
 }
 
 .stat-title {
     color: #777;
     font-size: 13px;
-    margin-bottom: 9px
+    margin-bottom: 9px;
 }
 
 .stat-value {
     color: #1560bd;
     font-size: 28px;
-    font-weight: 700
+    font-weight: 700;
 }
 
 .assign-box {
     padding: 25px;
-    margin-bottom: 25px
+    margin-bottom: 25px;
 }
 
 .box-title {
-    margin-bottom: 20px
+    margin-bottom: 20px;
 }
 
 .box-title h2,
 .table-header h2 {
     font-size: 20px;
-    margin-bottom: 5px
+    margin-bottom: 5px;
 }
 
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr auto;
     gap: 15px;
-    align-items: end
+    align-items: end;
 }
 
 .form-group label {
@@ -125,7 +129,7 @@ body {
     margin-bottom: 8px;
     color: #444;
     font-size: 13px;
-    font-weight: 600
+    font-weight: 600;
 }
 
 .form-group select,
@@ -138,7 +142,7 @@ body {
     padding: 0 12px;
     background: #fff;
     outline: 0;
-    font-size: 14px
+    font-size: 14px;
 }
 
 .assign-btn {
@@ -150,23 +154,23 @@ body {
     color: #fff;
     cursor: pointer;
     font-size: 14px;
-    font-weight: 600
+    font-weight: 600;
 }
 
 .filter-box {
     padding: 20px;
-    margin-bottom: 25px
+    margin-bottom: 25px;
 }
 
 .filter-form {
     display: grid;
     grid-template-columns: 1fr 220px 220px auto auto;
-    gap: 12px
+    gap: 12px;
 }
 
 .filter-input,
 .filter-select {
-    height: 43px
+    height: 43px;
 }
 
 .filter-btn,
@@ -178,19 +182,19 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 14px
+    font-size: 14px;
 }
 
 .filter-btn {
-    background: #1560bd
+    background: #1560bd;
 }
 
 .clear-btn {
-    background: #6c757d
+    background: #6c757d;
 }
 
 .table-box {
-    overflow: hidden
+    overflow: hidden;
 }
 
 .table-header {
@@ -198,21 +202,21 @@ body {
     border-bottom: 1px solid #eee;
     display: flex;
     justify-content: space-between;
-    align-items: center
+    align-items: center;
 }
 
 .table-header h2 {
-    font-size: 19px
+    font-size: 19px;
 }
 
 .table-wrapper {
-    overflow-x: auto
+    overflow-x: auto;
 }
 
 table {
     width: 100%;
     min-width: 1050px;
-    border-collapse: collapse
+    border-collapse: collapse;
 }
 
 th {
@@ -221,20 +225,20 @@ th {
     padding: 15px;
     text-align: left;
     font-size: 13px;
-    border-bottom: 1px solid #eee
+    border-bottom: 1px solid #eee;
 }
 
 td {
     padding: 15px;
     border-bottom: 1px solid #eee;
     font-size: 14px;
-    vertical-align: middle
+    vertical-align: middle;
 }
 
 .driver-info {
     display: flex;
     align-items: center;
-    gap: 11px
+    gap: 11px;
 }
 
 .driver-image {
@@ -242,28 +246,28 @@ td {
     height: 45px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #e5e5e5
+    border: 2px solid #e5e5e5;
 }
 
 .driver-name {
     font-weight: 600;
-    margin-bottom: 3px
+    margin-bottom: 3px;
 }
 
 .driver-email {
     color: #888;
-    font-size: 12px
+    font-size: 12px;
 }
 
 .bus-number {
     color: #1560bd;
-    font-weight: 700
+    font-weight: 700;
 }
 
 .bus-name {
     color: #777;
     font-size: 12px;
-    margin-top: 3px
+    margin-top: 3px;
 }
 
 .badge {
@@ -271,23 +275,23 @@ td {
     padding: 6px 10px;
     border-radius: 20px;
     font-size: 11px;
-    font-weight: 600
+    font-weight: 600;
 }
 
 .verified {
     background: #d1e7dd;
-    color: #0f5132
+    color: #0f5132;
 }
 
 .assigned {
     background: #cff4fc;
-    color: #055160
+    color: #055160;
 }
 
 .actions {
     display: flex;
     gap: 7px;
-    flex-wrap: wrap
+    flex-wrap: wrap;
 }
 
 .action-btn {
@@ -300,67 +304,67 @@ td {
     border: 0;
     text-decoration: none;
     font-size: 12px;
-    cursor: pointer
+    cursor: pointer;
 }
 
 .view-btn {
     background: #1560bd;
-    color: #fff
+    color: #fff;
 }
 
 .remove-btn {
     background: #dc3545;
-    color: #fff
+    color: #fff;
 }
 
 .empty {
     text-align: center;
     padding: 60px 20px;
-    color: #777
+    color: #777;
 }
 
 .empty-icon {
     font-size: 42px;
-    margin-bottom: 12px
+    margin-bottom: 12px;
 }
 
 .empty h3 {
     color: #444;
-    margin-bottom: 6px
+    margin-bottom: 6px;
 }
 
 @media(max-width:1050px) {
     .form-grid {
-        grid-template-columns: 1fr 1fr
+        grid-template-columns: 1fr 1fr;
     }
 
     .assign-btn {
-        width: 100%
+        width: 100%;
     }
 
     .filter-form {
-        grid-template-columns: 1fr 1fr
+        grid-template-columns: 1fr 1fr;
     }
 }
 
 @media(max-width:700px) {
     .page {
-        margin: 20px auto
+        margin: 20px auto;
     }
 
     .page-header {
         flex-direction: column;
-        align-items: flex-start
+        align-items: flex-start;
     }
 
     .stats,
     .form-grid,
     .filter-form {
-        grid-template-columns: 1fr
+        grid-template-columns: 1fr;
     }
 
     .filter-btn,
     .clear-btn {
-        width: 100%
+        width: 100%;
     }
 }

@@ -8,16 +8,15 @@ require_once "../db.php";
 $owner_id = (int)$_SESSION['user_id'];
 $message = "";
 $message_type = "";
-$check = $conn->prepare("SELECT * FROM owner_verification WHERE owner_id = ?");
+$check = $conn->prepare("SELECT * FROM owner_verification WHERE owner_id = ? ORDER BY verification_id DESC LIMIT 1");
 $check->bind_param("i", $owner_id);
 $check->execute();
-$result = $check->get_result();
-$data = $result->fetch_assoc();
+$data = $check->get_result()->fetch_assoc();
 $check->close();
 if (isset($_POST['submit'])) {
     $company_name = trim($_POST['company_name'] ?? '');
     $company_registration_no = trim($_POST['company_registration_no'] ?? '');
-    $uploadDir = "../uploads/";
+    $uploadDir = "../uploads/profile/" . $owner_id . "/profile/";
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0777, true);
     }
@@ -34,18 +33,18 @@ if (isset($_POST['submit'])) {
                 $message = "Invalid owner photo format.";
                 $message_type = "error";
             } else {
-                $owner_photo = time() . "_owner_" . uniqid() . "." . $extension;
+                $owner_photo = "owner_photo_" . time() . "." . $extension;
                 move_uploaded_file($_FILES['owner_photo']['tmp_name'], $uploadDir . $owner_photo);
             }
         }
         if ($message === "" && !empty($_FILES['company_certificate']['name']) && $_FILES['company_certificate']['error'] === UPLOAD_ERR_OK) {
-            $allowedCertificate = ['jpg', 'jpeg', 'png', 'pdf'];
+            $allowedCertificate = ['jpg', 'jpeg', 'png', 'webp', 'pdf'];
             $extension = strtolower(pathinfo($_FILES['company_certificate']['name'], PATHINFO_EXTENSION));
             if (!in_array($extension, $allowedCertificate)) {
                 $message = "Invalid certificate format.";
                 $message_type = "error";
             } else {
-                $company_certificate = time() . "_certificate_" . uniqid() . "." . $extension;
+                $company_certificate = "certificate_" . time() . "." . $extension;
                 move_uploaded_file($_FILES['company_certificate']['tmp_name'], $uploadDir . $company_certificate);
             }
         }
@@ -61,7 +60,7 @@ if (isset($_POST['submit'])) {
                         $update->close();
                         $message = "Verification resubmitted successfully. Please wait for admin approval.";
                         $message_type = "success";
-                        $data['status'] = 'pending';
+                        $data['status'] = "pending";
                     } else {
                         $message = "Failed to resubmit verification.";
                         $message_type = "error";
@@ -83,7 +82,6 @@ if (isset($_POST['submit'])) {
                         $update->bind_param("i", $owner_id);
                         $update->execute();
                         $update->close();
-
                         $message = "Verification submitted successfully. Please wait for admin approval.";
                         $message_type = "success";
                         $data = [
@@ -117,24 +115,23 @@ if (isset($_POST['submit'])) {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: Arial, sans-serif
         }
 
         html,
         body {
             min-height: 100%;
-            background: #f5f7fb;
+            background: #f5f7fb
         }
 
         .main {
             background: #1560BD;
-            padding: 10px 25px;
+            padding: 10px 25px
         }
 
         nav {
             display: flex;
-            justify-content: flex-start;
-            align-items: center;
+            align-items: center
         }
 
         nav a {
@@ -143,17 +140,17 @@ if (isset($_POST['submit'])) {
             background: #a59aef;
             padding: 8px 15px;
             font-weight: bold;
-            border-radius: 4px;
+            border-radius: 4px
         }
 
         nav a:hover {
             color: #fff;
-            background: #0fa070;
+            background: #0fa070
         }
 
         .last-policy {
             padding: 20px 40px;
-            min-height: calc(100vh - 115px);
+            min-height: calc(100vh - 115px)
         }
 
         .verification-box {
@@ -162,58 +159,48 @@ if (isset($_POST['submit'])) {
             margin: 40px auto;
             background: #fff;
             padding: 30px;
-            border-radius: 10px;
+            border-radius: 10px
         }
 
         .verification-box h2 {
             text-align: center;
-            margin: 0 0 25px;
-            color: #1e3a8a;
+            margin-bottom: 25px;
+            color: #1e3a8a
         }
 
         .verification-box label {
             display: block;
-            margin-top: 15px;
-            margin-bottom: 6px;
+            margin: 15px 0 6px;
             font-weight: bold;
-            color: #333;
+            color: #333
         }
 
-        .verification-box input[type=text] {
+        .verification-box input[type=text],
+        .verification-box input[type=file] {
             width: 100%;
             padding: 12px;
             border: 1px solid #ccc;
-            border-radius: 6px;
-            outline: none;
-        }
-
-        .verification-box input[type=text]:focus {
-            border-color: #1560BD;
+            border-radius: 6px
         }
 
         .verification-box input[type=file] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            background: #fafafa;
+            background: #fafafa
         }
 
         .verification-box button {
             width: 100%;
             padding: 14px;
             margin-top: 25px;
-            border: none;
+            border: 0;
             border-radius: 6px;
             background: #2563eb;
             color: #fff;
             font-size: 17px;
-            cursor: pointer;
-            transition: .3s;
+            cursor: pointer
         }
 
         .verification-box button:hover {
-            background: #1d4ed8;
+            background: #1d4ed8
         }
 
         .success {
@@ -222,7 +209,7 @@ if (isset($_POST['submit'])) {
             padding: 12px;
             border-radius: 6px;
             margin-bottom: 20px;
-            text-align: center;
+            text-align: center
         }
 
         .error {
@@ -231,7 +218,7 @@ if (isset($_POST['submit'])) {
             padding: 12px;
             border-radius: 6px;
             margin-bottom: 20px;
-            text-align: center;
+            text-align: center
         }
 
         .current-file {
@@ -240,7 +227,7 @@ if (isset($_POST['submit'])) {
             border: 1px solid #ddd;
             border-radius: 10px;
             background: #f8f9fa;
-            text-align: center;
+            text-align: center
         }
 
         .preview {
@@ -250,7 +237,7 @@ if (isset($_POST['submit'])) {
             border-radius: 10px;
             border: 2px solid #1560BD;
             display: block;
-            margin: 0 auto 15px;
+            margin: 0 auto 15px
         }
 
         .view-btn {
@@ -260,11 +247,11 @@ if (isset($_POST['submit'])) {
             text-decoration: none;
             padding: 10px 18px;
             border-radius: 6px;
-            margin-bottom: 15px;
+            margin-bottom: 15px
         }
 
         .view-btn:hover {
-            background: #0d4e9e;
+            background: #0d4e9e
         }
 
         .pdf-box {
@@ -278,7 +265,7 @@ if (isset($_POST['submit'])) {
             border-radius: 10px;
             background: #eee;
             font-size: 18px;
-            font-weight: bold;
+            font-weight: bold
         }
 
         .last {
@@ -286,17 +273,17 @@ if (isset($_POST['submit'])) {
             color: #fff;
             text-align: center;
             padding: 15px 0;
-            width: 100%;
+            width: 100%
         }
 
         @media(max-width:600px) {
             .verification-box {
                 width: 95%;
-                padding: 20px;
+                padding: 20px
             }
 
             .last-policy {
-                padding: 15px;
+                padding: 15px
             }
         }
     </style>
@@ -304,15 +291,15 @@ if (isset($_POST['submit'])) {
 
 <body>
     <div class="main">
-        <nav>
-            <a href="dashboard.php">Home</a>
-        </nav>
+        <nav><a href="dashboard.php">Home</a></nav>
     </div>
     <div class="last-policy">
         <div class="verification-box">
             <h2>Company Verification</h2>
             <?php if ($message != ""): ?>
-                <div class="<?= htmlspecialchars($message_type) ?>"><?= htmlspecialchars($message) ?></div>
+                <div class="<?= htmlspecialchars($message_type) ?>">
+                    <?= htmlspecialchars($message) ?>
+                </div>
             <?php endif; ?>
             <?php if ($data && $data['status'] === 'rejected'): ?>
                 <div class="error">
@@ -329,8 +316,10 @@ if (isset($_POST['submit'])) {
                 <?php if (!empty($data['owner_photo'])): ?>
                     <div class="current-file">
                         <strong>Current Owner Photo</strong><br><br>
-                        <img src="../uploads/<?= htmlspecialchars($data['owner_photo']) ?>" class="preview" alt="Owner Photo">
-                        <a href="../uploads/<?= htmlspecialchars($data['owner_photo']) ?>" target="_blank" class="view-btn">View Photo</a><br>
+                        <img src="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($data['owner_photo']) ?>" class="preview" alt="Owner Photo">
+                        <a href="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($data['owner_photo']) ?>" target="_blank" class="view-btn">
+                            View Photo
+                        </a><br>
                         <input type="file" name="owner_photo" accept="image/*">
                     </div>
                 <?php else: ?>
@@ -344,15 +333,17 @@ if (isset($_POST['submit'])) {
                         $ext = strtolower(pathinfo($data['company_certificate'], PATHINFO_EXTENSION));
                         if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])):
                         ?>
-                            <img src="../uploads/<?= htmlspecialchars($data['company_certificate']) ?>" class="preview" alt="Certificate">
+                            <img src="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($data['company_certificate']) ?>" class="preview" alt="Certificate">
                         <?php else: ?>
                             <div class="pdf-box">PDF Certificate</div>
                         <?php endif; ?>
-                        <a href="../uploads/<?= htmlspecialchars($data['company_certificate']) ?>" target="_blank" class="view-btn">View Certificate</a><br>
-                        <input type="file" name="company_certificate" accept=".jpg,.jpeg,.png,.pdf">
+                        <a href="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($data['company_certificate']) ?>" target="_blank" class="view-btn">
+                            View Certificate
+                        </a><br>
+                        <input type="file" name="company_certificate" accept=".jpg,.jpeg,.png,.webp,.pdf">
                     </div>
                 <?php else: ?>
-                    <input type="file" name="company_certificate" accept=".jpg,.jpeg,.png,.pdf" required>
+                    <input type="file" name="company_certificate" accept=".jpg,.jpeg,.png,.webp,.pdf" required>
                 <?php endif; ?>
                 <button type="submit" name="submit">Submit Verification</button>
             </form>

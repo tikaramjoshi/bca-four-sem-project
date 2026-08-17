@@ -86,8 +86,7 @@ $routes = $conn->query("SELECT route_id,city_name,created_at FROM routes ORDER B
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Manage Routes</title>
-    <link rel="stylesheet" href="dashboard_admin.css">
-    <link rel="stylesheet" href="routes.css">
+    <link rel="stylesheet" href="side.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
         .route-page {
@@ -99,24 +98,23 @@ $routes = $conn->query("SELECT route_id,city_name,created_at FROM routes ORDER B
         .route-table-box {
             background: #fff;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .08)
         }
 
         .route-header {
             padding: 20px 25px;
-            margin-bottom: 20px
+            margin-bottom: 20px;
         }
 
         .route-header h2,
         .route-form-box h3,
         .table-title h3 {
             margin: 0;
-            color: #1560BD
+            color: #1560BD;
         }
 
         .route-header p {
             margin: 6px 0 0;
-            color: #777
+            color: #777;
         }
 
         .route-message {
@@ -125,22 +123,22 @@ $routes = $conn->query("SELECT route_id,city_name,created_at FROM routes ORDER B
             margin-bottom: 20px;
             font-weight: bold;
             background: #e7f5e9;
-            color: #16803c
+            color: #16803c;
         }
 
         .route-form-box {
             padding: 22px;
-            margin-bottom: 20px
+            margin-bottom: 20px;
         }
 
         .route-form-box h3 {
-            margin-bottom: 20px
+            margin-bottom: 20px;
         }
 
         .route-form {
             display: flex;
             gap: 12px;
-            align-items: center
+            align-items: center;
         }
 
         .route-form input {
@@ -149,11 +147,11 @@ $routes = $conn->query("SELECT route_id,city_name,created_at FROM routes ORDER B
             padding: 8px 12px;
             border: 1px solid #ccc;
             border-radius: 6px;
-            outline: 0
+            outline: 0;
         }
 
         .route-form input:focus {
-            border-color: #1560BD
+            border-color: #1560BD;
         }
 
         .route-btn,
@@ -166,46 +164,46 @@ $routes = $conn->query("SELECT route_id,city_name,created_at FROM routes ORDER B
             border-radius: 6px;
             text-decoration: none;
             font-weight: bold;
-            cursor: pointer
+            cursor: pointer;
         }
 
         .route-btn {
             height: 42px;
             padding: 0 18px;
-            border: 0
+            border: 0;
         }
 
         .route-btn-primary {
             background: #1560BD;
-            color: #fff
+            color: #fff;
         }
 
         .route-btn-primary:hover {
-            background: #0d4e9c
+            background: #0d4e9c;
         }
 
         .route-btn-cancel {
             background: #eee;
-            color: #555
+            color: #555;
         }
 
         .route-table-box {
-            overflow: hidden
+            overflow: hidden;
         }
 
         .table-title {
             padding: 18px 22px;
-            border-bottom: 1px solid #eee
+            border-bottom: 1px solid #eee;
         }
 
         .route-table-wrapper {
-            overflow-x: auto
+            overflow-x: auto;
         }
 
         .route-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 650px
+            min-width: 650px;
         }
 
         .route-table th {
@@ -213,41 +211,41 @@ $routes = $conn->query("SELECT route_id,city_name,created_at FROM routes ORDER B
             color: #fff;
             padding: 13px;
             text-align: left;
-            font-size: 13px
+            font-size: 13px;
         }
 
         .route-table td {
             padding: 14px;
             border-bottom: 1px solid #eee;
             color: #444;
-            font-size: 14px
+            font-size: 14px;
         }
 
         .route-table tr:hover {
-            background: #f8fbff
+            background: #f8fbff;
         }
 
         .action-edit,
         .action-delete {
             padding: 6px 10px;
             font-size: 12px;
-            margin-right: 5px
+            margin-right: 5px;
         }
 
         .action-edit {
             background: #e4edff;
-            color: #1560BD
+            color: #1560BD;
         }
 
         .action-delete {
             background: #ffe1e1;
-            color: #d62828
+            color: #d62828;
         }
 
         .route-empty {
             text-align: center;
-            padding: 40px !important;
-            color: #999 !important
+            padding: 40px;
+            color: #999;
         }
 
         @media(max-width:600px) {
@@ -264,102 +262,71 @@ $routes = $conn->query("SELECT route_id,city_name,created_at FROM routes ORDER B
 </head>
 
 <body>
-    <div class="header">
-        <h2>Welcome Admin</h2>
-        <div class="setting">
-            <strong><?= htmlspecialchars($admin_name) ?></strong>
-            <img src="../uploads/profile/admin/<?= htmlspecialchars($admin_name) ?>/<?= htmlspecialchars($profile_image) ?>" class="setting-profile" onclick="toggleMenu()">
-            <div class="setting-menu" id="settingMenu">
-                <a href="profile.php"><i class="fa fa-user"></i> My Profile</a>
-                <a href="edit_profile.php"><i class="fa fa-edit"></i> Edit Profile</a>
-                <a href="policy.php"><i class="fa fa-file"></i> Manage Policy</a>
-                <a href="../logout.php"><i class="fa fa-sign-out-alt"></i> Logout</a>
+    <?php include "admin_header.php"; ?>
+    <div class="content">
+        <div class="route-page">
+            <div class="route-header">
+                <h2>Manage Routes</h2>
+                <p>Add, edit and delete city names</p>
             </div>
-        </div>
-    </div>
 
-    <div class="container">
-        <div class="sidebar">
-            <a href="dashboard.php">Dashboard</a>
-            <a href="view_owners.php">Manage Owners</a>
-            <a href="drivers.php">Manage Drivers</a>
-            <a href="passengers.php">Manage Passengers</a>
-            <a href="pending_bus.php">Pending Bus</a>
-            <a href="all_bus.php">All Bus</a>
-            <a href="assign_driver.php">Assign Driver</a>
-            <a href="routes.php" class="active">Routes</a>
-            <a href="boarding.php">Boarding</a>
-            <a href="dropping.php">Dropping</a>
-            <a href="schedule.php">Schedule</a>
-            <a href="bookings.php">Bookings</a>
-        </div>
+            <?php if ($message): ?>
+                <div class="route-message"><?= htmlspecialchars($message) ?></div>
+            <?php endif; ?>
 
-        <div class="content">
-            <div class="route-page">
-                <div class="route-header">
-                    <h2>Manage Routes</h2>
-                    <p>Add, edit and delete city names</p>
+            <div class="route-form-box">
+                <h3><i class="fa <?= $edit_city ? 'fa-edit' : 'fa-plus-circle' ?>"></i> <?= $edit_city ? 'Edit City' : 'Add City' ?></h3>
+                <form method="POST" class="route-form">
+                    <?php if ($edit_city): ?>
+                        <input type="hidden" name="route_id" value="<?= $edit_city['route_id'] ?>">
+                        <input type="text" name="city_name" value="<?= htmlspecialchars($edit_city['city_name']) ?>" placeholder="Enter city name" maxlength="100" required>
+                        <button name="update_city" class="route-btn route-btn-primary"><i class="fa fa-save"></i> Update City</button>
+                        <a href="routes.php" class="route-btn route-btn-cancel">Cancel</a>
+                    <?php else: ?>
+                        <input type="text" name="city_name" placeholder="Enter city name" maxlength="100" required>
+                        <button name="add_city" class="route-btn route-btn-primary"><i class="fa fa-plus"></i> Add City</button>
+                    <?php endif; ?>
+                </form>
+            </div>
+
+            <div class="route-table-box">
+                <div class="table-title">
+                    <h3><i class="fa fa-route"></i> Route List</h3>
                 </div>
-
-                <?php if ($message): ?>
-                    <div class="route-message"><?= htmlspecialchars($message) ?></div>
-                <?php endif; ?>
-
-                <div class="route-form-box">
-                    <h3><i class="fa <?= $edit_city ? 'fa-edit' : 'fa-plus-circle' ?>"></i> <?= $edit_city ? 'Edit City' : 'Add City' ?></h3>
-                    <form method="POST" class="route-form">
-                        <?php if ($edit_city): ?>
-                            <input type="hidden" name="route_id" value="<?= $edit_city['route_id'] ?>">
-                            <input type="text" name="city_name" value="<?= htmlspecialchars($edit_city['city_name']) ?>" placeholder="Enter city name" maxlength="100" required>
-                            <button name="update_city" class="route-btn route-btn-primary"><i class="fa fa-save"></i> Update City</button>
-                            <a href="routes.php" class="route-btn route-btn-cancel">Cancel</a>
-                        <?php else: ?>
-                            <input type="text" name="city_name" placeholder="Enter city name" maxlength="100" required>
-                            <button name="add_city" class="route-btn route-btn-primary"><i class="fa fa-plus"></i> Add City</button>
-                        <?php endif; ?>
-                    </form>
-                </div>
-
-                <div class="route-table-box">
-                    <div class="table-title">
-                        <h3><i class="fa fa-route"></i> Route List</h3>
-                    </div>
-                    <div class="route-table-wrapper">
-                        <table class="route-table">
-                            <thead>
-                                <tr>
-                                    <th>Route ID</th>
-                                    <th>City Name</th>
-                                    <th>Created At</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if ($routes && $routes->num_rows): ?>
-                                    <?php while ($route = $routes->fetch_assoc()): ?>
-                                        <tr>
-                                            <td><?= $route['route_id'] ?></td>
-                                            <td><strong><?= htmlspecialchars($route['city_name']) ?></strong></td>
-                                            <td><?= date("d M Y", strtotime($route['created_at'])) ?></td>
-                                            <td>
-                                                <a href="?edit=<?= $route['route_id'] ?>" class="action-edit"><i class="fa fa-edit"></i> Edit</a>
-                                                <a href="?delete=<?= $route['route_id'] ?>" class="action-delete" onclick="return confirm('Are you sure you want to delete this city?')"><i class="fa fa-trash"></i> Delete</a>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                <?php else: ?>
+                <div class="route-table-wrapper">
+                    <table class="route-table">
+                        <thead>
+                            <tr>
+                                <th>Route ID</th>
+                                <th>City Name</th>
+                                <th>Created At</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($routes && $routes->num_rows): ?>
+                                <?php while ($route = $routes->fetch_assoc()): ?>
                                     <tr>
-                                        <td colspan="4" class="route-empty"><i class="fa fa-route"></i><br><br>No cities found.</td>
+                                        <td><?= $route['route_id'] ?></td>
+                                        <td><strong><?= htmlspecialchars($route['city_name']) ?></strong></td>
+                                        <td><?= date("d M Y", strtotime($route['created_at'])) ?></td>
+                                        <td>
+                                            <a href="?edit=<?= $route['route_id'] ?>" class="action-edit"><i class="fa fa-edit"></i> Edit</a>
+                                            <a href="?delete=<?= $route['route_id'] ?>" class="action-delete" onclick="return confirm('Are you sure you want to delete this city?')"><i class="fa fa-trash"></i> Delete</a>
+                                        </td>
                                     </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="4" class="route-empty"><i class="fa fa-route"></i><br><br>No cities found.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
         function toggleMenu() {
             document.getElementById("settingMenu").classList.toggle("show")

@@ -16,6 +16,8 @@ if (!$result) die("Database Error: " . mysqli_error($conn));
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>View Owners</title>
+    <link rel="stylesheet" href="side.css">
+
     <style>
         * {
             box-sizing: border-box
@@ -38,7 +40,7 @@ if (!$result) die("Database Error: " . mysqli_error($conn));
             box-shadow: 0 4px 15px rgba(0, 0, 0, .12)
         }
 
-        h2 {
+        .title {
             text-align: center;
             margin: 0 0 25px;
             color: #333
@@ -123,49 +125,53 @@ if (!$result) die("Database Error: " . mysqli_error($conn));
 </head>
 
 <body>
-    <div class="box">
-        <h2>All Owners</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Owner ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Verification</th>
-                        <th>Registered Date</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (mysqli_num_rows($result) > 0): ?>
-                        <?php while ($owner = mysqli_fetch_assoc($result)): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($owner['user_id']) ?></td>
-                                <td><?= htmlspecialchars($owner['name']) ?></td>
-                                <td><?= htmlspecialchars($owner['email']) ?></td>
-                                <td><?= htmlspecialchars($owner['phone']) ?></td>
-                                <td>
-                                    <?php if ($owner['verification_status'] == "verified"): ?>
-                                        <span class="verified">Verified</span>
-                                    <?php else: ?>
-                                        <span class="unverified">Unverified</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?= htmlspecialchars($owner['created_at']) ?></td>
-                                <td><a href="view_owner.php?id=<?= (int)$owner['user_id'] ?>" class="view-btn">View Details</a></td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
+    <?php include "admin_header.php"; ?>
+
+    <div class="content">
+        <div class="box">
+            <h2 class="title">All Owners</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
                         <tr>
-                            <td colspan="7" style="text-align:center">No owners found.</td>
+                            <th>Owner ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Verification </th>
+                            <th>Registered Date</th>
+                            <th>Action</th>
                         </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php if (mysqli_num_rows($result) > 0): ?>
+                            <?php while ($owner = mysqli_fetch_assoc($result)): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($owner['user_id']) ?></td>
+                                    <td><?= htmlspecialchars($owner['name']) ?></td>
+                                    <td><?= htmlspecialchars($owner['email']) ?></td>
+                                    <td><?= htmlspecialchars($owner['phone']) ?></td>
+                                    <td>
+                                        <?php if ($owner['verification_status'] == "verified"): ?>
+                                            <span class="verified">Verified</span>
+                                        <?php else: ?>
+                                            <span class="unverified">Unverified</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?= htmlspecialchars($owner['created_at']) ?></td>
+                                    <td><a href="view_owner.php?id=<?= (int)$owner['user_id'] ?>" class="view-btn">View Details</a></td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="7" style="text-align:center">No owners found.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+            <a href="dashboard.php" class="back">Back</a>
         </div>
-        <a href="dashboard.php" class="back">Back</a>
     </div>
 </body>
 

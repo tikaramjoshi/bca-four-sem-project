@@ -1,0 +1,155 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+html,
+body{
+    min-height:100%;
+    background:#f4f6f9;
+}
+
+.header{
+    height:70px;
+    width:100%;
+    background:#1560bd;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 25px;
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:2000;
+}
+
+.header h2{
+    font-size:24px;
+}
+
+.sidebar{
+    position:fixed;
+    top:70px;
+    left:0;
+    bottom:0;
+    width:190px;
+    background:#1d2c4e;
+    overflow-y:auto;
+    z-index:1500;
+}
+
+.sidebar a{
+    display:block;
+    padding:15px 20px;
+    color:#fff;
+    text-decoration:none;
+    border-bottom:1px solid rgba(255,255,255,.09);
+}
+
+.sidebar a:hover,
+.sidebar a.active{
+    background:#8c0f3b;
+}
+
+.content{
+    margin-left:200px;
+    width:calc(100% - 200px);
+    min-height:calc(100vh - 70px);
+    padding:25px;
+    padding-top:95px;
+}
+
+.setting{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.setting strong{
+    color:#fff;
+    font-size:22px;
+}
+
+.setting-profile{
+    width:50px;
+    height:50px;
+    border:3px solid #fff;
+    border-radius:50%;
+    object-fit:cover;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.setting-profile:hover{
+    transform:scale(1.05);
+}
+
+.setting-menu{
+    position:absolute;
+    top:60px;
+    right:0;
+    width:220px;
+    background:#fff;
+    border-radius:8px;
+    display:none;
+    overflow:hidden;
+    z-index:3000;
+    box-shadow:0 5px 20px rgba(0,0,0,.2);
+}
+
+.setting-menu.show{
+    display:block;
+}
+
+.setting-menu a{
+    display:block;
+    padding:12px 15px;
+    color:#333;
+    text-decoration:none;
+    border-bottom:1px solid #eee;
+}
+
+.setting-menu a:hover{
+    background:#1560bd;
+    color:#fff;
+}
+
+.setting-menu hr{
+    margin:0;
+    border:0;
+    border-top:1px solid #ddd;
+}
+
+@media(max-width:500px){
+    .header{
+        padding:0 15px;
+    }
+
+    .header h2{
+        font-size:20px;
+    }
+
+    .sidebar{
+        width:180px;
+    }
+
+    .content{
+        margin-left:180px;
+        width:calc(100% - 180px);
+        padding:15px;
+        padding-top:85px;
+    }
+
+    .setting strong{
+        font-size:16px;
+    }
+
+    .setting-profile{
+        width:45px;
+        height:45px;
+    }
+}

@@ -23,6 +23,7 @@ $owner = mysqli_fetch_assoc($result);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Owner Details</title>
+    <link rel="stylesheet" href="side.css">
     <style>
         * {
             box-sizing: border-box
@@ -166,94 +167,97 @@ $owner = mysqli_fetch_assoc($result);
 </head>
 
 <body>
-    <div class="box">
-        <h2>Owner Details</h2>
-        <div class="profile">
-            <?php if (!empty($owner['profile_image'])): ?>
-                <img src="../uploads/<?= htmlspecialchars($owner['profile_image']) ?>" alt="Owner Profile">
-            <?php elseif (!empty($owner['owner_photo'])): ?>
-                <img src="../uploads/<?= htmlspecialchars($owner['owner_photo']) ?>" alt="Owner Photo">
-            <?php else: ?>
-                <img src="../images/default.png" alt="Default Profile">
-            <?php endif; ?>
+    <?php include "admin_header.php"; ?>
+    <div class="content">
+        <div class="box">
+            <h2>Owner Details</h2>
+            <div class="profile">
+                <?php if (!empty($owner['profile_image'])): ?>
+                    <img src="../uploads/<?= htmlspecialchars($owner['profile_image']) ?>" alt="Owner Profile">
+                <?php elseif (!empty($owner['owner_photo'])): ?>
+                    <img src="../uploads/<?= htmlspecialchars($owner['owner_photo']) ?>" alt="Owner Photo">
+                <?php else: ?>
+                    <img src="../images/default.png" alt="Default Profile">
+                <?php endif; ?>
+            </div>
+            <table>
+                <tr>
+                    <td colspan="2" class="section-title">Basic Information</td>
+                </tr>
+                <tr>
+                    <td>Owner ID</td>
+                    <td><?= htmlspecialchars($owner['user_id']) ?></td>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td><?= htmlspecialchars($owner['name']) ?></td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td><?= htmlspecialchars($owner['email']) ?></td>
+                </tr>
+                <tr>
+                    <td>Phone</td>
+                    <td><?= htmlspecialchars($owner['phone']) ?></td>
+                </tr>
+                <tr>
+                    <td>Registered Date</td>
+                    <td><?= htmlspecialchars($owner['created_at']) ?></td>
+                </tr>
+                <tr>
+                    <td>Account Verification</td>
+                    <td><?= ($owner['verification_status'] == "verified") ? '<span class="verified">Verified</span>' : '<span class="unverified">Unverified</span>' ?></td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="section-title">Company Information</td>
+                </tr>
+                <tr>
+                    <td>Company Name</td>
+                    <td><?= !empty($owner['company_name']) ? htmlspecialchars($owner['company_name']) : "-" ?></td>
+                </tr>
+                <tr>
+                    <td>Registration Number</td>
+                    <td><?= !empty($owner['company_registration_no']) ? htmlspecialchars($owner['company_registration_no']) : "-" ?></td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="section-title">Verification Information</td>
+                </tr>
+                <tr>
+                    <td>Verification Status</td>
+                    <td>
+                        <?php
+                        if ($owner['verification_request_status'] == "verified") echo '<span class="approved">Verified</span>';
+                        elseif ($owner['verification_request_status'] == "pending") echo '<span class="pending">Pending</span>';
+                        elseif ($owner['verification_request_status'] == "rejected") echo '<span class="rejected">Rejected</span>';
+                        else echo "-";
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Owner Verification Photo</td>
+                    <td>
+                        <?php if (!empty($owner['owner_photo'])): ?>
+                            <img src="../uploads/<?= htmlspecialchars($owner['owner_photo']) ?>" class="document" alt="Owner Photo"><br>
+                            <a href="../uploads/<?= htmlspecialchars($owner['owner_photo']) ?>" target="_blank" class="view-document">View Full Image</a>
+                            <?php else: ?>-<?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Company Certificate</td>
+                    <td>
+                        <?php if (!empty($owner['company_certificate'])): ?>
+                            <img src="../uploads/<?= htmlspecialchars($owner['company_certificate']) ?>" class="document" alt="Company Certificate"><br>
+                            <a href="../uploads/<?= htmlspecialchars($owner['company_certificate']) ?>" target="_blank" class="view-document">View Certificate</a>
+                            <?php else: ?>-<?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Reject Reason</td>
+                    <td><?= !empty($owner['reject_reason']) ? nl2br(htmlspecialchars($owner['reject_reason'])) : "-" ?></td>
+                </tr>
+            </table>
+            <a href="view_owners.php" class="back">Back</a>
         </div>
-        <table>
-            <tr>
-                <td colspan="2" class="section-title">Basic Information</td>
-            </tr>
-            <tr>
-                <td>Owner ID</td>
-                <td><?= htmlspecialchars($owner['user_id']) ?></td>
-            </tr>
-            <tr>
-                <td>Name</td>
-                <td><?= htmlspecialchars($owner['name']) ?></td>
-            </tr>
-            <tr>
-                <td>Email</td>
-                <td><?= htmlspecialchars($owner['email']) ?></td>
-            </tr>
-            <tr>
-                <td>Phone</td>
-                <td><?= htmlspecialchars($owner['phone']) ?></td>
-            </tr>
-            <tr>
-                <td>Registered Date</td>
-                <td><?= htmlspecialchars($owner['created_at']) ?></td>
-            </tr>
-            <tr>
-                <td>Account Verification</td>
-                <td><?= ($owner['verification_status'] == "verified") ? '<span class="verified">Verified</span>' : '<span class="unverified">Unverified</span>' ?></td>
-            </tr>
-            <tr>
-                <td colspan="2" class="section-title">Company Information</td>
-            </tr>
-            <tr>
-                <td>Company Name</td>
-                <td><?= !empty($owner['company_name']) ? htmlspecialchars($owner['company_name']) : "-" ?></td>
-            </tr>
-            <tr>
-                <td>Registration Number</td>
-                <td><?= !empty($owner['company_registration_no']) ? htmlspecialchars($owner['company_registration_no']) : "-" ?></td>
-            </tr>
-            <tr>
-                <td colspan="2" class="section-title">Verification Information</td>
-            </tr>
-            <tr>
-                <td>Verification Status</td>
-                <td>
-                    <?php
-                    if ($owner['verification_request_status'] == "verified") echo '<span class="approved">Verified</span>';
-                    elseif ($owner['verification_request_status'] == "pending") echo '<span class="pending">Pending</span>';
-                    elseif ($owner['verification_request_status'] == "rejected") echo '<span class="rejected">Rejected</span>';
-                    else echo "-";
-                    ?>
-                </td>
-            </tr>
-            <tr>
-                <td>Owner Verification Photo</td>
-                <td>
-                    <?php if (!empty($owner['owner_photo'])): ?>
-                        <img src="../uploads/<?= htmlspecialchars($owner['owner_photo']) ?>" class="document" alt="Owner Photo"><br>
-                        <a href="../uploads/<?= htmlspecialchars($owner['owner_photo']) ?>" target="_blank" class="view-document">View Full Image</a>
-                        <?php else: ?>-<?php endif; ?>
-                </td>
-            </tr>
-            <tr>
-                <td>Company Certificate</td>
-                <td>
-                    <?php if (!empty($owner['company_certificate'])): ?>
-                        <img src="../uploads/<?= htmlspecialchars($owner['company_certificate']) ?>" class="document" alt="Company Certificate"><br>
-                        <a href="../uploads/<?= htmlspecialchars($owner['company_certificate']) ?>" target="_blank" class="view-document">View Certificate</a>
-                        <?php else: ?>-<?php endif; ?>
-                </td>
-            </tr>
-            <tr>
-                <td>Reject Reason</td>
-                <td><?= !empty($owner['reject_reason']) ? nl2br(htmlspecialchars($owner['reject_reason'])) : "-" ?></td>
-            </tr>
-        </table>
-        <a href="view_owners.php" class="back">Back</a>
     </div>
 </body>
 

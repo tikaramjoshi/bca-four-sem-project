@@ -102,11 +102,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !$locked) {
     <div class="main">
         <nav>
             <div>
-                <a href="index.php" id="home">Home</a>
+                <a href="index.php" id="home"><i class="fa fa-home"></i>&nbsp; Home</a>
             </div>
             <div class="submit">
-                <button type="button" id="login" class="active">Login</button>
-                <button type="button" id="register" onclick="location.href='register.php'">Register</button>
+                <button type="button" id="login" class="active"> <i class="fa fa-sign-in"></i>&nbsp; Login</button>
+                <button type="button" id="register" onclick="location.href='register.php'"><i class="fa fa-plus"></i>&nbsp; Register</button>
             </div>
         </nav>
     </div>
@@ -148,7 +148,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !$locked) {
             }
         }
         <?php if ($message_type == "success") { ?>
-            let randomTime = Math.floor(Math.random() * 5) + 1;
+            let randomTime = Math.floor(Math.random() * 3) + 1;
             setTimeout(function() {
                 window.location.href = "<?php echo $page; ?>";
             }, randomTime * 1000);

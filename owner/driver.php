@@ -218,6 +218,7 @@ $total_assignments = count($assignments);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Driver Management</title>
+    <link rel="stylesheet" href="driver.css">
 
 </head>
 

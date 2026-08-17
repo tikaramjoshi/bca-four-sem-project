@@ -61,122 +61,127 @@ $message = match ($_GET['msg'] ?? '') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Manage Drivers</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="drivers.css">
+    <link rel="stylesheet" href="side.css">
 </head>
 
 <body>
-    <div class="page">
-        <div class="page-header">
-            <div>
-                <h1>Driver Management</h1>
-                <p>Manage, verify and monitor all registered drivers.</p>
-            </div><a href="dashboard.php" class="back-btn">Home</a>
-        </div>
-        <?php if ($message): ?><div class="message"><?= htmlspecialchars($message) ?></div><?php endif; ?>
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-title">Total Drivers</div>
-                <div class="stat-value"><?= $total_drivers ?></div>
+
+    <?php include "admin_header.php"; ?>
+    <div class="content">
+        <div class="page">
+            <div class="page-header">
+                <div>
+                    <h1>Driver Management</h1>
+                    <p>Manage, verify and monitor all registered drivers.</p>
+                </div><a href="dashboard.php" class="back-btn"> <i class="fa fa-home"></i>&nbsp; Home &nbsp;</a>
             </div>
-            <div class="stat-card">
-                <div class="stat-title">Verified Drivers</div>
-                <div class="stat-value"><?= $verified_drivers ?></div>
+            <?php if ($message): ?><div class="message"><?= htmlspecialchars($message) ?></div><?php endif; ?>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-title">Total Drivers</div>
+                    <div class="stat-value"><?= $total_drivers ?></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Verified Drivers</div>
+                    <div class="stat-value"><?= $verified_drivers ?></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Unverified Drivers</div>
+                    <div class="stat-value"><?= $unverified_drivers ?></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Assigned Drivers</div>
+                    <div class="stat-value"><?= $assigned_drivers ?></div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-title">Unverified Drivers</div>
-                <div class="stat-value"><?= $unverified_drivers ?></div>
+            <div class="filters">
+                <form method="GET" class="filter-form">
+                    <input type="text" name="search" class="search-box" placeholder="Search by name, email, phone or bus..." value="<?= htmlspecialchars($search) ?>">
+                    <select name="status" class="status-select">
+                        <option value="all" <?= $status === 'all' ? 'selected' : '' ?>>All Drivers</option>
+                        <option value="pending" <?= $status === 'pending' ? 'selected' : '' ?>>Pending</option>
+                        <option value="verified" <?= $status === 'verified' ? 'selected' : '' ?>>Verified</option>
+                        <option value="rejected" <?= $status === 'rejected' ? 'selected' : '' ?>>Rejected</option>
+                    </select>
+                    <button type="submit" class="filter-btn">Search</button>
+                    <a href="drivers.php" class="clear-btn">Clear</a>
+                </form>
             </div>
-            <div class="stat-card">
-                <div class="stat-title">Assigned Drivers</div>
-                <div class="stat-value"><?= $assigned_drivers ?></div>
-            </div>
-        </div>
-        <div class="filters">
-            <form method="GET" class="filter-form">
-                <input type="text" name="search" class="search-box" placeholder="Search by name, email, phone or bus..." value="<?= htmlspecialchars($search) ?>">
-                <select name="status" class="status-select">
-                    <option value="all" <?= $status === 'all' ? 'selected' : '' ?>>All Drivers</option>
-                    <option value="pending" <?= $status === 'pending' ? 'selected' : '' ?>>Pending</option>
-                    <option value="verified" <?= $status === 'verified' ? 'selected' : '' ?>>Verified</option>
-                    <option value="rejected" <?= $status === 'rejected' ? 'selected' : '' ?>>Rejected</option>
-                </select>
-                <button type="submit" class="filter-btn">Search</button>
-                <a href="drivers.php" class="clear-btn">Clear</a>
-            </form>
-        </div>
-        <div class="drivers-box">
-            <div class="table-header">
-                <h2>All Drivers</h2><span class="driver-count"><?= $total_drivers ?> driver(s)</span>
-            </div>
-            <?php if ($drivers): ?>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Driver</th>
-                                <th>Phone</th>
-                                <th>Verification</th>
-                                <th>Assigned Bus</th>
-                                <th>Registered</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($drivers as $driver): $image = $driver['profile_image'] ?: 'default.png'; ?>
+            <div class="drivers-box">
+                <div class="table-header">
+                    <h2>All Drivers</h2><span class="driver-count"><?= $total_drivers ?> driver(s)</span>
+                </div>
+                <?php if ($drivers): ?>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <div class="driver-info"><img src="../uploads/profile/<?= htmlspecialchars($image) ?>" class="driver-image" alt="Driver" onerror="this.onerror=null;this.src='../images/default.png'">
-                                            <div>
-                                                <div class="driver-name"><?= htmlspecialchars($driver['name']) ?></div>
-                                                <div class="driver-email"><?= htmlspecialchars($driver['email']) ?></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><?= htmlspecialchars($driver['phone']) ?></td>
-                                    <td><?php if ($driver['verification_status'] === 'verified'): ?><span class="badge verified">Verified</span><?php elseif ($driver['verification_status'] === 'pending'): ?><span class="badge unverified">Pending</span><?php else: ?><span class="badge unverified">Rejected</span><?php endif; ?></td>
-                                    <td><?php if ($driver['bus_id']): ?><span class="badge assigned"><?= htmlspecialchars($driver['bus_number']) ?></span>
-                                            <div class="bus-type"><?= htmlspecialchars($driver['bus_type']) ?></div><?php else: ?><span class="badge not-assigned">Not Assigned</span><?php endif; ?>
-                                    </td>
-                                    <td><?= date("d M Y", strtotime($driver['created_at'])) ?></td>
-                                    <td>
-                                        <div class="actions">
-                                            <button type="button" class="action-btn view" onclick='openDriverModal(<?= json_encode($driver) ?>)'>View</button>
-                                            <?php if ($driver['verification_status'] !== 'verified'): ?><a href="drivers.php?action=verify&id=<?= (int)$driver['user_id'] ?>" class="action-btn approve" onclick="return confirm('Verify this driver?')">Verify</a><?php else: ?><a href="drivers.php?action=reject&id=<?= (int)$driver['user_id'] ?>" class="action-btn reject" onclick="return confirm('Reject verification for this driver?')">Reject</a><?php endif; ?>
-                                            <a href="view_driver.php?id=<?= (int)$driver['user_id'] ?>" class="action-btn view">Details</a>
-                                            <a href="drivers.php?action=delete&id=<?= (int)$driver['user_id'] ?>" class="action-btn delete" onclick="return confirm('Are you sure you want to delete this driver?')">Delete</a>
-                                        </div>
-                                    </td>
+                                    <th>Driver</th>
+                                    <th>Phone</th>
+                                    <th>Verification</th>
+                                    <th>Assigned Bus</th>
+                                    <th>Registered</th>
+                                    <th>Actions</th>
                                 </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php else: ?><div class="empty">
-                    <div class="empty-icon">🚗</div>
-                    <h3>No Drivers Found</h3>
-                    <p>No driver matches your current search or filter.</p>
-                </div><?php endif; ?>
-        </div>
-    </div>
-    <div class="modal" id="driverModal" onclick="closeModalOutside(event)">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>Driver Details</h3><button class="close-modal" onclick="closeDriverModal()">×</button>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($drivers as $driver): $image = $driver['profile_image'] ?: 'default.png'; ?>
+                                    <tr>
+                                        <td>
+                                            <div class="driver-info"><img src="../uploads/profile/<?= htmlspecialchars($image) ?>" class="driver-image" alt="Driver" onerror="this.onerror=null;this.src='../uploads/default.png'">
+                                                <div>
+                                                    <div class="driver-name"><?= htmlspecialchars($driver['name']) ?></div>
+                                                    <div class="driver-email"><?= htmlspecialchars($driver['email']) ?></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><?= htmlspecialchars($driver['phone']) ?></td>
+                                        <td><?php if ($driver['verification_status'] === 'verified'): ?><span class="badge verified">Verified</span><?php elseif ($driver['verification_status'] === 'pending'): ?><span class="badge unverified">Pending</span><?php else: ?><span class="badge unverified">Rejected</span><?php endif; ?></td>
+                                        <td><?php if ($driver['bus_id']): ?><span class="badge assigned"><?= htmlspecialchars($driver['bus_number']) ?></span>
+                                                <div class="bus-type"><?= htmlspecialchars($driver['bus_type']) ?></div><?php else: ?><span class="badge not-assigned">Not Assigned</span><?php endif; ?>
+                                        </td>
+                                        <td><?= date("d M Y", strtotime($driver['created_at'])) ?></td>
+                                        <td>
+                                            <div class="actions">
+                                                <button type="button" class="action-btn view" onclick='openDriverModal(<?= json_encode($driver) ?>)'>View</button>
+                                                <?php if ($driver['verification_status'] !== 'verified'): ?><a href="drivers.php?action=verify&id=<?= (int)$driver['user_id'] ?>" class="action-btn approve" onclick="return confirm('Verify this driver?')">Verify</a><?php else: ?><a href="drivers.php?action=reject&id=<?= (int)$driver['user_id'] ?>" class="action-btn reject" onclick="return confirm('Reject verification for this driver?')">Reject</a><?php endif; ?>
+                                                <a href="view_driver.php?id=<?= (int)$driver['user_id'] ?>" class="action-btn view">Details</a>
+                                                <a href="drivers.php?action=delete&id=<?= (int)$driver['user_id'] ?>" class="action-btn delete" onclick="return confirm('Are you sure you want to delete this driver?')">Delete</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?><div class="empty">
+                        <h3>No Drivers Found</h3>
+                        <p>No driver matches your current search or filter.</p>
+                    </div><?php endif; ?>
             </div>
-            <div class="modal-body">
-                <div class="modal-profile"><img id="modalImage" src="../images/default.png" alt="Driver">
-                    <h3 id="modalName">Driver</h3>
-                    <p id="modalEmail">-</p>
+        </div>
+        <div class="modal" id="driverModal" onclick="closeModalOutside(event)">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3>Driver Details</h3><button class="close-modal" onclick="closeDriverModal()"> <i class=" fa fa-times"></i></button>
                 </div>
-                <div class="detail-grid">
-                    <div class="detail-item"><small>Driver ID</small><strong id="modalId">-</strong></div>
-                    <div class="detail-item"><small>Phone</small><strong id="modalPhone">-</strong></div>
-                    <div class="detail-item"><small>Verification</small><strong id="modalVerification">-</strong></div>
-                    <div class="detail-item"><small>Bus Number</small><strong id="modalBus">-</strong></div>
-                    <div class="detail-item"><small>Bus Name</small><strong id="modalBusName">-</strong></div>
-                    <div class="detail-item"><small>Bus Type</small><strong id="modalBusType">-</strong></div>
-                    <div class="detail-item"><small>Bus Status</small><strong id="modalBusStatus">-</strong></div>
-                    <div class="detail-item"><small>Registered Date</small><strong id="modalDate">-</strong></div>
+                <div class="modal-body">
+                    <div class="modal-profile"><img id="modalImage" src="../uploads/default.png" alt="Driver">
+                        <h3 id="modalName">Driver</h3>
+                        <p id="modalEmail">-</p>
+                    </div>
+                    <div class="detail-grid">
+                        <div class="detail-item"><small>Driver ID</small><strong id="modalId">-</strong></div>
+                        <div class="detail-item"><small>Phone</small><strong id="modalPhone">-</strong></div>
+                        <div class="detail-item"><small>Verification</small><strong id="modalVerification">-</strong></div>
+                        <div class="detail-item"><small>Bus Number</small><strong id="modalBus">-</strong></div>
+                        <div class="detail-item"><small>Bus Name</small><strong id="modalBusName">-</strong></div>
+                        <div class="detail-item"><small>Bus Type</small><strong id="modalBusType">-</strong></div>
+                        <div class="detail-item"><small>Bus Status</small><strong id="modalBusStatus">-</strong></div>
+                        <div class="detail-item"><small>Registered Date</small><strong id="modalDate">-</strong></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -185,10 +190,10 @@ $message = match ($_GET['msg'] ?? '') {
         function openDriverModal(d) {
             let m = document.getElementById("driverModal"),
                 i = document.getElementById("modalImage");
-            i.src = d.profile_image ? "../uploads/profile/" + d.profile_image : "../images/default.png";
+            i.src = d.profile_image ? "../uploads/profile/" + d.profile_image : "../uploads/default.png";
             i.onerror = function() {
                 this.onerror = null;
-                this.src = "../images/default.png"
+                this.src = "../uploads/default.png"
             };
             document.getElementById("modalName").textContent = d.name || "-";
             document.getElementById("modalEmail").textContent = d.email || "-";

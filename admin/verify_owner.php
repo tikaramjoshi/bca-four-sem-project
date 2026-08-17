@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "admin") {
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     header("Location: ../login.php");
     exit();
 }
@@ -13,25 +13,25 @@ if (!isset($_GET['id'])) {
     exit();
 }
 
-$id = (int)$_GET['id'];
+$verification_id = (int)$_GET['id'];
 
 $stmt = $conn->prepare("
     SELECT owner_id
     FROM owner_verification
     WHERE verification_id=?
+    LIMIT 1
 ");
-$stmt->bind_param("i", $id);
+$stmt->bind_param("i", $verification_id);
 $stmt->execute();
-
-$result = $stmt->get_result();
-$data = $result->fetch_assoc();
+$data = $stmt->get_result()->fetch_assoc();
+$stmt->close();
 
 if (!$data) {
     header("Location: dashboard.php");
     exit();
 }
 
-$owner_id = $data['owner_id'];
+$owner_id = (int)$data['owner_id'];
 
 $conn->begin_transaction();
 
@@ -43,16 +43,19 @@ try {
             reject_reason=NULL
         WHERE verification_id=?
     ");
-    $stmt->bind_param("i", $id);
+    $stmt->bind_param("i", $verification_id);
     $stmt->execute();
+    $stmt->close();
 
     $stmt = $conn->prepare("
         UPDATE users
         SET verification_status='verified'
         WHERE user_id=?
+        AND role='owner'
     ");
     $stmt->bind_param("i", $owner_id);
     $stmt->execute();
+    $stmt->close();
 
     $conn->commit();
 } catch (Exception $e) {

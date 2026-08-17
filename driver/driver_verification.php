@@ -47,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $error = "Only JPG, JPEG, PNG and WEBP files are allowed.";
             break;
         }
-        if ($_FILES[$field]["size"] > 5 * 1024 * 1024) {
+        if ($_FILES[$field]["size"] > 10 * 1024 * 1024) {
             $error = ucwords(str_replace("_", " ", $field)) . " must be less than 5MB.";
             break;
         }
@@ -91,9 +91,9 @@ $status = $verification["status"] ?? "unverified";
         <div class="header">
             <div>
                 <h1>Driver Verification</h1>
-                <p>Submit your driving license information for verification.</p>
+                <p>Submit your profile and driving license information for verification.</p>
             </div>
-            <a href="dashboard.php" class="back-btn">← Dashboard</a>
+            <a href="dashboard.php" class="back-btn">Home </a>
         </div>
         <div class="card">
             <?php if ($error): ?><div class="alert alert-error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
@@ -101,10 +101,10 @@ $status = $verification["status"] ?? "unverified";
 
             <div class="status <?= htmlspecialchars($status) ?>">
                 <?php if ($status === "verified"): ?>
-                    <h3>✓ Driver Verified</h3>
+                    <h3>Driver Verified</h3>
                     <p>Your verification has been approved by the administrator.</p>
                 <?php elseif ($status === "pending"): ?>
-                    <h3>⏳ Verification Pending</h3>
+                    <h3>Verification Pending</h3>
                     <p>Your information is currently being reviewed by the administrator.</p>
                 <?php elseif ($status === "rejected"): ?>
                     <h3>✗ Verification Rejected</h3>
@@ -114,16 +114,9 @@ $status = $verification["status"] ?? "unverified";
                     <p>Please submit your verification information.</p>
                 <?php endif; ?>
             </div>
-
-            <?php if ($status === "rejected" && !empty($verification["reject_reason"])): ?>
-                <div class="reject-box"><strong>Admin Rejection Reason</strong>
-                    <p style="margin-top:7px"><?= nl2br(htmlspecialchars($verification["reject_reason"])) ?></p>
-                </div>
-            <?php endif; ?>
-
             <div class="driver-info">
                 <?php $driver_image = $driver["profile_image"] ?: "default.png"; ?>
-                <img src="../uploads/profile/<?= htmlspecialchars($driver_image) ?>" alt="Driver" onerror="this.onerror=null;this.src='../images/default.png';">
+                <img src="../uploads/driver/profile/<?= htmlspecialchars($verification["profile_photo"]) ?>" alt="Driver" onerror="this.onerror=null;this.src='../uploads/default.png';">
                 <div>
                     <h2><?= htmlspecialchars($driver["name"]) ?></h2>
                     <p>Email: <?= htmlspecialchars($driver["email"]) ?></p>
@@ -135,10 +128,10 @@ $status = $verification["status"] ?? "unverified";
                 <div class="section">
                     <h2 class="section-title">Driving License Information</h2>
                     <div class="grid">
-                        <div class="form-group"><label>License Number *</label><input type="text" name="license_number" value="<?= htmlspecialchars($verification["license_number"] ?? "") ?>" placeholder="Enter license number" required></div>
+                        <div class="form-group"><label>License Number </label><input type="text" name="license_number" value="<?= htmlspecialchars($verification["license_number"] ?? "") ?>" placeholder="Enter license number" required></div>
                         <div></div>
-                        <div class="form-group"><label>License Issue Date *</label><input type="date" name="license_issue_date" value="<?= htmlspecialchars($verification["license_issue_date"] ?? "") ?>" required></div>
-                        <div class="form-group"><label>License Expiry Date *</label><input type="date" name="license_expiry_date" value="<?= htmlspecialchars($verification["license_expiry_date"] ?? "") ?>" required></div>
+                        <div class="form-group"><label>License Issue Date </label><input type="date" name="license_issue_date" value="<?= htmlspecialchars($verification["license_issue_date"] ?? "") ?>" required></div>
+                        <div class="form-group"><label>License Expiry Date </label><input type="date" name="license_expiry_date" value="<?= htmlspecialchars($verification["license_expiry_date"] ?? "") ?>" required></div>
                     </div>
                 </div>
 
@@ -147,7 +140,7 @@ $status = $verification["status"] ?? "unverified";
                     <div class="form-group"><label>Driver Profile Photo</label>
                         <div class="file-box">
                             <input type="file" name="profile_photo" accept=".jpg,.jpeg,.png,.webp">
-                            <div class="note">JPG, JPEG, PNG or WEBP. Maximum 5MB.</div>
+                            <div class="note">JPG, JPEG, PNG or WEBP. Maximum 10MB.</div>
                             <?php if (!empty($verification["profile_photo"])): ?><img src="../uploads/driver/profile/<?= htmlspecialchars($verification["profile_photo"]) ?>" class="preview" alt="Profile Photo"><?php endif; ?>
                         </div>
                     </div>
@@ -156,7 +149,7 @@ $status = $verification["status"] ?? "unverified";
                 <div class="section">
                     <h2 class="section-title">Driving License Photos</h2>
                     <div class="grid">
-                        <div class="form-group"><label>License Front Photo *</label>
+                        <div class="form-group"><label>License Front Photo </label>
                             <div class="file-box">
                                 <input type="file" name="license_photo_front" accept=".jpg,.jpeg,.png,.webp" <?= empty($verification["license_photo_front"]) ? "required" : "" ?>>
                                 <div class="note">Upload a clear front photo of your license.</div>

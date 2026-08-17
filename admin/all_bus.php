@@ -22,6 +22,7 @@ if (!$result) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Buses</title>
+    <link rel="stylesheet" href="dashboard_admin.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -30,16 +31,16 @@ if (!$result) {
             padding: 0;
         }
 
-        .box {
+        /* .box {
             width: 95%;
             max-width: 1200px;
             margin: 40px auto;
             background: #fff;
             padding: 25px;
             border-radius: 10px;
-        }
+        } */
 
-        h2 {
+        .title {
             text-align: center;
             margin-bottom: 25px;
             color: #333;
@@ -125,61 +126,64 @@ if (!$result) {
 </head>
 
 <body>
-    <div class="box">
-        <h2>All Bus Details</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Bus ID</th>
-                        <th>Image</th>
-                        <th>Bus Number</th>
-                        <th>Bus Name</th>
-                        <th>Bus Type</th>
-                        <th>Seats</th>
-                        <th>Owner</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (mysqli_num_rows($result) > 0): ?>
-                        <?php while ($bus = mysqli_fetch_assoc($result)): ?>
-                            <tr>
-                                <td> <?= htmlspecialchars($bus['bus_id']) ?></td>
-                                <td> <?php if (!empty($bus['bus_image'])): ?>
-                                        <img src="../uploads/bus/<?= htmlspecialchars($bus['bus_image']) ?>" class="bus-image" alt="Bus Image"> <?php else: ?>
-                                        <img src="../images/no-image.png" class="bus-image" alt="No Image"> <?php endif; ?>
-                                </td>
-                                <td> <?= htmlspecialchars($bus['bus_number']) ?>
-                                </td>
-                                <td> <?= htmlspecialchars($bus['bus_name']) ?> </td>
-                                <td> <?= htmlspecialchars($bus['bus_type']) ?> </td>
-                                <td> <?= htmlspecialchars($bus['seats']) ?> </td>
-                                <td> <?= htmlspecialchars($bus['owner_name']) ?> </td>
-                                <td>
-                                    <?php if ($bus['status'] == "approved"): ?>
-                                        <span class="status approved"> Approved </span>
-                                    <?php elseif ($bus['status'] == "pending"): ?>
-                                        <span class="status pending"> Pending </span>
-                                    <?php else: ?>
-                                        <span class="status rejected"> Rejected </span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <a href="view_bus.php?id=<?= $bus['bus_id'] ?>" class="view-btn"> View Details</a>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
+    <?php include "admin_header.php"; ?>
+    <div class="content">
+        <div class="box">
+            <h2 class="title">All Bus Details</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
                         <tr>
-                            <td colspan="9" style="text-align:center;"> No buses found. </td>
+                            <th>Bus ID</th>
+                            <th>Image</th>
+                            <th>Bus Number</th>
+                            <th>Bus Name</th>
+                            <th>Bus Type</th>
+                            <th>Seats</th>
+                            <th>Owner</th>
+                            <th>Status</th>
+                            <th>Action</th>
                         </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php if (mysqli_num_rows($result) > 0): ?>
+                            <?php while ($bus = mysqli_fetch_assoc($result)): ?>
+                                <tr>
+                                    <td> <?= htmlspecialchars($bus['bus_id']) ?></td>
+                                    <td> <?php if (!empty($bus['bus_image'])): ?>
+                                            <img src="../uploads/bus/<?= htmlspecialchars($bus['bus_image']) ?>" class="bus-image" alt="Bus Image"> <?php else: ?>
+                                            <img src="../images/no-image.png" class="bus-image" alt="No Image"> <?php endif; ?>
+                                    </td>
+                                    <td> <?= htmlspecialchars($bus['bus_number']) ?>
+                                    </td>
+                                    <td> <?= htmlspecialchars($bus['bus_name']) ?> </td>
+                                    <td> <?= htmlspecialchars($bus['bus_type']) ?> </td>
+                                    <td> <?= htmlspecialchars($bus['seats']) ?> </td>
+                                    <td> <?= htmlspecialchars($bus['owner_name']) ?> </td>
+                                    <td>
+                                        <?php if ($bus['status'] == "approved"): ?>
+                                            <span class="status approved"> Approved </span>
+                                        <?php elseif ($bus['status'] == "pending"): ?>
+                                            <span class="status pending"> Pending </span>
+                                        <?php else: ?>
+                                            <span class="status rejected"> Rejected </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <a href="view_bus.php?id=<?= $bus['bus_id'] ?>" class="view-btn"> View Details</a>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="9" style="text-align:center;"> No buses found. </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+            <a href="dashboard.php" class="back"> Back to Home </a>
         </div>
-        <a href="dashboard.php" class="back"> Back to Home </a>
     </div>
 </body>
 

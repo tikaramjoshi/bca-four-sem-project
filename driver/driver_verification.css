@@ -2,35 +2,35 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif
+    font-family: Arial, sans-serif;
 }
 
 body {
     background: #f4f6f9;
-    color: #222
+    color: #222;
 }
 
 .container {
     width: 94%;
     max-width: 1000px;
-    margin: 35px auto
+    margin: 35px auto;
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px
+    margin-bottom: 25px;
 }
 
 .header h1 {
-    font-size: 28px
+    font-size: 28px;
 }
 
 .header p {
     margin-top: 6px;
     color: #777;
-    font-size: 14px
+    font-size: 14px;
 }
 
 .back-btn {
@@ -39,63 +39,62 @@ body {
     text-decoration: none;
     padding: 11px 18px;
     border-radius: 7px;
-    font-size: 14px
+    font-size: 14px;
 }
 
 .card {
     background: #fff;
     border-radius: 14px;
     padding: 30px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, .08)
 }
 
 .alert {
     padding: 14px 16px;
     border-radius: 7px;
     margin-bottom: 20px;
-    font-size: 14px
+    font-size: 14px;
 }
 
 .alert-error {
     background: #f8d7da;
-    color: #842029
+    color: #842029;
 }
 
 .alert-success {
     background: #d1e7dd;
-    color: #0f5132
+    color: #0f5132;
 }
 
 .status {
     text-align: center;
     padding: 20px;
     border-radius: 10px;
-    margin-bottom: 28px
+    margin-bottom: 28px;
 }
 
 .status.pending {
     background: #fff3cd;
-    color: #664d03
+    color: #664d03;
 }
 
 .status.verified {
     background: #d1e7dd;
-    color: #0f5132
+    color: #0f5132;
 }
 
 .status.rejected {
     background: #f8d7da;
-    color: #842029
+    color: #842029;
 }
 
 .status.unverified {
     background: #e2e3e5;
-    color: #41464b
+    color: #41464b;
 }
 
 .status h3 {
     font-size: 20px;
-    margin-bottom: 6px
+    margin-bottom: 6px;
 }
 
 .driver-info {
@@ -105,7 +104,7 @@ body {
     padding: 20px;
     background: #f8f9fb;
     border-radius: 10px;
-    margin-bottom: 28px
+    margin-bottom: 28px;
 }
 
 .driver-info img {
@@ -113,22 +112,22 @@ body {
     height: 90px;
     object-fit: cover;
     border-radius: 50%;
-    border: 3px solid #1560bd
+    border: 3px solid #1560bd;
 }
 
 .driver-info h2 {
     font-size: 21px;
-    margin-bottom: 7px
+    margin-bottom: 7px;
 }
 
 .driver-info p {
     color: #666;
     font-size: 13px;
-    margin-top: 4px
+    margin-top: 4px;
 }
 
 .section {
-    margin-top: 28px
+    margin-top: 28px;
 }
 
 .section-title {
@@ -136,25 +135,25 @@ body {
     color: #1560bd;
     padding-bottom: 10px;
     border-bottom: 2px solid #edf0f4;
-    margin-bottom: 18px
+    margin-bottom: 18px;
 }
 
 .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 18px
+    gap: 18px;
 }
 
 .form-group {
     display: flex;
-    flex-direction: column
+    flex-direction: column;
 }
 
 label {
     font-size: 13px;
     font-weight: 600;
     margin-bottom: 7px;
-    color: #444
+    color: #444;
 }
 
 input {
@@ -162,30 +161,30 @@ input {
     border: 1px solid #d5dbe3;
     border-radius: 7px;
     font-size: 14px;
-    outline: none
+    outline: none;
 }
 
 input:focus {
-    border-color: #1560bd
+    border-color: #1560bd;
 }
 
 .file-box {
     border: 1px dashed #b8c1cd;
     border-radius: 8px;
     padding: 15px;
-    background: #fafbfc
+    background: #fafbfc;
 }
 
 .file-box input {
     border: 0;
     padding: 4px 0;
-    width: 100%
+    width: 100%;
 }
 
 .note {
     font-size: 11px;
     color: #888;
-    margin-top: 6px
+    margin-top: 6px;
 }
 
 .preview {
@@ -194,7 +193,7 @@ input:focus {
     height: 120px;
     object-fit: cover;
     border: 1px solid #ddd;
-    border-radius: 7px
+    border-radius: 7px;
 }
 
 .license-preview {
@@ -204,7 +203,7 @@ input:focus {
     object-fit: contain;
     border: 1px solid #ddd;
     border-radius: 7px;
-    background: #f8f8f8
+    background: #f8f8f8;
 }
 
 .reject-box {
@@ -212,12 +211,12 @@ input:focus {
     color: #842029;
     padding: 15px;
     border-radius: 8px;
-    margin-bottom: 20px
+    margin-bottom: 20px;
 }
 
 .submit-area {
     margin-top: 30px;
-    text-align: center
+    text-align: center;
 }
 
 .submit-btn {
@@ -228,44 +227,43 @@ input:focus {
     border-radius: 7px;
     font-size: 15px;
     font-weight: 600;
-    cursor: pointer
+    cursor: pointer;
 }
 
 .submit-btn:hover {
-    background: #0d4f9c
+    background: #0d4f9c;
 }
 
 .info-box {
     margin-top: 20px;
     padding: 14px;
     background: #f1f4f8;
-    border-left: 4px solid #1560bd;
-    color: #555;
+    color: #c91e1e;
     font-size: 13px;
-    line-height: 1.6
+    line-height: 1.6;
 }
 
-@media(max-width:700px) {
+@media(max-width:500px) {
     .container {
-        margin: 20px auto
+        margin: 20px auto;
     }
 
     .header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px
+        gap: 15px;
     }
 
     .card {
-        padding: 20px
+        padding: 20px;
     }
 
     .grid {
-        grid-template-columns: 1fr
+        grid-template-columns: 1fr;
     }
 
     .driver-info {
         flex-direction: column;
-        text-align: center
+        text-align: center;
     }
 }

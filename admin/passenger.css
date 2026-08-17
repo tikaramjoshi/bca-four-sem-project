@@ -60,7 +60,7 @@ body {
 
 .stats {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 18px;
     margin-bottom: 25px;
 }
@@ -130,6 +130,10 @@ body {
     cursor: pointer;
 }
 
+.filter-btn:hover {
+    background: #0d4f9c;
+}
+
 .clear-btn {
     display: flex;
     align-items: center;
@@ -137,6 +141,10 @@ body {
     text-decoration: none;
     background: #6c757d;
     color: #fff;
+}
+
+.clear-btn:hover {
+    background: #5a6268;
 }
 
 .passengers-box {
@@ -175,7 +183,7 @@ th {
     color: #555;
     font-size: 13px;
     font-weight: 600;
-    text-align: left;
+    text-align: center;
     padding: 15px;
     border-bottom: 1px solid #e8e8e8;
 }
@@ -222,14 +230,19 @@ tr:hover td {
     font-weight: 600;
 }
 
-.verified {
-    background: #d1e7dd;
-    color: #0f5132;
+.badge.pending {
+    background: #fff3cd;
+    color: #856404;
 }
 
-.unverified {
-    background: #f8d7da;
-    color: #842029;
+.badge.verified {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge.rejected {
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 .booking-badge {
@@ -240,6 +253,7 @@ tr:hover td {
 .actions {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     flex-wrap: wrap;
 }
@@ -258,47 +272,64 @@ tr:hover td {
     white-space: nowrap;
 }
 
-.view {
+.action-btn.view {
     background: #1560bd;
     color: #fff;
 }
 
-.approve {
-    background: #198754;
+.action-btn.view:hover {
+    background: #0d4f9c;
+}
+
+.action-btn.pending {
+    background: #f59e0b;
     color: #fff;
 }
 
-.approve:hover {
-    background: #146c43;
+.action-btn.pending:hover {
+    background: #d97706;
 }
 
-.reject {
-    background: #ffc107;
-    color: #212529;
+.action-btn.approve {
+    background: #16a34a;
+    color: #fff;
 }
 
-.reject:hover {
-    background: #e0a800;
+.action-btn.approve:hover {
+    background: #15803d;
 }
 
-.delete {
+.action-btn.reject {
+    background: #dc2626;
+    color: #fff;
+}
+
+.action-btn.reject:hover {
+    background: #b91c1c;
+}
+
+.action-btn.delete {
     background: #dc3545;
     color: #fff;
 }
 
-.delete:hover {
+.action-btn.delete:hover {
     background: #b02a37;
+}
+
+.action-btn.edit {
+    background: #ffc107;
+    color: #212529;
+}
+
+.action-btn.edit:hover {
+    background: #e0a800;
 }
 
 .empty {
     padding: 60px 20px;
     text-align: center;
     color: #777;
-}
-
-.empty-icon {
-    font-size: 42px;
-    margin-bottom: 12px;
 }
 
 .empty h3 {
@@ -398,17 +429,8 @@ tr:hover td {
     font-size: 14px;
 }
 
-@media(max-width:1000px) {
-    .stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
 
-    .filter-form {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media(max-width:650px) {
+@media(max-width:500px) {
     .page {
         margin: 20px auto;
     }
