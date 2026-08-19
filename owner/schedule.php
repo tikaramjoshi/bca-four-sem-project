@@ -404,7 +404,11 @@ $max_date = date('Y-m-d', strtotime('+7 days'));
 
 <body>
 
-    <?php include "header.php" ?>
+    <div class="main">
+        <a href="dashboard.php">
+            <i class="fa fa-home"></i>&nbsp; Home
+        </a>
+    </div>
 
     <div class="container">
 
@@ -587,7 +591,10 @@ $max_date = date('Y-m-d', strtotime('+7 days'));
         </div>
 
     </div>
-    <?php include "footer.php" ?>
+
+    <footer class="footer">
+        <p>&copy;2026 Online Bus Ticket Booking System || All Rights Reserved.</p>
+    </footer>
 
 </body>
 

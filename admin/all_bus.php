@@ -32,12 +32,7 @@ if (!$result) {
         }
 
         .box {
-            /*
-            width: 95%;
-            max-width: 1200px;
-            margin: 40px auto;
-            background: #fff;
-            padding: 25px; */
+
             border-radius: 10px;
         }
 
@@ -183,7 +178,6 @@ if (!$result) {
                     </tbody>
                 </table>
             </div>
-            <a href="dashboard.php" class="back"> Back to Home </a>
         </div>
     </div>
 </body>

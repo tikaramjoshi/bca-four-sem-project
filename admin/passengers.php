@@ -124,7 +124,6 @@ if (isset($_GET['msg'])) {
                     <h1>Passenger Management</h1>
                     <p>Manage, verify and monitor all registered passengers.</p>
                 </div>
-                <a href="dashboard.php" class="back-btn">Home</a>
             </div>
 
             <?php if ($message): ?>
@@ -281,12 +280,6 @@ if (isset($_GET['msg'])) {
                                                     View
                                                 </button>
 
-                                                <a
-                                                    href="view_passenger.php?id=<?= (int)$p['user_id'] ?>"
-                                                    class="action-btn view">
-                                                    Details
-                                                </a>
-
                                                 <?php if ($p['verification_status'] === 'pending'): ?>
 
                                                     <span class="action-btn pending">
@@ -341,20 +334,6 @@ if (isset($_GET['msg'])) {
                                                     </a>
 
                                                 <?php endif; ?>
-
-                                                <a
-                                                    href="passengers.php?action=delete&id=<?= (int)$p['user_id'] ?>"
-                                                    class="action-btn delete"
-                                                    onclick="return confirm('Are you sure you want to delete this passenger?')">
-                                                    Delete
-                                                </a>
-
-                                                <a
-                                                    href="edit_passenger.php?id=<?= (int)$p['user_id'] ?>"
-                                                    class="action-btn edit">
-                                                    Edit
-                                                </a>
-
                                             </div>
 
                                         </td>
@@ -382,7 +361,7 @@ if (isset($_GET['msg'])) {
 
         </div>
 
-        <div class="modal" id="passengerModal" onclick="closeModalOutside(event)">
+        <!-- <div class="modal" id="passengerModal" onclick="closeModalOutside(event)">
 
             <div class="modal-box">
 
@@ -442,23 +421,67 @@ if (isset($_GET['msg'])) {
                 </div>
 
             </div>
+        </div> -->
+        <div class="modal" id="passengerModal" onclick="closeModalOutside(event)">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3>Passenger Details</h3>
+                    <button type="button" class="close-modal" onclick="closePassengerModal()"><i class="fa fa-close"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-profile">
+                        <img id="modalImage" src="../uploads/profile/default.png" alt="Passenger">
+                        <h3 id="modalName">Passenger</h3>
+                        <p id="modalEmail">-</p>
+                    </div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <small>Passenger ID</small>
+                            <strong id="modalId">-</strong>
+                        </div>
+                        <div class="detail-item">
+                            <small>Phone</small>
+                            <strong id="modalPhone">-</strong>
+                        </div>
+                        <div class="detail-item">
+                            <small>Verification</small>
+                            <strong id="modalVerification">-</strong>
+                        </div>
+                        <div class="detail-item">
+                            <small>Total Bookings</small>
+                            <strong id="modalBookings">-</strong>
+                        </div>
+                        <div class="detail-item">
+                            <small>Registered Date</small>
+                            <strong id="modalDate">-</strong>
+                        </div>
+                        <div class="detail-item">
+                            <small>Account Role</small>
+                            <strong>Passenger</strong>
+                        </div>
+                    </div><br><br><br>
+                    <div class="modal-actions">
+                        <a id="modalDetails" href="#" class="action-btn view">Details</a>
+                        <a id="modalEdit" href="#" class="action-btn edit">Edit</a>
+                        <a id="modalDelete" href="#" class="action-btn delete" onclick="return confirm('Are you sure you want to delete this passenger?')">Delete</a>
+                        <button type="button" class="action-btn close-btn" onclick="closePassengerModal()">Close</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
     <script>
         function openPassengerModal(p) {
+            const modal = document.getElementById("passengerModal");
+            const image = document.getElementById("modalImage");
 
-            const m = document.getElementById("passengerModal");
-            const i = document.getElementById("modalImage");
+            if (p.profile_image && p.profile_image.trim() && p.profile_image !== "default.png") {
+                image.src = "../uploads/profile/" + p.profile_image.trim();
+            } else {
+                image.src = "../uploads/profile/default.png";
+            }
 
-            i.src =
-                p.profile_image &&
-                p.profile_image.trim() &&
-                p.profile_image !== "default.png" ?
-                "../uploads/profile/" + p.profile_image.trim() :
-                "../uploads/profile/default.png";
-
-            i.onerror = function() {
+            image.onerror = function() {
                 this.onerror = null;
                 this.src = "../images/default.png";
             };
@@ -480,7 +503,6 @@ if (isset($_GET['msg'])) {
                 (p.total_bookings || 0) + " Booking(s)";
 
             if (p.created_at) {
-
                 const d = new Date(p.created_at.replace(" ", "T"));
 
                 document.getElementById("modalDate").textContent = !isNaN(d) ?
@@ -490,14 +512,20 @@ if (isset($_GET['msg'])) {
                         year: "numeric"
                     }) :
                     p.created_at;
-
             } else {
-
                 document.getElementById("modalDate").textContent = "-";
-
             }
 
-            m.classList.add("active");
+            document.getElementById("modalDetails").href =
+                "view_passenger.php?id=" + p.user_id;
+
+            document.getElementById("modalEdit").href =
+                "edit_passenger.php?id=" + p.user_id;
+
+            document.getElementById("modalDelete").href =
+                "passengers.php?action=delete&id=" + p.user_id;
+
+            modal.classList.add("active");
         }
 
         function closePassengerModal() {
@@ -510,7 +538,7 @@ if (isset($_GET['msg'])) {
             }
         }
 
-        document.addEventListener("keydown", e => {
+        document.addEventListener("keydown", function(e) {
             if (e.key === "Escape") {
                 closePassengerModal();
             }

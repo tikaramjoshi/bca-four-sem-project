@@ -17,17 +17,37 @@ $today = date('Y-m-d');
 $max_date = date('Y-m-d', strtotime('+7 days'));
 $message = "";
 $type = "";
+if (isset($_SESSION['schedule_message'])) {
+    $message = $_SESSION['schedule_message'];
+    $type = $_SESSION['schedule_type'];
+    unset($_SESSION['schedule_message'], $_SESSION['schedule_type']);
+}
+
+if (isset($_GET['delete'])) {
+    $schedule_id = (int)$_GET['delete'];
+    $stmt = $conn->prepare("DELETE FROM schedules WHERE schedule_id=?");
+    $stmt->bind_param("i", $schedule_id);
+    if ($stmt->execute()) {
+        $_SESSION['schedule_message'] = "Schedule deleted successfully.";
+        $_SESSION['schedule_type'] = "success";
+    }
+    $stmt->close();
+    header("Location: schedule.php");
+    exit;
+}
+
 if (isset($_POST['add_schedules']) || isset($_POST['update_schedules'])) {
     $edit = isset($_POST['update_schedules']);
     $schedule_id = (int)($_POST['schedule_id'] ?? 0);
-    $bus_id = (int)$_POST['bus_id'];
-    $from_city = trim($_POST['from_city']);
-    $to_city = trim($_POST['to_city']);
-    $departure_date = $_POST['departure_date'];
-    $departure_time = $_POST['departure_time'];
-    $ticket_price = (float)$_POST['ticket_price'];
-    $available_seats = (int)$_POST['available_seats'];
-    $status = $_POST['status'];
+    $bus_id = (int)($_POST['bus_id'] ?? 0);
+    $from_city = trim($_POST['from_city'] ?? '');
+    $to_city = trim($_POST['to_city'] ?? '');
+    $departure_date = $_POST['departure_date'] ?? '';
+    $departure_time = $_POST['departure_time'] ?? '';
+    $ticket_price = (float)($_POST['ticket_price'] ?? 0);
+    $available_seats = (int)($_POST['available_seats'] ?? 0);
+    $status = $_POST['status'] ?? 'active';
+
     if ($bus_id <= 0) {
         $message = "Please select a bus.";
     } elseif ($from_city === '') {
@@ -42,47 +62,43 @@ if (isset($_POST['add_schedules']) || isset($_POST['update_schedules'])) {
         $message = "Departure date must be within 7 days.";
     } elseif (empty($departure_time)) {
         $message = "Please select departure time.";
-    } elseif ($ticket_price < 0) {
-        $message = "Ticket price cannot be negative.";
-    } elseif ($available_seats < 0) {
-        $message = "Available seats cannot be negative.";
+    } elseif ($ticket_price < 500) {
+        $message = "Ticket price must be at least Rs. 500.";
+    } elseif ($available_seats < 1) {
+        $message = "Available seats must be at least 1.";
+    } elseif (!in_array($status, ['active', 'cancelled', 'completed'], true)) {
+        $message = "Invalid schedule status.";
     } else {
         if ($edit) {
             $stmt = $conn->prepare("UPDATE schedules SET bus_id=?,from_city=?,to_city=?,departure_date=?,departure_time=?,ticket_price=?,available_seats=?,status=? WHERE schedule_id=?");
             $stmt->bind_param("issssdisi", $bus_id, $from_city, $to_city, $departure_date, $departure_time, $ticket_price, $available_seats, $status, $schedule_id);
+            $success_message = "Schedule updated successfully.";
+            $error_message = "Failed to update schedule.";
         } else {
-            if ($available_seats < 1) {
-                $message = "Available seats must be at least 1.";
-            } else {
-                $stmt = $conn->prepare("INSERT INTO schedules (bus_id,from_city,to_city,departure_date,departure_time,ticket_price,available_seats,status) VALUES (?,?,?,?,?,?,?,?)");
-                $stmt->bind_param("issssdis", $bus_id, $from_city, $to_city, $departure_date, $departure_time, $ticket_price, $available_seats, $status);
-            }
+            $stmt = $conn->prepare("INSERT INTO schedules (bus_id,from_city,to_city,departure_date,departure_time,ticket_price,available_seats,status) VALUES (?,?,?,?,?,?,?,?)");
+            $stmt->bind_param("issssdis", $bus_id, $from_city, $to_city, $departure_date, $departure_time, $ticket_price, $available_seats, $status);
+            $success_message = "Schedule added successfully.";
+            $error_message = "Failed to add schedule.";
         }
-        if ($message === "") {
-            if ($stmt->execute()) {
-                $message = $edit ? "schedules updated successfully." : "schedules added successfully.";
-                $type = "success";
-            } else {
-                $message = $edit ? "Failed to update schedules." : "Failed to add schedules.";
-                $type = "error";
-            }
+
+        if ($stmt->execute()) {
+            $_SESSION['schedule_message'] = $success_message;
+            $_SESSION['schedule_type'] = "success";
             $stmt->close();
+            header("Location: schedule.php");
+            exit;
         } else {
+            $message = $error_message;
             $type = "error";
+            $stmt->close();
         }
     }
-    if ($message !== "" && $type === "") {
+
+    if ($message !== "") {
         $type = "error";
     }
 }
-if (isset($_GET['delete'])) {
-    $schedule_id = (int)$_GET['delete'];
-    $stmt = $conn->prepare("DELETE FROM schedules WHERE schedule_id=?");
-    $stmt->bind_param("i", $schedule_id);
-    $message = $stmt->execute() ? "schedules deleted successfully." : "Failed to delete schedules.";
-    $type = $stmt->execute() ? "success" : "error";
-    $stmt->close();
-}
+
 $edit_schedules = null;
 if (isset($_GET['edit'])) {
     $schedule_id = (int)$_GET['edit'];
@@ -94,7 +110,8 @@ if (isset($_GET['edit'])) {
 }
 $buses = $conn->query("SELECT bus_id,bus_number,bus_name,seats FROM bus WHERE status='approved' ORDER BY bus_id DESC");
 $routes = $conn->query("SELECT route_id,city_name FROM routes ORDER BY city_name ASC");
-$schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departure_date,s.departure_time,s.ticket_price,s.available_seats,s.status,b.bus_number,b.bus_name FROM schedules s INNER JOIN bus b ON s.bus_id=b.bus_id ORDER BY s.departure_date ASC,s.departure_time ASC,s.schedule_id DESC");
+
+$schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departure_date,s.departure_time,s.ticket_price,s.available_seats,s.status,b.bus_number,b.bus_name FROM schedules s INNER JOIN bus b ON s.bus_id=b.bus_id ORDER BY s.schedule_id DESC");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -105,8 +122,9 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
     <title>Manage schedules</title>
     <link rel="stylesheet" href="schedule.css">
     <link rel="stylesheet" href="side.css">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"> -->
 
 </head>
 
@@ -126,10 +144,12 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
                     <?php if ($edit_schedules): ?><input type="hidden" name="schedule_id" value="<?= ((int)$edit_schedules['schedule_id']) ?>"><?php endif; ?>
                     <div class="form-group">
                         <label>Bus</label>
-                        <select name="bus_id" required>
+                        <select name="bus_id" id="bus_id" required>
                             <option value="">Select Bus</option>
                             <?php while ($bus = $buses->fetch_assoc()): ?>
-                                <option value="<?= ($bus['bus_id']) ?>" <?= $edit_schedules && $edit_schedules['bus_id'] == $bus['bus_id'] ? 'selected' : '' ?>><?= htmlspecialchars($bus['bus_number'] . ' - ' . $bus['bus_name']) ?> (<?= ($bus['seats']) ?> seats)</option>
+                                <option value="<?= (int)$bus['bus_id'] ?>" data-seats="<?= (int)$bus['seats'] ?>" <?= $edit_schedules && $edit_schedules['bus_id'] == $bus['bus_id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($bus['bus_number'] . ' - ' . $bus['bus_name']) ?> (<?= (int)$bus['seats'] ?> seats)
+                                </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -164,11 +184,11 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
                     </div>
                     <div class="form-group">
                         <label>Ticket Price</label>
-                        <input type="number" name="ticket_price" value="<?= htmlspecialchars($edit_schedules['ticket_price'] ?? '') ?>" min="0" step="0.01" required>
+                        <input type="number" name="ticket_price" value="<?= htmlspecialchars($edit_schedules['ticket_price'] ?? '') ?>" min="500" step="100" required>
                     </div>
                     <div class="form-group">
                         <label>Available Seats</label>
-                        <input type="number" name="available_seats" value="<?= htmlspecialchars($edit_schedules['available_seats'] ?? '') ?>" min="0" required>
+                        <input type="number" name="available_seats" id="available_seats" value="<?= htmlspecialchars($edit_schedules['available_seats'] ?? '') ?>" min="0" readonly required>
                     </div>
                     <div class="form-group">
                         <label>Status</label>
@@ -213,15 +233,16 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
                                     <tr>
                                         <td><?= ($row['schedule_id']) ?></td>
                                         <td><strong><?= htmlspecialchars($row['bus_number']) ?></strong><br><?= htmlspecialchars($row['bus_name']) ?></td>
-                                        <td><?= htmlspecialchars(ucwords($row['from_city'])) ?> → <?= htmlspecialchars(ucwords($row['to_city'])) ?></td>
+                                        <td><?= htmlspecialchars(ucwords($row['from_city'])) ?> <i class="fa fa-"></i> <?= htmlspecialchars(ucwords($row['to_city'])) ?></td>
                                         <td><?= date("d M Y", strtotime($row['departure_date'])) ?></td>
                                         <td><?= date("h:i A", strtotime($row['departure_time'])) ?></td>
                                         <td>Rs. <?= number_format($row['ticket_price'], 2) ?></td>
                                         <td><strong><?= ($row['available_seats']) ?></strong></td>
                                         <td><span class="status <?= htmlspecialchars($row['status']) ?>"><?= ucfirst(htmlspecialchars($row['status'])) ?></span></td>
                                         <td>
-                                            <a href="schedules.php?edit=<?= ($row['schedule_id']) ?>" class="edit"><i class="fa fa-edit"></i> Edit</a>
-                                            <a href="schedules.php?delete=<?= ($row['schedule_id']) ?>" class="delete" onclick="return confirm('Are you sure you want to delete this schedules?')"><i class="fa fa-trash"></i> Delete</a>
+                                            <a href="schedule.php?edit=<?= (int)$row['schedule_id'] ?>" class="edit"><i class="fa fa-edit"></i> Edit</a>
+
+                                            <a href="schedule.php?delete=<?= (int)$row['schedule_id'] ?>" class="delete" onclick="return confirm('Are you sure you want to delete this schedule?')"><i class="fa fa-trash"></i> Delete</a>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
@@ -238,6 +259,10 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
     </div>
 
     <script>
+        document.getElementById('bus_id').addEventListener('change', function() {
+            document.getElementById('available_seats').value = this.options[this.selectedIndex].dataset.seats || 0;
+        });
+
         function toggleMenu() {
             document.getElementById("settingMenu").classList.toggle("show")
         }

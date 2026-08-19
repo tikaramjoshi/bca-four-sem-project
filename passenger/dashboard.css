@@ -9,7 +9,7 @@ html {
 }
 
 body {
-    font-family: Arial,sans-serif;
+    font-family: Arial, sans-serif;
     background-color: #f4f7f6;
     min-height: 100vh;
     display: flex;
@@ -89,14 +89,14 @@ button {
     width: 130px;
     height: 130px;
     margin: 20px 0 0 40px;
-    color: #1560BD;
+    color: #1560bd;
     background-color: white;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    border: 5px solid #1560BD;
+    border: 5px solid #1560bd;
     text-align: center;
 }
 
@@ -118,6 +118,7 @@ button {
     margin: -10px auto 0;
 }
 
+.first select,
 .first input {
     width: 100%;
     padding: 10px;
@@ -125,7 +126,7 @@ button {
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
-    box-sizing: border-box;
+    background: white;
 }
 
 .first button {
@@ -137,206 +138,171 @@ button {
     color: white;
     font-size: 16px;
     margin-left: 0;
+    cursor: pointer;
 }
 
-.second {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    margin: 100px auto 50px;
-    width: 95%;
-    background-color: #ebebe6;
-    padding: 20px;
-    border-radius: 10px;
+.popular-routes {
+    width: calc(100% - 40px);
+    margin: 60px auto 50px;
+    padding: 30px 25px 35px;
+    background: #ebebe6;
+    border-radius: 14px;
 }
 
-.second h1 {
+.popular-routes h2 {
     width: 100%;
     text-align: center;
-    margin-bottom: 20px;
+    color: #1560bd;
+    font-size: 30px;
+    margin-bottom: 6px;
 }
 
-.route {
-    height: 320px;
-    width: 220px;
-    background-color: white;
-    border-radius: 8px;
-    overflow: hidden;
+.popular-subtitle {
     text-align: center;
-}
-
-.route img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-}
-
-.route h4 {
-    margin: 10px 0;
-    font-size: 18px;
-}
-
-.route p {
-    margin: 8px 0 15px;
+    color: #777;
     font-size: 15px;
+    margin-bottom: 28px;
 }
 
-.route button {
-    width: 80%;
-    margin: 10px 0;
-    padding: 10px;
-    background-color: #1560BD;
-    color: white;
-    border-radius: 5px;
+.popular-list {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 18px;
+    align-items: stretch;
+}
+
+.route-card {
+    width: 100%;
+    min-width: 0;
+    min-height: 430px;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.route-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+}
+
+.route-image {
+    width: 100%;
+    height: 155px;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: #eeeeee;
+}
+
+.route-image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.route-card:hover .route-image img {
+    transform: scale(1.05);
+}
+
+.route-info {
+    width: 100%;
+    flex: 1;
+    padding: 18px 12px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.route-info h3 {
+    width: 100%;
+    margin: 0 0 10px;
+    color: #1560bd;
+    font-size: 17px;
+    line-height: 1.35;
     font-weight: bold;
 }
 
-.route button:hover {
-    background-color: rgb(15, 160, 112);
+.route-info h3 span {
+    color: #333;
+    margin: 0 4px;
 }
 
-.last {
-    background-color: #1560BD;
-    color: #fff;
-    padding: 30px 40px 10px;
-    margin-top: auto;
+.bus-name {
+    width: 100%;
+    color: #555;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.last-main {
+.route-details {
+    width: 100%;
     display: flex;
-    justify-content: space-around;
-    align-items: flex-start;
-    gap: 60px;
-    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: #555;
 }
 
-.last-link,
-.last-contact,
-.last-about {
-    width: 280px;
-}
-
-.last h3 {
-    font-size: 24px;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #ffc107;
-    padding-bottom: 8px;
-}
-
-.last a {
-    color: #fff;
-    text-decoration: underline;
+.route-details span {
     display: block;
-    margin: 8px 0;
-    transition: .3s;
+    line-height: 1.3;
 }
 
-.last a:hover {
-    color: #ffc107;
-    padding-left: 5px;
+.route-details strong {
+    color: #1560bd;
+    font-size: 16px;
 }
 
-.last ul {
-    padding-left: 20px;
-}
-
-.last ul li {
-    margin: 8px 0;
-}
-
-.last-mission {
-    width: 90%;
-    margin: 25px auto 0;
-    text-align: center;
-}
-
-.last-mission h3 {
-    margin-bottom: 10px;
-}
-
-.last hr {
-    width: 100%;
-    margin: 10px auto 20px;
+.popular-book-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(100% - 30px);
+    min-height: 42px;
+    margin: auto 15px 18px;
+    padding: 10px 12px;
+    background-color: #1560bd;
+    color: #ffffff;
     border: none;
-    border-top: 1px solid rgb(255, 255, 255, .4);
+    border-radius: 7px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
-.copy {
+.popular-book-btn:hover {
+    background-color: rgb(15, 160, 112);
+    color: #ffffff;
+}
+
+.popular-book-btn.disabled {
+    background-color: #999999;
+    cursor: not-allowed;
+}
+
+.popular-book-btn.disabled:hover {
+    background-color: #999999;
+}
+
+.no-popular {
     width: 100%;
     text-align: center;
-    font-size: 16px;
-    color: #eee;
-}
-
-@media (max-width: 500px) {
-    .main {
-        padding: 10px;
-    }
-
-    nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-
-    nav div {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    nav a,
-    nav button {
-        padding: 6px 10px;
-        font-size: 13px;
-        margin: 0;
-    }
-
-    .datetime {
-        margin: 20px auto;
-    }
-
-    .first {
-        width: 95%;
-    }
-
-    .second {
-        width: 95%;
-        margin-top: 30px;
-    }
-
-    .route {
-        width: 100%;
-        max-width: 300px;
-    }
-
-    .last-main {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-
-    .last-link,
-    .last-contact,
-    .last-about {
-        width: 100%;
-        max-width: 320px;
-    }
-}
-
-.first select,
-.first input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-    background: white;
+    color: #777;
+    padding: 40px 20px;
 }
 
 .profile-dropdown {
@@ -356,16 +322,16 @@ button {
     cursor: pointer;
 }
 
-.profile-image:hover {
-    background: orange;
-}
-
 .profile-image {
     width: 42px;
     height: 42px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid white;
+}
+
+.profile-image:hover {
+    background: orange;
 }
 
 .profile-name {
@@ -386,6 +352,7 @@ button {
     border-radius: 10px;
     overflow: hidden;
     z-index: 9999;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, .18);
 }
 
 .profile-menu.show {
@@ -464,4 +431,194 @@ button {
 
 .status.pending {
     color: #ffc107;
+}
+
+.last {
+    background-color: #1560bd;
+    color: #fff;
+    padding: 30px 40px 10px;
+    margin-top: auto;
+}
+
+.last-main {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    gap: 60px;
+    width: 100%;
+}
+
+.last-link,
+.last-contact,
+.last-about {
+    width: 280px;
+}
+
+.last h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #ffc107;
+    padding-bottom: 8px;
+}
+
+.last a {
+    color: #fff;
+    text-decoration: underline;
+    display: block;
+    margin: 8px 0;
+    transition: .3s;
+}
+
+.last a:hover {
+    color: #ffc107;
+    padding-left: 5px;
+}
+
+.last ul {
+    padding-left: 20px;
+}
+
+.last ul li {
+    margin: 8px 0;
+}
+
+.last-mission {
+    width: 90%;
+    margin: 25px auto 0;
+    text-align: center;
+}
+
+.last-mission h3 {
+    margin-bottom: 10px;
+}
+
+.last hr {
+    width: 100%;
+    margin: 10px auto 20px;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, .4);
+}
+
+.copy {
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+    color: #eee;
+}
+
+@media (max-width: 1200px) {
+    .popular-list {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1000px) {
+    .popular-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 750px) {
+    .popular-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .popular-routes {
+        width: 94%;
+        padding: 25px 15px 30px;
+    }
+}
+
+@media (max-width: 600px) {
+    .main {
+        padding: 10px;
+    }
+
+    nav {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    nav div {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    nav a,
+    nav button {
+        padding: 6px 10px;
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .datetime {
+        margin: 20px auto;
+    }
+
+    .first {
+        width: 95%;
+        margin: 20px auto 0;
+    }
+
+    .popular-routes {
+        width: 95%;
+        margin-top: 40px;
+        padding: 20px 12px 25px;
+    }
+
+    .popular-routes h2 {
+        font-size: 25px;
+    }
+
+    .popular-list {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .route-card {
+        max-width: 380px;
+        min-height: 430px;
+        margin: 0 auto;
+    }
+
+    .route-image {
+        height: 180px;
+    }
+
+    .popular-book-btn {
+        width: calc(100% - 30px);
+    }
+
+    .last {
+        padding: 30px 20px 10px;
+    }
+
+    .last-main {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 30px;
+    }
+
+    .last-link,
+    .last-contact,
+    .last-about {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .last ul {
+        text-align: left;
+    }
+
+    .profile-button h3 {
+        font-size: 13px;
+    }
+
+    .profile-image {
+        width: 38px;
+        height: 38px;
+    }
 }

@@ -454,3 +454,32 @@ tr:hover td {
         width: 100%;
     }
 }
+
+.modal-actions{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-top:25px;
+    padding-top:20px;
+    border-top:1px solid #ddd;
+}
+
+.modal-actions .action-btn{
+    min-width:85px;
+    height:38px;
+    padding:0 15px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    margin:0;
+}
+
+.close-btn{
+    background:#666;
+    color:#fff;
+}
+
+.close-btn:hover{
+    background:#444;
+}

@@ -119,7 +119,6 @@ foreach ($buses as $bus) {
 </head>
 
 <body>
-    <?php include "header.php" ?>
     <div class="page">
         <div class="page-header">
             <div>
@@ -379,7 +378,6 @@ foreach ($buses as $bus) {
             <?php endif; ?>
         </div>
     </div>
-    <?php include "footer.php" ?>
 </body>
 
 </html>

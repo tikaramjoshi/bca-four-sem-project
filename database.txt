@@ -179,3 +179,35 @@ CREATE TABLE bookings (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+
+ALTER TABLE schedules MODIFY status ENUM('active','cancelled','completed') NOT NULL DEFAULT 'active';
+
+
+ALTER TABLE popular_routes
+ADD CONSTRAINT fk_popular_routes_bus
+FOREIGN KEY (bus_id)
+REFERENCES bus(bus_id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+
+
+ALTER TABLE popular_routes ADD COLUMN departure_date DATE NULL AFTER to_city, ADD COLUMN departure_time TIME NULL AFTER departure_date;
+
+
+ALTER TABLE popular_routes MODIFY departure_time VARCHAR(5) NOT NULL;
+
+
+
+ALTER TABLE schedules MODIFY available_seats INT NOT NULL DEFAULT 0;
+
+
+ALTER TABLE schedules MODIFY departure_time TIME NOT NULL;
+
+ALTER TABLE bookings ADD COLUMN booking_group_id VARCHAR(50) NULL AFTER booking_id;
+
+
+
+
+

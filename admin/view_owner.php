@@ -25,7 +25,7 @@ $owner = mysqli_fetch_assoc($result);
     <title>Owner Details</title>
     <link rel="stylesheet" href="side.css">
     <style>
-        * {
+        /* * {
             box-sizing: border-box
         }
 
@@ -34,23 +34,20 @@ $owner = mysqli_fetch_assoc($result);
             background: #f4f6f9;
             margin: 0;
             padding: 0
-        }
+        } */
 
         .box {
-            width: 750px;
-            max-width: 92%;
-            margin: 40px auto;
+            margin: 20px;
             background: #fff;
-            padding: 30px;
+            padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, .1)
         }
 
-        h2 {
+        /* h2 {
             text-align: center;
             margin: 0 0 25px;
             color: #333
-        }
+        } */
 
         .profile {
             text-align: center;
@@ -82,11 +79,13 @@ $owner = mysqli_fetch_assoc($result);
             color: #444
         }
 
-        .section-title {
+        td.section-title,
+        td.section-title {
             background: #f1f4f8;
             font-size: 17px;
             font-weight: bold;
-            color: #1560BD
+            color: #f69903;
+
         }
 
         .approved,

@@ -147,7 +147,6 @@ $total_assignments = count($assignments);
                     <h1>Driver Assignment</h1>
                     <p>Assign verified drivers to approved buses.</p>
                 </div>
-                <a href="dashboard.php" class="back-btn">Home</a>
             </div>
             <?php if ($message): ?><div class="message <?= htmlspecialchars($message_type) ?>"><?= htmlspecialchars($message) ?></div><?php endif; ?>
             <div class="stats">

@@ -75,7 +75,7 @@ $message = match ($_GET['msg'] ?? '') {
                 <div>
                     <h1>Driver Management</h1>
                     <p>Manage, verify and monitor all registered drivers.</p>
-                </div><a href="dashboard.php" class="back-btn"> <i class="fa fa-home"></i>&nbsp; Home &nbsp;</a>
+                </div>
             </div>
             <?php if ($message): ?><div class="message"><?= htmlspecialchars($message) ?></div><?php endif; ?>
             <div class="stats">

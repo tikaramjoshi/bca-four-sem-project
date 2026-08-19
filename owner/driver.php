@@ -223,7 +223,6 @@ $total_assignments = count($assignments);
 </head>
 
 <body>
-    <?php include "header.php" ?>
     <div class="page">
         <div class="header">
             <div>
@@ -254,7 +253,7 @@ $total_assignments = count($assignments);
             </div>
         </div>
 
-        <div class="box-assign">
+        <div class="box">
             <h2>Assign Driver</h2>
             <p class="box-description"> Only drivers approved by Admin and not assigned to another bus are available. </p>
 
@@ -403,7 +402,6 @@ $total_assignments = count($assignments);
             <?php endif; ?>
         </div>
     </div>
-    <?php include "footer.php" ?>
 </body>
 
 </html>
