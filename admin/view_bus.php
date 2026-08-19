@@ -113,7 +113,9 @@ $bus = mysqli_fetch_assoc($result);
 </head>
 
 <body>
+
     <div class="box">
+        <a class="back" href="dashboard.php">Back to Home</a>
         <h2>Bus Details</h2>
         <div class="image-box">
             <?php if (!empty($bus['bus_image'])): ?>
@@ -176,8 +178,7 @@ $bus = mysqli_fetch_assoc($result);
                 <td><?= !empty($bus['reject_reason']) ? nl2br(htmlspecialchars($bus['reject_reason'])) : "-" ?></td>
             </tr>
         </table>
-        <a class="back" href="all_bus.php">Back to All Buses</a>
-        <a class="back" href="dashboard.php">Back to Home</a>
+        <a class="back" href="all_bus.php">Back</a>
     </div>
 </body>
 

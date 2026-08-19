@@ -214,6 +214,7 @@ $total_assignments = count($assignments);
 </head>
 
 <body>
+    <?php include "header.php" ?>
     <div class="page">
         <div class="header">
             <div>
@@ -365,6 +366,7 @@ $total_assignments = count($assignments);
             <?php endif; ?>
         </div>
     </div>
+    <?php include "footer.php" ?>
     <script>
         function openEdit(id, bus, driver) {
             document.querySelectorAll('[id^="edit-"]').forEach(function(e) {

@@ -30,14 +30,11 @@ if (!$result) die("Database Error: " . mysqli_error($conn));
             padding: 0
         }
 
+
         .box {
-            width: 95%;
-            max-width: 1200px;
-            margin: 40px auto;
             background: #fff;
-            padding: 25px;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, .12)
+            margin-top: 10px;
         }
 
         .title {

@@ -10,11 +10,11 @@ body {
     color: #222;
 }
 
-.page {
+ .page {/*
     width: 94%;
-    max-width: 1400px;
-    margin: 30px auto;
-}
+    max-width: 1400px;*/
+    margin: 10px;
+} 
 
 .page-header {
     display: flex;

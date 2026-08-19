@@ -267,6 +267,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 
 <body>
+    <?php include "header.php" ?>
     <div class="container">
         <div class="register-box">
             <h2>Register New Bus</h2>
@@ -322,7 +323,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </form>
         </div>
     </div>
-
+    <?php include "footer.php" ?>
     <script>
         function previewImage(event) {
             const file = event.target.files[0];

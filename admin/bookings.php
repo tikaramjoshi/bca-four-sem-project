@@ -64,7 +64,7 @@ $bookings = $stmt->get_result();
         }
 
         .wrap {
-            width: min(1400px, 94%);
+            /* width: min(1400px, 94%); */
             margin: 30px auto
         }
 

@@ -11,9 +11,9 @@ body {
 }
 
 .page {
-    width: 94%;
-    max-width: 1400px;
-    margin: 30px auto;
+    /* width: 94%;
+    max-width: 1400px; */
+    margin-top: 10px;
 }
 
 .page-header {
@@ -193,6 +193,7 @@ td {
     border-bottom: 1px solid #eee;
     font-size: 14px;
     vertical-align: middle;
+    text-align: center;
 }
 
 tr:hover td {
@@ -254,15 +255,17 @@ tr:hover td {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    flex-wrap: wrap;
+    gap: 7px;
+    flex-wrap: nowrap;
 }
 
 .action-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    text-align: center;
     min-height: 34px;
+    min-width: 70px;
     padding: 0 10px;
     border-radius: 6px;
     text-decoration: none;

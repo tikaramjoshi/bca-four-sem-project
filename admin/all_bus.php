@@ -31,14 +31,15 @@ if (!$result) {
             padding: 0;
         }
 
-        /* .box {
+        .box {
+            /*
             width: 95%;
             max-width: 1200px;
             margin: 40px auto;
             background: #fff;
-            padding: 25px;
+            padding: 25px; */
             border-radius: 10px;
-        } */
+        }
 
         .title {
             text-align: center;

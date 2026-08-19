@@ -11,9 +11,9 @@ body {
 }
 
 .page {
-    width: 94%;
-    max-width: 1400px;
-    margin: 30px auto;
+    /* width: 94%;
+    max-width: 1400px; */
+    margin-top: 10px;
 }
 
 .page-header {
