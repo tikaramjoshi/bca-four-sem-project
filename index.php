@@ -82,6 +82,7 @@ if (isset($_GET['book'])) {
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Online Bus Ticket Booking System</title>
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="ind_dash.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>

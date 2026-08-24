@@ -15,7 +15,9 @@ $stmt->close();
 
 $admin_name = $admin['name'] ?? 'Admin';
 $profile_image = !empty($admin['profile_image']) ? $admin['profile_image'] : 'default.png';
-$active_page = $active_page ?? basename($_SERVER['PHP_SELF']);
+$current_page = basename($_SERVER['PHP_SELF']);
+$active_page = $active_page ?? $current_page;
+$booking_active = in_array($current_page, ['bookings.php', 'booking_history.php'], true);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,6 +42,7 @@ $active_page = $active_page ?? basename($_SERVER['PHP_SELF']);
                 <a href="edit_profile.php"><i class="fa fa-edit"></i> Edit Profile</a>
                 <a href="policy.php"><i class="fa fa-file"></i> Manage Policy</a>
                 <a href="../changepassword.php"><i class="fa fa-key"></i> Change Password</a>
+                <a href="change_role.php">Change Roles</a>
                 <hr>
                 <a href="../logout.php"><i class="fa fa-sign-out-alt"></i> Logout</a>
             </div>
@@ -65,7 +68,9 @@ $active_page = $active_page ?? basename($_SERVER['PHP_SELF']);
 
             <a href="schedule.php" class="<?= $active_page === 'schedule.php' ? 'active' : '' ?>">Schedule</a>
 
-            <a href="bookings.php" class="<?= $active_page === 'bookings.php' ? 'active' : '' ?>">Bookings</a>
+            <a href="bookings.php" class="<?= $booking_active ? 'active' : '' ?>">Bookings</a>
+
+
 
             <a href="popular_routes.php" class="<?= $active_page === 'popular_routes.php' ? 'active' : '' ?>">Popular Route</a>
 

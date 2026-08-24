@@ -5,10 +5,15 @@
 
 }
 
+
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f7f6;
     min-height: 100vh;
+    background-image: url(IMG/b10.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+      background-position: center top;
+    background-attachment: fixed;
     display: flex;
     flex-direction: column;
 }

@@ -5,6 +5,13 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     exit();
 }
 require_once "../db.php";
+$offsetValue = 0;
+$limit = 5;
+if (isset($_GET['offset'])) {
+    $offsetValue = $_GET['offset'];
+}
+
+
 $active_page = 'dashboard.php';
 $totalOwners = $conn->query("SELECT COUNT(*) FROM users WHERE role='owner'")->fetch_row()[0];
 $totalDrivers = $conn->query("SELECT COUNT(*) FROM users WHERE role='driver'")->fetch_row()[0];
@@ -30,11 +37,12 @@ require_once "admin_header.php";
 ?>
 <div class="content">
     <div class="section-title">
+
         <h2>Dashboard Overview</h2>
     </div>
     <div class="cards">
         <div class="card">
-            <h3>Total Owners</h3>
+            <h3>Total Owners </h3>
             <p><?= $totalOwners ?></p>
         </div>
         <div class="card">
@@ -124,7 +132,7 @@ require_once "admin_header.php";
             </div>
         </div>
     <?php endif; ?>
-    <br><br>
+    <br>
     <?php if ($totalOwnerVerification > 0): ?>
         <div class="table-box">
             <h2>Pending Owner Verification</h2>
@@ -162,7 +170,7 @@ require_once "admin_header.php";
             </div>
         </div>
     <?php endif; ?>
-    <br><br>
+    <br>
     <?php
     $driverVerificationRows = [];
     $stmt = $conn->prepare("SELECT dv.verification_id,dv.driver_id,dv.license_number,dv.license_issue_date,dv.license_expiry_date,dv.profile_photo,dv.license_photo_front,dv.license_photo_back,dv.status,dv.created_at,u.name,u.email,u.phone FROM driver_verification dv INNER JOIN users u ON dv.driver_id=u.user_id WHERE dv.status='pending' ORDER BY dv.verification_id DESC");
@@ -227,7 +235,7 @@ require_once "admin_header.php";
                         <th>Action</th>
                     </tr>
                     <?php
-                    $stmt = $conn->prepare("SELECT user_id,name,email,phone,verification_status FROM users WHERE role='passenger' AND (verification_status IS NULL OR verification_status <> 'verified') ORDER BY user_id DESC");
+                    $stmt = $conn->prepare("SELECT user_id,name,email,phone,verification_status FROM users WHERE role='passenger' AND (verification_status IS NULL OR verification_status <> 'verified') ORDER BY user_id DESC limit $limit offset $offsetValue");
                     $stmt->execute();
                     $result = $stmt->get_result();
                     while ($row = $result->fetch_assoc()):
@@ -248,7 +256,9 @@ require_once "admin_header.php";
             </div>
         </div>
     <?php endif; ?>
-    <br><br>
+    <?php include 'inc.php';
+    PaginationBtn(["limit" => $limit, "noOfData" => $totalPassengerVerification])
+    ?>
 </div>
 </div>
 <script>

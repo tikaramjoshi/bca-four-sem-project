@@ -247,7 +247,7 @@ while ($result && $row = $result->fetch_assoc()) $routes[] = $row;
                                 <td><?= htmlspecialchars($route['to_city']) ?></td>
                                 <td>Rs. <?= number_format((float)$route['price'], 2) ?></td>
                                 <td><?= date('d M Y', strtotime($route['departure_date'])) ?></td>
-                                <td><?= date('H:i', strtotime($route['departure_time'])) ?></td>
+                                <td><?= date('h:i A', strtotime($route['departure_time'])) ?></td>
                                 <td><?= (int)$route['seats'] ?></td>
                                 <td><span class="badge <?= $route['status'] === 'active' ? 'badge-active' : 'badge-inactive' ?>"><?= ucfirst($route['status']) ?></span></td>
                                 <td><a href="?edit=<?= (int)$route['popular_id'] ?>" class="edit-btn">Edit</a> <a href="?delete=<?= (int)$route['popular_id'] ?>" class="delete-btn" onclick="return confirm('Delete this route?')">Delete</a></td>

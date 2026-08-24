@@ -1,10 +1,13 @@
-/* * {
+* {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-} */
+}
+html {
+    scroll-behavior: smooth;
+}
 
-/* body {
+body {
     font-family: Arial, sans-serif;
     min-height: 100vh;
     background-image: url(IMG/b10.jpg);
@@ -12,13 +15,13 @@
     background-size: cover;
       background-position: center top;
     background-attachment: fixed;
-} */
-
-/* .main {
+}
+.main {
     background: #1560bd;
     padding: 15px;
-} */
-/* 
+}
+
+
 nav {
     display: flex;
     justify-content: space-between;
@@ -26,8 +29,9 @@ nav {
     flex-wrap: wrap;
     gap: 15px;
     color: #fff;
-} */
-/* 
+}
+
+
 nav a {
     text-decoration: none;
     color: #000;
@@ -36,46 +40,41 @@ nav a {
     font-weight: bold;
     border-radius: 4px;
     margin: 0 8px;
-} */
-
-nav a:hover,
-nav a.active:hover,
-button:hover,
-.first button:hover {
-    color: #fff;
-    background: rgb(15, 160, 112);
 }
 
-/* button {
+
+
+nav a.active {
+    background: rgb(17, 127, 134);
+    color: #fff;
+}
+
+button {
     background: #ffc107;
     border: none;
     padding: 8px 15px;
     border-radius: 15px;
     font-weight: bold;
-    margin-left: 10px;
     cursor: pointer;
-} */
-/* 
-nav a.active {
-    background: rgb(17, 127, 134);
-    color: #fff;
-} */
+}
 
-/* .datetime {
+.datetime {
     width: 130px;
     height: 130px;
-    margin: 25px 0 0 40px;
+    margin: 20px 0 0 40px;
     color: #1560bd;
-    background:#ece7e7bd;
+    background: #ece7e7bd;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    border: 5px solid #1561bdfc;
+    border: 5px solid #1560bd;
     text-align: center;
-} 
-     .datetime h4 {
+}
+
+
+.datetime h4 {
     font-size: 12px;
     margin-top: 7px;
 }
@@ -83,26 +82,25 @@ nav a.active {
 .datetime p {
     margin: 0;
     font-size: 20px;
-}  
+}
 .first {
     background: #ece7e7bd;
     width: 350px;
     padding: 25px;
     border-radius: 10px;
-    margin: -10px auto 100px;
+    margin: -10px auto 0;
 }
 
-.first input,
-.first select {
+.first select,
+.first input {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
-    background: #fff;
+    background: #ffffffdb;
 }
-
 .first button {
     width: 100%;
     padding: 15px;
@@ -111,99 +109,9 @@ nav a.active {
     background: #1560bd;
     color: #fff;
     font-size: 16px;
-    margin: 0;
-} */
-
-.second>.space{
-    margin-top: 250px;
+    cursor: pointer;
 }
-.second-search {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    margin: 60px auto 50px;
-    width: 90%;
-    background: #ebebe6;
-    padding: 10px;
-    border-radius: 10px;    
-
-}
-
-.second h1 {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.route {
-    min-height: 390px;
-    width: 280px;
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    text-align: center;
-    padding-bottom: 15px;
-}
-
-.route img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-}
-
-.route h4 {
-    margin: 10px 0;
-    font-size: 18px;
-}
-
-.route p {
-    margin: 8px 0;
-    font-size: 15px;
-}
-
-.route form {
-    margin: 0;
-}
-
-.route button {
-    width: 80%;
-    margin: 10px 0;
-    padding: 10px;
-    background: #1560bd;
-    color: #fff;
-    border-radius: 5px;
-    font-weight: bold;
-}
-
-.route button:hover {
-    background: rgb(15, 160, 112);
-}
-
-.route button:disabled {
-    background: #999;
-    cursor: not-allowed;
-}
-
-.available {
-    color: rgb(15, 160, 112);
-    font-weight: bold;
-}
-
-.no-seat {
-    color: red;
-    font-weight: bold;
-}
-
-.no-result {
-    width: 100%;
-    text-align: center;
-    padding: 30px;
-    font-size: 18px;
-    color: #555;
-}
-
-/* .last {
+.last {
     background: #1560bd;
     color: #fff;
     padding: 30px 40px 10px;
@@ -241,28 +149,25 @@ nav a.active {
 .last a:hover {
     color: #ffc107;
     padding-left: 5px;
-} 
+}
+
+
 
 .last ul li {
     margin: 8px 0;
 }
-
 .last-mission {
     width: 90%;
-    margin-top: 25px;
+    margin: 25px auto 0;
     text-align: center;
 }
-
-.last-mission h3 {
-    margin-bottom: 10px;
-}
-
 .last hr {
     width: 100%;
     margin: 10px auto 20px;
-    border: none;
-    border-top: 1px solid rgba(255, 255, 255, .4);
+    border: 0;
+    border-top: 1px solid #ffffff66;
 }
+
 
 .copy {
     width: 100%;
@@ -270,64 +175,66 @@ nav a.active {
     font-size: 16px;
     color: #eee;
 }
- html {
-    scroll-behavior: smooth;
-} 
 
-@media(max-width:500px) {
+
+
+
+@media (max-width: 500px) {
     .main {
         padding: 10px;
     }
-
     nav {
-        flex-direction: row;
+        justify-content: space-between;
+        gap: 10px;
     }
-
-    nav div {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
     nav a,
     nav button {
         padding: 6px 10px;
         font-size: 13px;
         margin: 0;
     }
-
     .datetime {
         margin: 20px auto;
     }
-
     .first {
-        margin-top: 10px;
         width: 95%;
+        margin: 20px auto 0;
     }
-
-    .second {
-        width: 95%;
-        margin-top: 30px;
+    .popular.route {
+        width: 94%;
+        margin-top: 40px;
+        padding: 20px 12px 25px;
     }
-
-    .route {
-        width: 100%;
-        max-width: 300px;
+    .popular.route h2 {
+        font-size: 25px;
     }
-
+    .popular-list {
+        grid-template-columns: 1fr;
+    }
+    .route-card {
+        max-width: 400px;
+        margin: auto;
+    }
+    .route-image {
+        height: 180px;
+    }
+    .last {
+        padding: 30px 20px 10px;
+    }
     .last-main {
         flex-direction: column;
         align-items: center;
         text-align: center;
+        gap: 30px;
     }
-
     .last-link,
     .last-contact,
     .last-about {
         width: 100%;
         max-width: 320px;
-        margin: 10px;
+    }
+    .profile-name {
+        display: none;
     }
 }
 
-*/

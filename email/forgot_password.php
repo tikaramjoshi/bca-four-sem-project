@@ -16,7 +16,7 @@ unset($_SESSION['message_type']);
 </head>
 
 <body>
-    <?php include "head.php"; ?>
+    <?php include "../head.php"; ?>
     <div class="forgot-container">
         <div class="box">
             <h2>Forgot Password</h2>

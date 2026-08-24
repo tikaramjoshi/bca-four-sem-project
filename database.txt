@@ -211,3 +211,20 @@ ALTER TABLE bookings ADD COLUMN booking_group_id VARCHAR(50) NULL AFTER booking_
 
 
 
+CREATE TABLE booking_history (
+history_id INT(11) NOT NULL AUTO_INCREMENT,
+booking_id INT(11) NOT NULL,
+booking_group_id VARCHAR(50) NULL,
+user_id INT(11) NOT NULL,
+schedule_id INT(11) NOT NULL,
+bus_name VARCHAR(100) NOT NULL,
+bus_number VARCHAR(50) NOT NULL,
+route VARCHAR(150) NOT NULL,
+travel_date DATE NOT NULL,
+seat_number VARCHAR(20) NOT NULL,
+amount DECIMAL(10,2) NOT NULL,
+status ENUM('pending','confirmed','cancelled') DEFAULT 'pending',
+created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+deleted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+PRIMARY KEY (history_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
