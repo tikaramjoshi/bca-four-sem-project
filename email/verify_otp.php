@@ -32,6 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,6 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             box-sizing: border-box;
             font-family: Arial;
         }
+
         body {
             background: #f4f7f6;
             display: flex;
@@ -50,18 +52,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             align-items: center;
             height: 100vh;
         }
+
         .box {
             width: 400px;
             background: #fff;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, .2);
         }
+
         h2 {
             text-align: center;
             margin-bottom: 20px;
             color: #1560BD;
         }
+
         input {
             width: 100%;
             padding: 12px;
@@ -70,6 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 5px;
             font-size: 16px;
         }
+
         button {
             width: 100%;
             padding: 12px;
@@ -80,15 +85,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 16px;
             cursor: pointer;
         }
+
         button:hover {
             background: #0b4d9a;
         }
+
         .error {
             color: red;
             text-align: center;
             margin-bottom: 15px;
             font-weight: bold;
         }
+
         .success {
             color: green;
             text-align: center;
@@ -97,6 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </style>
 </head>
+
 <body>
     <div class="box">
         <h2>Verify OTP</h2>
@@ -116,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 placeholder="Enter 6 Digit OTP"
                 maxlength="6"
                 required>
-            <button type="submit"> Verify OTP  </button>
+            <button type="submit"> Verify OTP </button>
             <p id="timer" style="margin-top:15px;color:red;font-weight:bold;text-align:center;"></p>
 
             <div id="resend" style="display:none;text-align:center;margin-top:10px;">
@@ -128,6 +137,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         let sec = <?= max(0, $_SESSION['otp_expire'] - time()) ?>;
         const timer = document.getElementById("timer");
         const resend = document.getElementById("resend");
+
         function countdown() {
             if (sec <= 0) {
                 timer.innerHTML = "OTP Expired";
@@ -147,4 +157,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         countdown();
     </script>
 </body>
+
 </html>

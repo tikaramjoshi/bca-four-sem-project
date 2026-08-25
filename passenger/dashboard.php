@@ -103,10 +103,15 @@ unset($route);
     <div class="main">
         <nav>
             <div>
+                <a href="#" class="active"><i class="fa fa-home"></i>&nbsp; Home</a>
+                <a href="#contactSection"><i class="fa fa-phone"></i>&nbsp;Contact</a>
+                <a href="#aboutSection"><i class="fa fa-info-circle"></i>&nbsp;About</a>
+            </div>
+            <!-- <div>
                 <a href="#" id="home" class="active">Home</a>
                 <a href="#contactSection" id="contact">Contact</a>
                 <a href="#aboutSection" id="about">About</a>
-            </div>
+            </div> -->
             <div class="profile-dropdown">
                 <div class="profile-button">
                     <h3>Welcome- <span class="profile-name"><?= htmlspecialchars($passenger_name) ?></span></h3>
@@ -114,12 +119,12 @@ unset($route);
                     <img src="../uploads/profile/<?= htmlspecialchars($profile_image) ?>" alt="Profile" class="profile-image" onclick="toggleProfileMenu(event)" onerror="this.onerror=null;this.src='../images/default.png';">
                 </div>
                 <div class="profile-menu" id="profileMenu">
-                    <a href="profile.php">My Profile</a>
-                    <a href="booking_history.php">My Bookings</a>
-                    <a href="booking_history.php">Booking History</a>
-                    <a href="../changepassword.php">Change Password</a>
+                    <a href="profile.php"><i class="fa fa-user-circle"></i> &nbsp; My Profile</a>
+                    <a href="booking_history.php"> <i class="fa fa-ticket"></i> &nbsp; My Bookings</a>
+                    <a href="booking_history.php"> <i class="fa fa-history"></i> &nbsp; Booking History</a>
+                    <a href="../changepassword.php"> <i class="fa fa-key"></i> &nbsp; Change Password</a>
                     <hr>
-                    <a href="../logout.php" class="logout-link">Logout</a>
+                    <a href="../logout.php" class="logout-link"> <i class="fa fa-sign-out"></i> &nbsp; Logout</a>
                 </div>
             </div>
         </nav>

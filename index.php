@@ -175,27 +175,46 @@ if (isset($_GET['book'])) {
         <div class="last-main">
             <div class="last-link">
                 <h3>Quick Link</h3>
-                <a href="index.php">Home</a>
+                <!-- <a href="index.php">Home</a>
                 <a href="policy.php">Policy</a>
                 <a href="login.php">Login</a>
                 <a href="register.php?role=owner">Register Owner</a>
                 <a href="register.php?role=driver">Register Driver</a>
-                <a href="register.php?role=passenger">Register Passenger</a>
+                <a href="register.php?role=passenger">Register Passenger</a> -->
+
+                <a href="index.php"><i class="fa fa-home"></i>&nbsp; Home</a>
+                <a href="policy.php"><i class="fa fa-file-text-o"></i>&nbsp; Policy</a>
+                <a href="login.php"><i class="fa fa-sign-in"></i>&nbsp; Login</a>
+                <a href="register.php?role=owner"><i class="fa fa-user-plus"></i>&nbsp;Register Owner</a>
+                <a href="register.php?role=driver"><i class="fa fa-user"></i>&nbsp; Register Driver</a>
+                <a href="register.php?role=passenger"><i class="fa fa-user-plus"></i>&nbsp; Register Passenger</a>
             </div>
             <div class="last-contact" id="contactSection">
-                <h3>Contact</h3>
+                <!-- <h3>Contact</h3>
                 <p>Email: <a href="mailto:tikaramj519@://gmail.com">tikaramj519@gmail.com</a></p>
                 <p>Phone:<a href="tel:+9779840792553">+9779840792553</a></p>
-                <p>Whatsapp:<a href="https://wa.me/9779840792553">+9779840792553</a></p>
+                <p>Whatsapp:<a href="https://wa.me/9779840792553">+9779840792553</a></p> -->
+                <h3>Contact</h3>
+                <p><i class="fa fa-envelope-o"></i>&nbsp; Email: <a href="mailto:tikaramj519@gmail.com">tikaramj519@gmail.com</a></p>
+                <p><i class="fa fa-phone"></i>&nbsp; Phone: <a href="tel:+9779840792553">+9779840792553</a></p>
+                <p><i class="fa fa-whatsapp"></i> &nbsp; Whatsapp: <a href="https://wa.me/9779840792553">+9779840792553</a></p>
             </div>
             <div class="last-about" id="aboutSection">
-                <h3>About</h3>
+                <!-- <h3>About</h3>
                 <ul>
                     <li>Online Bus Ticket Booking System</li>
                     <li>Easy Bus Search</li>
                     <li>24/7 Customer Support</li>
                     <li>Safe Online Booking</li>
                     <li>No Cancel Ticket</li>
+                </ul> -->
+                <h3>About</h3>
+                <ul>
+                    <li><i class="fa fa-bus"></i> &nbsp; Online Bus Ticket Booking System</li>
+                    <li><i class="fa fa-search"></i> &nbsp; Easy Bus Search</li>
+                    <li><i class="fa fa-headphones"></i> &nbsp; 24/7 Customer Support</li>
+                    <li><i class="fa fa-lock"></i> &nbsp; Safe Online Booking</li>
+                    <li><i class="fa fa-ticket"></i> &nbsp; No Cancel Ticket</li>
                 </ul>
             </div>
         </div>

@@ -16,7 +16,6 @@ unset($_SESSION['message_type']);
 </head>
 
 <body>
-    <?php include "../head.php"; ?>
     <div class="forgot-container">
         <div class="box">
             <h2>Forgot Password</h2>
@@ -35,7 +34,6 @@ unset($_SESSION['message_type']);
             <a href="../login.php">Back to Login</a>
         </div>
     </div>
-    <?php include "foot.php"; ?>
 </body>
 
 </html>

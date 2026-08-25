@@ -1,10 +1,8 @@
-/* * {
+* {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-} */
-
-/* body {
+}  body {
     font-family: Arial, sans-serif;
     min-height: 100vh;
     background-image: url(IMG/b10.jpg);
@@ -12,13 +10,10 @@
     background-size: cover;
       background-position: center top;
     background-attachment: fixed;
-} */
-
-/* .main {
+}  .main {
     background: #1560bd;
     padding: 15px;
-} */
-/* 
+} 
 nav {
     display: flex;
     justify-content: space-between;
@@ -26,8 +21,7 @@ nav {
     flex-wrap: wrap;
     gap: 15px;
     color: #fff;
-} */
-/* 
+}  
 nav a {
     text-decoration: none;
     color: #000;
@@ -36,7 +30,7 @@ nav a {
     font-weight: bold;
     border-radius: 4px;
     margin: 0 8px;
-} */
+}
 
 nav a:hover,
 nav a.active:hover,
@@ -46,7 +40,7 @@ button:hover,
     background: rgb(15, 160, 112);
 }
 
-/* button {
+ button {
     background: #ffc107;
     border: none;
     padding: 8px 15px;
@@ -54,14 +48,11 @@ button:hover,
     font-weight: bold;
     margin-left: 10px;
     cursor: pointer;
-} */
-/* 
+} 
 nav a.active {
     background: rgb(17, 127, 134);
     color: #fff;
-} */
-
-/* .datetime {
+}  .datetime {
     width: 130px;
     height: 130px;
     margin: 25px 0 0 40px;
@@ -112,7 +103,7 @@ nav a.active {
     color: #fff;
     font-size: 16px;
     margin: 0;
-} */
+} 
 
 .second>.space{
     margin-top: 250px;
@@ -203,7 +194,7 @@ nav a.active {
     color: #555;
 }
 
-/* .last {
+.last {
     background: #1560bd;
     color: #fff;
     padding: 30px 40px 10px;
@@ -225,6 +216,7 @@ nav a.active {
 }
 
 .last h3 {
+     border-bottom: 2px solid #ffc107;
     font-size: 24px;
     margin-bottom: 15px;
     padding-bottom: 8px;
@@ -237,7 +229,9 @@ nav a.active {
     margin: 8px 0;
     transition: .3s;
 }
-
+i{
+    text-decoration: none;
+}
 .last a:hover {
     color: #ffc107;
     padding-left: 5px;
@@ -330,4 +324,3 @@ nav a.active {
     }
 }
 
-*/
