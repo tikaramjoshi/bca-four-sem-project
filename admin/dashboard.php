@@ -33,13 +33,24 @@ if (isset($_GET['action'], $_GET['id'])) {
     header("Location: dashboard.php");
     exit();
 }
-require_once "admin_header.php";
+
+$totalUsersStmt = $conn->prepare("SELECT COUNT(*) FROM users");
+$totalUsersStmt->execute();
+$totalUsersResult = $totalUsersStmt->get_result();
+$totalUsers = $totalUsersResult->fetch_row()[0];
+$totalUsersStmt->close();
 ?>
+<?php require_once "admin_header.php"; ?>
 <div class="content">
     <div class="section-title">
 
         <h2>Dashboard Overview</h2>
+        <div class="box">
+            <p>Total Users</p>
+            <h2><?= $totalUsers ?></h2>
+        </div>
     </div>
+
     <div class="cards">
         <div class="card">
             <h3>Total Owners </h3>

@@ -1,35 +1,35 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['reset_email'])) {
     header("Location: forgot_password.php");
     exit();
 }
-
+$admin_reset_mode = isset($_SESSION['admin_reset_mode']) && $_SESSION['admin_reset_mode'] === true;
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
     $userOTP = trim($_POST['otp']);
-
     if (time() > $_SESSION['otp_expire']) {
-
         $_SESSION['error'] = "OTP Expired! Please request a new OTP.";
-        header("Location: forgot_password.php");
+        if ($admin_reset_mode) {
+            header("Location: ../admin/reset_password.php");
+        } else {
+            header("Location: forgot_password.php");
+        }
         exit();
     }
-
     if ($userOTP == $_SESSION['reset_otp']) {
-
+        if ($admin_reset_mode) {
+            $_SESSION['admin_reset_otp_verified'] = true;
+            header("Location: ../admin/reset_password.php?verify=1");
+            exit();
+        }
         $_SESSION['otp_verified'] = true;
-
         header("Location: reset_password.php");
         exit();
     } else {
-
         $error = "Invalid OTP!";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -110,11 +110,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="box">
         <h2>Verify OTP</h2>
         <?php
+        if (isset($_SESSION['error'])) {
+            echo "<div class='error'>" . htmlspecialchars($_SESSION['error']) . "</div>";
+            unset($_SESSION['error']);
+        }
         if (isset($error)) {
-            echo "<div class='error'>$error</div>";
+            echo "<div class='error'>" . htmlspecialchars($error) . "</div>";
         }
         if (isset($_SESSION['success'])) {
-            echo "<div class='success'>" . $_SESSION['success'] . "</div>";
+            echo "<div class='success'>" . htmlspecialchars($_SESSION['success']) . "</div>";
             unset($_SESSION['success']);
         }
         ?>
@@ -124,10 +128,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 name="otp"
                 placeholder="Enter 6 Digit OTP"
                 maxlength="6"
+                pattern="[0-9]{6}"
                 required>
-            <button type="submit"> Verify OTP </button>
+            <button type="submit">Verify OTP</button>
             <p id="timer" style="margin-top:15px;color:red;font-weight:bold;text-align:center;"></p>
-
             <div id="resend" style="display:none;text-align:center;margin-top:10px;">
                 <a href="resend_otp.php">Resend OTP</a>
             </div>
@@ -144,7 +148,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 resend.style.display = "block";
                 return;
             }
-
             let min = Math.floor(sec / 60);
             let second = sec % 60;
             timer.innerHTML =

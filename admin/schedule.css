@@ -169,6 +169,23 @@
     padding: 35px !important
 }
 
+.btn-history {
+    background: #1560BD;
+    color: #fff;
+    text-decoration: none;
+    /* display: inline-flex; */
+    /* align-items: center; */
+    gap: 6px;
+    position: absolute;
+    right: 40px;
+    top: 100px;
+}
+
+.btn-history:hover {
+    background: #545b62;
+    color: #fff;
+}
+
 @media(max-width:1000px) {
     .schedules-form {
         grid-template-columns: repeat(2, 1fr)

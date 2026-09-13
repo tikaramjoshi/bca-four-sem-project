@@ -164,10 +164,6 @@ $total_assignments = count($assignments);
                 </div>
             </div>
             <div class="assign-box">
-                <div class="box-title">
-                    <h2>Assign Driver to Bus</h2>
-                    <p>Only approved buses and verified available drivers are shown.</p>
-                </div>
                 <?php if ($buses && $drivers): ?>
                     <form method="POST" onsubmit="return confirmAssignment()">
                         <div class="form-grid">

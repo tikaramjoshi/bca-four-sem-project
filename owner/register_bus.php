@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 } else {
                     $insert = $conn->prepare("
                         INSERT INTO bus
-                        (owner_id, bus_number, bus_name, bus_type, seats, facilities, bus_image, status)
+                        (`owner_id, bus_number, bus_name, bus_type, seats, facilities, bus_image, status)
                         VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')
                     ");
 
@@ -90,16 +90,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         if (file_exists($image_path)) {
                             unlink($image_path);
                         }
-
                         $message = "Database Error: " . $insert->error;
                         $message_type = "error";
                     }
-
                     $insert->close();
                 }
             }
         }
-
         $check->close();
     }
 }
@@ -270,20 +267,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="container">
         <div class="register-box">
             <h2>Register New Bus</h2>
-
             <?php if ($message !== ""): ?>
                 <div class="<?= htmlspecialchars($message_type) ?>">
                     <?= htmlspecialchars($message) ?>
                 </div>
             <?php endif; ?>
-
             <form method="POST" enctype="multipart/form-data">
                 <label>Bus Number</label>
                 <input type="text" name="bus_number" placeholder="BA-2-KHA-1234" value="<?= htmlspecialchars($_POST['bus_number'] ?? '') ?>" required>
-
                 <label>Bus Name</label>
                 <input type="text" name="bus_name" placeholder="Green Line" value="<?= htmlspecialchars($_POST['bus_name'] ?? '') ?>" required>
-
                 <label>Bus Type</label>
                 <select name="bus_type" required>
                     <option value="">Select Bus Type</option>
@@ -292,17 +285,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <option value="Normal" <?= ($_POST['bus_type'] ?? '') === 'Normal' ? 'selected' : '' ?>>Normal</option>
                     <option value="VIP" <?= ($_POST['bus_type'] ?? '') === 'VIP' ? 'selected' : '' ?>>VIP</option>
                 </select>
-
                 <label>Total Seats</label>
                 <input type="number" name="seat" min="10" max="80" value="<?= htmlspecialchars($_POST['seat'] ?? '') ?>" required>
-
                 <label>Bus Image</label>
                 <input type="file" name="bus_image" id="image" accept="image/*" onchange="previewImage(event)" required>
-
                 <img id="preview" src="../images/bus.png" width="180" height="120" alt="Bus Preview">
-
                 <label>Facilities</label>
-
                 <div class="facilities">
                     <label><input type="checkbox" name="facilities[]" value="WiFi"> WiFi</label>
                     <label><input type="checkbox" name="facilities[]" value="Charging"> Charging</label>

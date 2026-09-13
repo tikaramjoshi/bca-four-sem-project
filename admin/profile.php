@@ -124,10 +124,7 @@ if (!$user) {
 </head>
 
 <body>
-    <div class="header">
-        <h2>Admin Profile</h2>
-        <a href="dashboard.php">Home</a>
-    </div>
+    <?php include "admin_header.php"; ?>
     <div class="container">
         <div class="profile-box">
             <h2>Welcome

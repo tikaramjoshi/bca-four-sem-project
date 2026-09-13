@@ -285,6 +285,7 @@ if (count($cancelled) === $total) {
             }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 
 <body>
@@ -339,6 +340,17 @@ if (count($cancelled) === $total) {
                     </div>
                 </div>
                 <div class="summary">
+                    <h3>Ticket QR Code</h3>
+
+                    <div style="text-align:center;">
+                        <div id="ticketQR" style=" display:inline-block; padding:15px; background:#fff; border:1px solid #ddd; border-radius:10px;">
+                        </div>
+
+                        <p style="margin-top:12px;color:#64748b;"> Show this QR code to the driver for verification. </p>
+                    </div>
+                </div>
+
+                <div class="summary">
                     <h3>Booking Summary</h3>
                     <div class="row"><span>Total Selected Seats</span><strong><?= $total ?></strong></div>
                     <div class="row"><span>Confirmed Seats</span><strong class="green"><?= count($confirmed) ?></strong></div>
@@ -353,6 +365,24 @@ if (count($cancelled) === $total) {
             </div>
         </section>
     </main>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const groupId = <?= json_encode($group_id) ?>;
+
+            if (groupId) {
+
+                new QRCode(document.getElementById("ticketQR"), {
+                    text: groupId,
+                    width: 220,
+                    height: 220,
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+            }
+
+        });
+    </script>
 </body>
 
 </html>

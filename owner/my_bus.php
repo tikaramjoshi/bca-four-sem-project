@@ -253,125 +253,65 @@ foreach ($buses as $bus) {
                                             <span class="badge approved">
                                                 Approved
                                             </span>
-
                                         <?php elseif ($status === 'pending'): ?>
-
-                                            <span class="badge pending">
-                                                Pending
-                                            </span>
-
+                                            <span class="badge pending"> Pending </span>
                                         <?php elseif ($status === 'rejected'): ?>
-
-                                            <span class="badge rejected">
-                                                Rejected
-                                            </span>
-
+                                            <span class="badge rejected"> Rejected </span>
                                         <?php else: ?>
-
-                                            <span class="badge">
-                                                <?= htmlspecialchars($status) ?>
-                                            </span>
-
+                                            <span class="badge"> <?= htmlspecialchars($status) ?> </span>
                                         <?php endif; ?>
                                     </td>
-
                                     <td>
                                         <?php if (!empty($driversForBus)): ?>
-
                                             <div class="driver-list">
-
                                                 <div>
                                                     <span class="driver-count">
                                                         <?= count($driversForBus) ?>
                                                         Driver<?= count($driversForBus) > 1 ? 's' : '' ?>
                                                     </span>
                                                 </div>
-
                                                 <?php foreach ($driversForBus as $driver): ?>
-
                                                     <?php
                                                     $driverImage = !empty($driver['profile_image'])
                                                         ? $driver['profile_image']
                                                         : 'default.png';
                                                     ?>
-
                                                     <div class="driver-item">
-
-                                                        <img
-                                                            src="../uploads/profile/<?= htmlspecialchars($driverImage) ?>"
-                                                            class="driver-img"
-                                                            alt="Driver"
-                                                            onerror="this.onerror=null;this.src='../images/default.png';">
-
+                                                        <img src="../uploads/profile/<?= htmlspecialchars($driverImage) ?>" class="driver-img" alt="Driver" onerror="this.onerror=null;this.src='../images/default.png';">
                                                         <div>
                                                             <div class="driver-name">
                                                                 <?= htmlspecialchars($driver['name']) ?>
                                                             </div>
-
                                                             <div class="driver-phone">
                                                                 <?= htmlspecialchars($driver['phone']) ?>
                                                             </div>
                                                         </div>
-
                                                     </div>
-
                                                 <?php endforeach; ?>
-
                                             </div>
-
                                         <?php else: ?>
-
-                                            <span class="no-driver">
-                                                No driver assigned
-                                            </span>
-
+                                            <span class="no-driver"> No driver assigned </span>
                                         <?php endif; ?>
                                     </td>
-
                                     <td>
                                         <div class="actions">
-
-                                            <a
-                                                href="edit_bus.php?id=<?= $bus_id ?>"
-                                                class="action-btn edit-btn">
-                                                Edit
-                                            </a>
-
-                                            <a
-                                                href="delete_bus.php?id=<?= $bus_id ?>"
-                                                class="action-btn delete-btn"
-                                                onclick="return confirm('Are you sure you want to delete this bus?')">
-                                                Delete
-                                            </a>
-
+                                            <a href="edit_bus.php?id=<?= $bus_id ?>" class="action-btn edit-btn"> Edit </a>
+                                            <a href="delete_bus.php?id=<?= $bus_id ?>" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this bus?')"> Delete </a>
                                         </div>
                                     </td>
                                 </tr>
-
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
-
             <?php else: ?>
-
                 <div class="empty">
-                    <div class="empty-icon">🚌</div>
-
+                    <div class="empty-icon"> <i class="fa fa-bus"></i> Bus</div>
                     <h3>No Bus Found</h3>
-
-                    <p>
-                        <?= $search !== ""
-                            ? "No bus matched your search."
-                            : "You have not registered any bus yet."
-                        ?>
-                    </p>
-
+                    <p> <?= $search !== "" ? "No bus matched your search." : "You have not registered any bus yet." ?> </p>
                     <?php if ($search === ""): ?>
                         <br>
-                        <a href="register_bus.php" class="add-btn">
-                            Add Your First Bus
-                        </a>
+                        <a href="register_bus.php" class="add-btn"> Add Your First Bus </a>
                     <?php endif; ?>
                 </div>
 

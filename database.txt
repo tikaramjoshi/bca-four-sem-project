@@ -228,3 +228,29 @@ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 deleted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 PRIMARY KEY (history_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+USE project_bus;
+
+CREATE TABLE schedule_history (
+    history_id INT AUTO_INCREMENT PRIMARY KEY,
+    schedule_id INT NOT NULL,
+    bus_id INT NOT NULL,
+    from_city VARCHAR(100) NOT NULL,
+    to_city VARCHAR(100) NOT NULL,
+    departure_date DATE NOT NULL,
+    departure_time TIME NOT NULL,
+    ticket_price DECIMAL(10,2) NOT NULL,
+    available_seats INT NOT NULL,
+    status ENUM('active','cancelled','completed') DEFAULT 'completed',
+    moved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+
+ALTER TABLE bookings
+ADD COLUMN ticket_status ENUM('active','used','cancelled') DEFAULT 'active',
+ADD COLUMN scanned_at DATETIME NULL,
+ADD COLUMN scanned_by INT NULL;

@@ -49,6 +49,74 @@ if (isset($_GET['search'])) {
         }
     }
 }
+$popular_routes = [];
+$result = $conn->query("
+    SELECT
+        pr.popular_id,
+        pr.bus_id,
+        pr.from_city,
+        pr.to_city,
+        pr.price,
+        pr.image,
+        pr.departure_date,
+        pr.departure_time,
+        b.bus_name,
+        b.bus_number,
+        b.seats
+    FROM popular_routes pr
+    INNER JOIN bus b ON pr.bus_id=b.bus_id
+    WHERE pr.status='active'
+    AND b.status='approved'
+    AND pr.departure_date>=CURDATE()
+    ORDER BY pr.popular_id DESC
+    LIMIT 5
+");
+
+while ($result && $row = $result->fetch_assoc()) {
+    $popular_routes[] = $row;
+}
+
+foreach ($popular_routes as &$route) {
+    $route['schedule_id'] = 0;
+    $route['available_seats'] = (int)$route['seats'];
+
+    $stmt = $conn->prepare("
+        SELECT schedule_id,available_seats
+        FROM schedules
+        WHERE bus_id=?
+        AND LOWER(TRIM(from_city))=LOWER(TRIM(?))
+        AND LOWER(TRIM(to_city))=LOWER(TRIM(?))
+        AND DATE(departure_date)=?
+        AND TIME(departure_time)=TIME(?)
+        AND status='active'
+        LIMIT 1
+    ");
+
+    if ($stmt) {
+        $stmt->bind_param(
+            "issss",
+            $route['bus_id'],
+            $route['from_city'],
+            $route['to_city'],
+            $route['departure_date'],
+            $route['departure_time']
+        );
+
+        $stmt->execute();
+        $schedule = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        if ($schedule) {
+            $route['schedule_id'] = (int)$schedule['schedule_id'];
+            $route['available_seats'] = min(
+                (int)$route['seats'],
+                max(0, (int)$schedule['available_seats'])
+            );
+        }
+    }
+}
+
+unset($route);
 if (isset($_GET['book'])) {
     $schedule_id = (int)($_GET['schedule_id'] ?? 0);
     $bus_id = (int)($_GET['bus_id'] ?? 0);
@@ -82,7 +150,6 @@ if (isset($_GET['book'])) {
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Online Bus Ticket Booking System</title>
     <link rel="stylesheet" href="index.css">
-    <link rel="stylesheet" href="ind_dash.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
@@ -101,9 +168,11 @@ if (isset($_GET['book'])) {
             </div>
         </nav>
     </div>
-    <div class="datetime">
-        <p id="time"></p>
-        <h4 id="today"></h4>
+    <div class="top">
+        <div class="datetime">
+            <p id="time"></p>
+            <h4 id="today"></h4>
+        </div>
     </div>
     <form class="first" method="GET" action="index.php" onsubmit="return checkRoute()">
         <select name="from" id="fromCity" required>
@@ -169,45 +238,83 @@ if (isset($_GET['book'])) {
                 <?php } ?>
             </div>
         <?php } ?>
-        <div class="space"> </div>
+
+        <?php if ($popular_routes): ?>
+            <div class="popular route">
+                <h2>Popular Routes</h2>
+                <p class="popular-subtitle">Popular bus routes</p>
+
+                <div class="popular-list">
+                    <?php foreach ($popular_routes as $route): ?>
+
+                        <?php
+                        $image = trim($route['image'] ?? '');
+                        $image_path = ($image !== '' && file_exists($image))
+                            ? $image
+                            : "Bus Image/b1.jpg";
+
+                        $schedule_id = (int)$route['schedule_id'];
+                        $bus_id = (int)$route['bus_id'];
+                        $total_seats = (int)$route['seats'];
+                        $available_seats = (int)$route['available_seats'];
+                        ?>
+                        <div class="route-card">
+                            <div class="route-image">
+                                <img src="<?= htmlspecialchars($image_path) ?>" alt="Route Image" onerror="this.onerror=null;this.src='Bus Image/b1.jpg';">
+                            </div>
+                            <div class="route-info">
+                                <h3>
+                                    <?= htmlspecialchars(ucwords(strtolower($route['from_city']))) ?>
+                                    <span> <i class="fa fa-arrow-right"></i> </span>
+                                    <?= htmlspecialchars(ucwords(strtolower($route['to_city']))) ?>
+                                </h3>
+
+                                <p class="bus-name">
+                                    <strong>Bus Name : </strong>
+                                    <?= htmlspecialchars($route['bus_name']) ?>
+                                    <br>
+                                    <strong> Bus No : </strong>
+                                    <?= htmlspecialchars($route['bus_number']) ?>
+                                </p>
+
+                                <div class="route-details">
+                                    <strong> Rs. <?= number_format((float)$route['price'], 2) ?> </strong>
+                                    <span> Date : <?= date("d M Y", strtotime($route['departure_date'])) ?> </span>
+                                    <span> Time : <?= date("h:i A", strtotime($route['departure_time'])) ?> </span>
+                                    <span class="<?= $available_seats > 0 ? 'available' : 'full' ?>"> <?= $available_seats ?> &nbsp; Seats Available </span>
+                                </div>
+                            </div>
+                            <?php if ($schedule_id <= 0): ?>
+                                <button type="button" class="popular-book-btn disabled" disabled> Not Available </button>
+                            <?php elseif ($available_seats <= 0): ?>
+                                <button type="button" class="popular-book-btn disabled" disabled> No Seats </button>
+                            <?php else: ?>
+                                <a href="passenger/seat_selection.php?schedule_id=<?= $schedule_id ?>&bus_id=<?= $bus_id ?>" class="popular-book-btn"> Book Now </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
     </div>
     <footer class="last">
         <div class="last-main">
             <div class="last-link">
                 <h3>Quick Link</h3>
-                <!-- <a href="index.php">Home</a>
-                <a href="policy.php">Policy</a>
-                <a href="login.php">Login</a>
-                <a href="register.php?role=owner">Register Owner</a>
-                <a href="register.php?role=driver">Register Driver</a>
-                <a href="register.php?role=passenger">Register Passenger</a> -->
-
-                <a href="index.php"><i class="fa fa-home"></i>&nbsp; Home</a>
-                <a href="policy.php"><i class="fa fa-file-text-o"></i>&nbsp; Policy</a>
-                <a href="login.php"><i class="fa fa-sign-in"></i>&nbsp; Login</a>
-                <a href="register.php?role=owner"><i class="fa fa-user-plus"></i>&nbsp;Register Owner</a>
-                <a href="register.php?role=driver"><i class="fa fa-user"></i>&nbsp; Register Driver</a>
-                <a href="register.php?role=passenger"><i class="fa fa-user-plus"></i>&nbsp; Register Passenger</a>
+                <a href="index.php"><i class="fa fa-home"> </i> <span>Home</span></a>
+                <a href="policy.php"><i class="fa fa-file-text-o"> </i> <span>Policy</span></a>
+                <a href="login.php"><i class="fa fa-sign-in"> </i> <span>Login</span></a>
+                <a href="register.php?role=owner"><i class="fa fa-user-plus"> </i> <span>Register Owner</span></a>
+                <a href="register.php?role=driver"><i class="fa fa-id-card"> </i> <span>Register Driver</span></a>
+                <a href="register.php?role=passenger"><i class="fa fa-user-plus"> </i> <span>Register Passenger</span></a>
             </div>
             <div class="last-contact" id="contactSection">
-                <!-- <h3>Contact</h3>
-                <p>Email: <a href="mailto:tikaramj519@://gmail.com">tikaramj519@gmail.com</a></p>
-                <p>Phone:<a href="tel:+9779840792553">+9779840792553</a></p>
-                <p>Whatsapp:<a href="https://wa.me/9779840792553">+9779840792553</a></p> -->
                 <h3>Contact</h3>
-                <p><i class="fa fa-envelope-o"></i>&nbsp; Email: <a href="mailto:tikaramj519@gmail.com">tikaramj519@gmail.com</a></p>
-                <p><i class="fa fa-phone"></i>&nbsp; Phone: <a href="tel:+9779840792553">+9779840792553</a></p>
+                <p><i class="fa fa-envelope-o"></i> &nbsp; Email: <a href="mailto:tikaramj519@gmail.com">tikaramj519@gmail.com</a></p>
+                <p><i class="fa fa-phone"></i> &nbsp; Phone: <a href="tel:+9779840792553">+9779840792553</a></p>
                 <p><i class="fa fa-whatsapp"></i> &nbsp; Whatsapp: <a href="https://wa.me/9779840792553">+9779840792553</a></p>
             </div>
             <div class="last-about" id="aboutSection">
-                <!-- <h3>About</h3>
-                <ul>
-                    <li>Online Bus Ticket Booking System</li>
-                    <li>Easy Bus Search</li>
-                    <li>24/7 Customer Support</li>
-                    <li>Safe Online Booking</li>
-                    <li>No Cancel Ticket</li>
-                </ul> -->
                 <h3>About</h3>
                 <ul>
                     <li><i class="fa fa-bus"></i> &nbsp; Online Bus Ticket Booking System</li>

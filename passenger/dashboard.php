@@ -51,11 +51,48 @@ $result = $conn->query("
 while ($result && $row = $result->fetch_assoc()) {
     $popular_routes[] = $row;
 }
+// foreach ($popular_routes as &$route) {
+//     $route['schedule_id'] = 0;
+//     $route['available_seats'] = (int)$route['seats'];
+//     $stmt = $conn->prepare("
+//         SELECT schedule_id,available_seats
+//         FROM schedules
+//         WHERE bus_id=?
+//         AND LOWER(TRIM(from_city))=LOWER(TRIM(?))
+//         AND LOWER(TRIM(to_city))=LOWER(TRIM(?))
+//         AND DATE(departure_date)=?
+//         AND TIME(departure_time)=TIME(?)
+//         AND status='active'
+//         LIMIT 1
+//     ");
+//     if ($stmt) {
+//         $stmt->bind_param(
+//             "issss",
+//             $route['bus_id'],
+//             $route['from_city'],
+//             $route['to_city'],
+//             $route['departure_date'],
+//             $route['departure_time']
+//         );
+//         $stmt->execute();
+//         $schedule = $stmt->get_result()->fetch_assoc();
+//         $stmt->close();
+//         if ($schedule) {
+//             $route['schedule_id'] = (int)$schedule['schedule_id'];
+//             $route['available_seats'] = min(
+//                 (int)$route['seats'],
+//                 max(0, (int)$schedule['available_seats'])
+//             );
+//         }
+//     }
+// }
+// unset($route);
 foreach ($popular_routes as &$route) {
     $route['schedule_id'] = 0;
     $route['available_seats'] = (int)$route['seats'];
+
     $stmt = $conn->prepare("
-        SELECT schedule_id,available_seats
+        SELECT schedule_id, available_seats
         FROM schedules
         WHERE bus_id=?
         AND LOWER(TRIM(from_city))=LOWER(TRIM(?))
@@ -65,6 +102,7 @@ foreach ($popular_routes as &$route) {
         AND status='active'
         LIMIT 1
     ");
+
     if ($stmt) {
         $stmt->bind_param(
             "issss",
@@ -74,18 +112,40 @@ foreach ($popular_routes as &$route) {
             $route['departure_date'],
             $route['departure_time']
         );
+
         $stmt->execute();
         $schedule = $stmt->get_result()->fetch_assoc();
         $stmt->close();
+
         if ($schedule) {
             $route['schedule_id'] = (int)$schedule['schedule_id'];
-            $route['available_seats'] = min(
-                (int)$route['seats'],
-                max(0, (int)$schedule['available_seats'])
+
+            $booking_stmt = $conn->prepare("
+                SELECT COUNT(*) AS booked_seats
+                FROM bookings
+                WHERE schedule_id=?
+               
+            ");
+
+            $booking_stmt->bind_param("i", $route['schedule_id']);
+            $booking_stmt->execute();
+            $booking = $booking_stmt->get_result()->fetch_assoc();
+            $booking_stmt->close();
+
+            $booked_seats = (int)($booking['booked_seats'] ?? 0);
+            $total_seats = (int)$route['seats'];
+
+            $route['available_seats'] = max(
+                0,
+                min(
+                    (int)$schedule['available_seats'],
+                    $total_seats - $booked_seats
+                )
             );
         }
     }
 }
+
 unset($route);
 ?>
 <!DOCTYPE html>

@@ -259,12 +259,7 @@ $user = $result->fetch_assoc();
 </head>
 
 <body>
-    <div class="header">
-        <h2><strong>Edit Profile
-                <?= htmlspecialchars($_SESSION['name']) ?>
-            </strong></h2>
-        <a href="dashboard.php">Home</a>
-    </div>
+    <?php include "admin_header.php"; ?>
     <div class="container">
         <div class="box">
             <h2>Update Profile</h2>
@@ -301,6 +296,7 @@ $user = $result->fetch_assoc();
                 <button type="submit">Update Profile</button>
             </form>
             <a class="back" href="dashboard.php"> Back to Home</a>
+            <a class="back" href="../changepassword.php"> Change Password</a>
         </div>
     </div>
     <script>

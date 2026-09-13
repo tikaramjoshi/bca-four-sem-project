@@ -15,6 +15,47 @@ $admin_name = $admin['name'] ?? 'Admin';
 $profile_image = !empty($admin['profile_image']) ? $admin['profile_image'] : "default.png";
 $today = date('Y-m-d');
 $max_date = date('Y-m-d', strtotime('+7 days'));
+
+
+$conn->query("
+    INSERT INTO schedule_history
+    (
+        schedule_id,
+        bus_id,
+        from_city,
+        to_city,
+        departure_date,
+        departure_time,
+        ticket_price,
+        available_seats,
+        status
+    )
+    SELECT
+        s.schedule_id,
+        s.bus_id,
+        s.from_city,
+        s.to_city,
+        s.departure_date,
+        s.departure_time,
+        s.ticket_price,
+        s.available_seats,
+        s.status
+    FROM schedules s
+    WHERE TIMESTAMP(s.departure_date, s.departure_time)
+          <= DATE_SUB(NOW(), INTERVAL 30 MINUTE)
+    AND NOT EXISTS (
+        SELECT 1
+        FROM schedule_history h
+        WHERE h.schedule_id = s.schedule_id
+    )
+");
+
+$conn->query("
+    DELETE FROM schedules
+    WHERE TIMESTAMP(departure_date, departure_time)
+          <= DATE_SUB(NOW(), INTERVAL 30 MINUTE)
+");
+
 $message = "";
 $type = "";
 if (isset($_SESSION['schedule_message'])) {
@@ -136,7 +177,11 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
             <div class="schedules-header">
                 <h2>Manage schedules</h2>
                 <p>Create and manage bus schedules</p>
+                <a href="schedule_history.php" class="btn btn-history">
+                    <i class="fa fa-history"></i> Schedule History
+                </a>
             </div>
+
             <?php if ($message): ?><div class="message <?= htmlspecialchars($type) ?>"><?= htmlspecialchars($message) ?></div><?php endif; ?>
             <div class="schedules-form-box">
                 <h3><i class="fa <?= $edit_schedules ? 'fa-edit' : 'fa-plus-circle' ?>"></i> <?= $edit_schedules ? 'Edit schedules' : 'Add schedules' ?></h3>
@@ -155,23 +200,21 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
                     </div>
                     <div class="form-group">
                         <label>From City</label>
-                        <select name="from_city" required>
+                        <select name="from_city" id="from_city" required>
                             <option value="">Select From City</option>
-                            <?php while ($route = $routes->fetch_assoc()): ?>
-                                <option value="<?= htmlspecialchars($route['city_name']) ?>" <?= ($edit_schedules['from_city'] ?? '') == $route['city_name'] ? 'selected' : '' ?>><?= htmlspecialchars(ucwords($route['city_name'])) ?></option>
-                            <?php endwhile; ?>
+                            <?php foreach ($routes as $route): ?>
+                                <option value="<?= htmlspecialchars($route['city_name']) ?>"><?= htmlspecialchars(ucwords($route['city_name'])) ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>To City</label>
-                        <select name="to_city" required>
+
+                        <select name="to_city" id="to_city" required>
                             <option value="">Select To City</option>
-                            <?php
-                            $routes2 = $conn->query("SELECT route_id,city_name FROM routes ORDER BY city_name ASC");
-                            while ($route = $routes2->fetch_assoc()):
-                            ?>
-                                <option value="<?= htmlspecialchars($route['city_name']) ?>" <?= ($edit_schedules['to_city'] ?? '') == $route['city_name'] ? 'selected' : '' ?>><?= htmlspecialchars(ucwords($route['city_name'])) ?></option>
-                            <?php endwhile; ?>
+                            <?php foreach ($routes as $route): ?>
+                                <option value="<?= htmlspecialchars($route['city_name']) ?>"><?= htmlspecialchars(ucwords($route['city_name'])) ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="form-group">
@@ -186,10 +229,17 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
                         <label>Ticket Price</label>
                         <input type="number" name="ticket_price" value="<?= htmlspecialchars($edit_schedules['ticket_price'] ?? '') ?>" min="500" step="100" required>
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label>Available Seats</label>
                         <input type="number" name="available_seats" id="available_seats" value="<?= htmlspecialchars($edit_schedules['available_seats'] ?? '') ?>" min="0" readonly required>
+                    </div> -->
+
+                    <div class="form-group">
+                        <label>Available Seats</label>
+                        <input type="number" name="available_seats" id="available_seats" value="<?= htmlspecialchars($edit_schedules['available_seats'] ?? '') ?>" min="1" readonly required>
                     </div>
+
+
                     <div class="form-group">
                         <label>Status</label>
                         <select name="status">
@@ -201,7 +251,7 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
                     <div class="form-actions">
                         <?php if ($edit_schedules): ?>
                             <button type="submit" name="update_schedules" class="btn btn-primary"><i class="fa fa-save"></i> Update schedules</button>
-                            <a href="schedules.php" class="btn btn-cancel">Cancel</a>
+                            <a href="schedule.php" class="btn btn-cancel">Cancel</a>
                         <?php else: ?>
                             <button type="submit" name="add_schedules" class="btn btn-primary"><i class="fa fa-plus"></i> Add schedules</button>
                         <?php endif; ?>
@@ -233,7 +283,7 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
                                     <tr>
                                         <td><?= ($row['schedule_id']) ?></td>
                                         <td><strong><?= htmlspecialchars($row['bus_number']) ?></strong><br><?= htmlspecialchars($row['bus_name']) ?></td>
-                                        <td><?= htmlspecialchars(ucwords($row['from_city'])) ?> <i class="fa fa-"></i> <?= htmlspecialchars(ucwords($row['to_city'])) ?></td>
+                                        <td><?= htmlspecialchars(ucwords($row['from_city'])) ?> <i class="fa fa-long-arrow-right"></i> <?= htmlspecialchars(ucwords($row['to_city'])) ?></td>
                                         <td><?= date("d M Y", strtotime($row['departure_date'])) ?></td>
                                         <td><?= date("h:i A", strtotime($row['departure_time'])) ?></td>
                                         <td>Rs. <?= number_format($row['ticket_price'], 2) ?></td>
@@ -269,7 +319,37 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
         window.onclick = function(e) {
             if (!e.target.closest(".setting")) document.getElementById("settingMenu").classList.remove("show")
         }
+
+        document.getElementById("from_city").addEventListener("change", function() {
+            let from = this.value;
+            let to = document.getElementById("to_city");
+            for (let option of to.options) {
+                option.disabled = option.value === from && option.value != "";
+            }
+            if (to.value === from) to.value = "";
+        });
+        document.getElementById("to_city").addEventListener("change", function() {
+            let to = this.value;
+            let from = document.getElementById("from_city");
+            if (from.value === to) {
+                alert("From City and To City cannot be same.");
+                this.value = "";
+            }
+        });
     </script>
+
+    <!-- <script>
+        document.getElementById('bus_id').addEventListener('change', function() {
+            document.getElementById('available_seats').value = this.options[this.selectedIndex].dataset.seats || 0;
+        });
+
+        function toggleMenu() {
+            document.getElementById("settingMenu").classList.toggle("show")
+        }
+        window.onclick = function(e) {
+            if (!e.target.closest(".setting")) document.getElementById("settingMenu").classList.remove("show")
+        }
+    </script> -->
 </body>
 
 </html>

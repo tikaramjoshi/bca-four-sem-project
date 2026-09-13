@@ -42,7 +42,7 @@ $booking_active = in_array($current_page, ['bookings.php', 'booking_history.php'
                 <a href="edit_profile.php"><i class="fa fa-edit"></i> Edit Profile</a>
                 <a href="policy.php"><i class="fa fa-file"></i> Manage Policy</a>
                 <a href="../changepassword.php"><i class="fa fa-key"></i> Change Password</a>
-                <a href="change_role.php">Change Roles</a>
+                <a href="manage_users.php"><i class=" fa fa-user-cog"></i> Manage Users</a>
                 <hr>
                 <a href="../logout.php"><i class="fa fa-sign-out-alt"></i> Logout</a>
             </div>
@@ -51,7 +51,6 @@ $booking_active = in_array($current_page, ['bookings.php', 'booking_history.php'
 
     <div class="container">
         <div class="sidebar">
-
             <a href="dashboard.php" class="<?= $active_page === 'dashboard.php' ? 'active' : '' ?>">Dashboard</a>
 
             <a href="view_owners.php" class="<?= $active_page === 'view_owners.php' ? 'active' : '' ?>">Owners</a>
@@ -68,9 +67,9 @@ $booking_active = in_array($current_page, ['bookings.php', 'booking_history.php'
 
             <a href="schedule.php" class="<?= $active_page === 'schedule.php' ? 'active' : '' ?>">Schedule</a>
 
-            <a href="bookings.php" class="<?= $booking_active ? 'active' : '' ?>">Bookings</a>
+            <a href="bookings.php" class="<?= $active_page === 'bookings.php' ? 'active' : '' ?>">Bookings</a>
 
-
+            <!-- <a href="change_role.php" class="<?= $active_page === 'change_role.php' ? 'active' : '' ?>">Change Role</a> -->
 
             <a href="popular_routes.php" class="<?= $active_page === 'popular_routes.php' ? 'active' : '' ?>">Popular Route</a>
 

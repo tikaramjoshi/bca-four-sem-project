@@ -11,29 +11,7 @@ $date = $_GET['date'] ?? '';
 $buses = [];
 if ($from && $to && $date) {
     $sql = "
-        SELECT
-            b.bus_id,
-            b.bus_number,
-            b.bus_name,
-            b.bus_type,
-            b.seats,
-            b.bus_image,
-            s.schedule_id,
-            s.from_city,
-            s.to_city,
-            s.departure_date,
-            s.departure_time,
-            s.ticket_price,
-            s.available_seats,
-            s.status
-        FROM schedules s
-        INNER JOIN bus b ON b.bus_id = s.bus_id
-        WHERE b.status = 'approved'
-        AND s.status = 'active'
-        AND LOWER(TRIM(s.from_city)) = LOWER(TRIM(?))
-        AND LOWER(TRIM(s.to_city)) = LOWER(TRIM(?))
-        AND s.departure_date = ?
-        ORDER BY s.departure_time ASC
+        SELECT      b.bus_id,      b.bus_number,      b.bus_name,      b.bus_type,      b.seats,      b.bus_image,      s.schedule_id,      s.from_city,      s.to_city,      s.departure_date,      s.departure_time,      s.ticket_price,      s.available_seats,      s.status  FROM schedules s  INNER JOIN bus b ON b.bus_id = s.bus_id  WHERE b.status = 'approved'  AND s.status = 'active'  AND LOWER(TRIM(s.from_city)) = LOWER(TRIM(?))  AND LOWER(TRIM(s.to_city)) = LOWER(TRIM(?))  AND s.departure_date = ?  ORDER BY s.departure_time ASC
     ";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sss", $from, $to, $date);
@@ -224,18 +202,9 @@ if ($from && $to && $date) {
         <div class="search-info">
             <h2>Available Buses</h2>
             <div class="route">
-                <strong>
-                    From:
-                    <?= htmlspecialchars(ucfirst(strtolower($from))) ?>
-                </strong>
-                <strong>
-                    To:
-                    <?= htmlspecialchars(ucfirst(strtolower($to))) ?>
-                </strong>
-                <strong>
-                    Date:
-                    <?= htmlspecialchars($date) ?>
-                </strong>
+                <strong> From: <?= htmlspecialchars(ucfirst(strtolower($from))) ?> </strong>
+                <strong> To: <?= htmlspecialchars(ucfirst(strtolower($to))) ?> </strong>
+                <strong> Date: <?= htmlspecialchars($date) ?> </strong>
             </div>
         </div>
         <?php if (!empty($buses)): ?>
@@ -244,21 +213,12 @@ if ($from && $to && $date) {
                     <div class="bus-header">
                         <div>
                             <h3><?= htmlspecialchars($bus['bus_name']) ?></h3>
-                            <p>
-                                <?= htmlspecialchars($bus['bus_number']) ?>
-                            </p>
+                            <p> <?= htmlspecialchars($bus['bus_number']) ?> </p>
                         </div>
                         <?php if (!empty($bus['bus_image'])): ?>
-                            <img
-                                src="../uploads/bus/<?= htmlspecialchars($bus['bus_image']) ?>"
-                                class="bus-image"
-                                alt="Bus"
-                                onerror="this.onerror=null;this.src='../images/bus.png';">
+                            <img src="../uploads/bus/<?= htmlspecialchars($bus['bus_image']) ?>" class="bus-image" alt="Bus" onerror="this.onerror=null;this.src='../images/bus.png';">
                         <?php else: ?>
-                            <img
-                                src="../images/bus.png"
-                                class="bus-image"
-                                alt="Bus">
+                            <img src="../images/bus.png" class="bus-image" alt="Bus">
                         <?php endif; ?>
                     </div>
                     <div class="bus-details">
@@ -281,26 +241,16 @@ if ($from && $to && $date) {
                         <div>
                             <strong>Available Seats</strong><br>
                             <?php if ((int)$bus['available_seats'] > 0): ?>
-                                <span class="available">
-                                    <?= htmlspecialchars($bus['available_seats']) ?>
-                                </span>
+                                <span class="available"> <?= htmlspecialchars($bus['available_seats']) ?> </span>
                             <?php else: ?>
-                                <span class="full">
-                                    Full
-                                </span>
+                                <span class="full"> Full </span>
                             <?php endif; ?>
                         </div>
                     </div>
                     <?php if ((int)$bus['available_seats'] > 0): ?>
-                        <a
-                            class="book-btn"
-                            href="seat_selection.php?schedule_id=<?= (int)$bus['schedule_id'] ?>&bus_id=<?= (int)$bus['bus_id'] ?>">
-                            Select Seats
-                        </a>
+                        <a class="book-btn" href="seat_selection.php?schedule_id=<?= (int)$bus['schedule_id'] ?>&bus_id=<?= (int)$bus['bus_id'] ?>"> Select Seats </a>
                     <?php else: ?>
-                        <span class="disabled-btn">
-                            No Available Seats
-                        </span>
+                        <span class="disabled-btn"> No Available Seats </span>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>

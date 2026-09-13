@@ -158,248 +158,7 @@ $max_date = date('Y-m-d', strtotime('+7 days'));
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Owner Schedule</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: #f4f6f9;
-            color: #222;
-        }
-
-        .main {
-            height: 70px;
-            background: #1560bd;
-            display: flex;
-            align-items: center;
-            padding: 0 30px;
-        }
-
-        .main a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 17px;
-        }
-
-        .container {
-            width: 95%;
-            max-width: 1300px;
-            margin: 30px auto;
-        }
-
-        .title {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-        }
-
-        .title h1 {
-            color: #1560bd;
-            margin-bottom: 8px;
-        }
-
-        .title p {
-            color: #666;
-        }
-
-        .alert {
-            padding: 13px 16px;
-            border-radius: 7px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-
-        .success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .form-card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
-
-        .form-card h2 {
-            color: #1560bd;
-            margin-bottom: 20px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 7px;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 15px;
-            outline: none;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: #1560bd;
-        }
-
-        .full {
-            grid-column: 1/-1;
-        }
-
-        .add-btn {
-            background: #1560bd;
-            color: white;
-            border: none;
-            padding: 13px 25px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-
-        .add-btn:hover {
-            background: #0d4d9b;
-        }
-
-        .table-card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            overflow-x: auto;
-        }
-
-        .table-card h2 {
-            color: #1560bd;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 1100px;
-        }
-
-        th {
-            background: #1560bd;
-            color: white;
-            padding: 13px 10px;
-            text-align: center;
-        }
-
-        td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #ddd;
-            text-align: center;
-        }
-
-        tr:hover {
-            background: #f7f9fc;
-        }
-
-        .status {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .active {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .inactive {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .edit-btn,
-        .delete-btn {
-            display: inline-block;
-            padding: 7px 11px;
-            border-radius: 5px;
-            color: white;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: bold;
-            margin: 2px;
-        }
-
-        .edit-btn {
-            background: #1560bd;
-        }
-
-        .delete-btn {
-            background: #dc3545;
-        }
-
-        .edit-btn:hover {
-            background: #0d4d9b;
-        }
-
-        .delete-btn:hover {
-            background: #b52a37;
-        }
-
-        .no-data {
-            text-align: center;
-            padding: 30px;
-            color: #777;
-        }
-
-        .warning {
-            background: #fff3cd;
-            color: #856404;
-            padding: 15px;
-            border-radius: 7px;
-            margin-bottom: 20px;
-        }
-
-        .footer {
-            margin-top: 40px;
-            background: #1560bd;
-            color: white;
-            text-align: center;
-            padding: 18px;
-        }
-
-        @media(max-width:700px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .container {
-                width: 92%;
-            }
-
-            .main {
-                padding: 0 20px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="schedule.css">
 </head>
 
 <body>
@@ -478,36 +237,23 @@ $max_date = date('Y-m-d', strtotime('+7 days'));
                             <label>Departure Date</label>
                             <input type="date" name="departure_date" min="<?= $today ?>" max="<?= $max_date ?>" required>
                         </div>
-
                         <div class="form-group">
                             <label>Departure Time</label>
                             <input type="time" name="departure_time" required>
                         </div>
-
                         <div class="form-group">
                             <label>Ticket Price</label>
                             <input type="number" name="ticket_price" min="1" step="0.01" placeholder="Enter ticket price" required>
                         </div>
-
                         <div class="full">
-                            <button type="submit" name="add_schedule" class="add-btn">
-                                <i class="fa fa-plus"></i> Add Schedule
-                            </button>
+                            <button type="submit" name="add_schedule" class="add-btn"> <i class="fa fa-plus"></i> Add Schedule </button>
                         </div>
-
                     </div>
-
                 </form>
             </div>
-
         <?php endif; ?>
-
         <div class="table-card">
-
-            <h2>
-                <i class="fa fa-calendar"></i> My Bus Schedules
-            </h2>
-
+            <h2> <i class="fa fa-calendar"></i> My Bus Schedules </h2>
             <?php if ($scheduleResult->num_rows > 0): ?>
 
                 <table>
@@ -525,77 +271,47 @@ $max_date = date('Y-m-d', strtotime('+7 days'));
                             <th>Action</th>
                         </tr>
                     </thead>
-
                     <tbody>
-
                         <?php while ($row = $scheduleResult->fetch_assoc()): ?>
-
                             <tr>
-
                                 <td><?= (int)$row['schedule_id'] ?></td>
-
                                 <td><?= htmlspecialchars($row['bus_number']) ?></td>
-
                                 <td><?= htmlspecialchars($row['bus_name']) ?></td>
-
                                 <td>
                                     <?= htmlspecialchars($row['from_city']) ?>
                                     <i class="fa fa-arrow-right"></i>
                                     <?= htmlspecialchars($row['to_city']) ?>
                                 </td>
-
                                 <td><?= htmlspecialchars($row['departure_date']) ?></td>
-
                                 <td><?= htmlspecialchars(date("h:i A", strtotime($row['departure_time']))) ?></td>
-
                                 <td>Rs. <?= number_format((float)$row['ticket_price'], 2) ?></td>
-
                                 <td><?= (int)$row['available_seats'] ?></td>
-
                                 <td>
                                     <?php if ($row['status'] === 'active'): ?>
                                         <span class="status active">Active</span>
                                     <?php else: ?>
-                                        <span class="status inactive">
-                                            <?= htmlspecialchars(ucfirst($row['status'])) ?>
-                                        </span>
+                                        <span class="status inactive"> <?= htmlspecialchars(ucfirst($row['status'])) ?> </span>
                                     <?php endif; ?>
                                 </td>
-
                                 <td>
-                                    <a href="edit_schedule.php?id=<?= (int)$row['schedule_id'] ?>" class="edit-btn">
-                                        <i class="fa fa-edit"></i> Edit
-                                    </a>
-
-                                    <a href="schedule.php?delete=<?= (int)$row['schedule_id'] ?>" class="delete-btn" onclick="return confirm('Delete this schedule?')">
-                                        <i class="fa fa-trash"></i> Delete
-                                    </a>
+                                    <a href="edit_schedule.php?id=<?= (int)$row['schedule_id'] ?>" class="edit-btn"> <i class="fa fa-edit"></i> Edit </a>
+                                    <a href="schedule.php?delete=<?= (int)$row['schedule_id'] ?>" class="delete-btn" onclick="return confirm('Delete this schedule?')"> <i class="fa fa-trash"></i> Delete </a>
                                 </td>
-
                             </tr>
-
                         <?php endwhile; ?>
-
                     </tbody>
                 </table>
-
             <?php else: ?>
-
                 <div class="no-data">
                     <i class="fa fa-calendar-xmark" style="font-size:45px"></i>
                     <p>No schedule found for your buses.</p>
                 </div>
-
             <?php endif; ?>
-
         </div>
-
     </div>
-
     <footer class="footer">
         <p>&copy;2026 Online Bus Ticket Booking System || All Rights Reserved.</p>
     </footer>
-
 </body>
 
 </html>

@@ -102,23 +102,13 @@ $driver_photo = !empty($verification['profile_photo'])
 <body>
     <header class="header">
         <div class="logo">Driver Dashboard</div>
+        <div><a href="scan_ticket.php">Scan</a></div>
+        <div><a href="verify_ticket.php">Verify ticket</a></div>
         <div class="driver-profile" onclick="toggleProfileMenu()">
-<<<<<<< HEAD
             <div class="driver-info"><strong><?= htmlspecialchars($driver['name']) ?></strong><span class="driver-status"><i></i><?= htmlspecialchars($driver_status) ?></span></div>
             <img src="../uploads/profile/<?= htmlspecialchars($profile_image) ?>" class="profile-image" alt="Driver Profile" onerror="this.onerror=null;this.src='../images/default.png';">
-=======
-            <div class="driver-info">
-                <strong>Welcome, <?= htmlspecialchars($driver['name']) ?></strong>
-            </div>
-            <img
-                src="<?= htmlspecialchars($driver_photo) ?>"
-                class="profile-image"
-                alt="Driver Profile"
-                onerror="this.onerror=null;this.src='../images/default.png';">
->>>>>>> b1d3c0b (Create reusable admin header and sidebar include)
             <div class="profile-menu" id="profileMenu">
                 <div class="menu-divider"></div>
-<<<<<<< HEAD
                 <a href="profile.php"> <span>My Profile</span></a>
                 <a href="driver_verification.php">✓ <span>Verification</span></a>
                 <a href="my_bus.php"> <span>My Bus</span></a>
@@ -128,44 +118,14 @@ $driver_photo = !empty($verification['profile_photo'])
                 <hr>
                 <div class="menu-divider"></div>
                 <a href="../logout.php" class="logout-link"> <span>Logout</span></a>
-=======
-                <a href="profile.php">
-                    <span>My Profile</span>
-                </a>
-                <a href="driver_verification.php">
-                    <span>Verification</span>
-                </a>
-                <a href="../changepassword.php">
-                    Change Password
-                </a>
-                <hr>
-                <div class="menu-divider"></div>
-                <a href="../logout.php" class="logout-link">
-                    <span>Logout</span>
-                </a>
->>>>>>> b1d3c0b (Create reusable admin header and sidebar include)
             </div>
         </div>
     </header>
     <div class="container">
         <div class="welcome">
-<<<<<<< HEAD
             <h1>Welcome, <?= htmlspecialchars($driver['name']) ?> </h1>
             <p>Manage your assigned bus, trips and passenger information.</p>
             <div class="status-row"><span class="status-dot"></span><span class="status-text"><?= htmlspecialchars($driver_status) ?></span></div>
-=======
-            <h1>
-                Welcome, <?= htmlspecialchars($driver['name']) ?>
-            </h1>
-            <p>
-                Manage your assigned bus, trips and passenger information.
-            </p>
-            <div class="status-row">
-                <span class="status-text">
-                    <?= htmlspecialchars($driver_status) ?>
-                </span>
-            </div>
->>>>>>> b1d3c0b (Create reusable admin header and sidebar include)
         </div>
         <div class="cards">
             <div class="card">

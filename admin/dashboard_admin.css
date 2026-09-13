@@ -63,7 +63,10 @@ body {
     background: #1560bd;
     color: #fff;
     font-weight: bold;
-    box-shadow: rgb(79, 197, 197);
+    box-shadow: rgb(255, 0, 0);
+    border-top: 5px solid#fff;
+     border-bottom: 5px solid#fff;
+    border-right: 15px solid#f3ba1e;
 }
 
 .content {
