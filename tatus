@@ -1,0 +1,11 @@
+* [33me489174[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Add admin post management
+* [33m3c775f8[m Update admin user management and system features
+[31m|[m * [33m2b8c21d[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Add role change functionality
+[31m|[m[31m/[m  
+* [33m322a7a1[m Passenger  Add Font Awesome icons to footer links
+* [33m0c91f5a[m Add Font Awesome icons to footer links
+* [33mce041d9[m update system features
+* [33mf7a4c79[m Update passenger booking history and ticket status
+* [33mec958b5[m Update owner profile and header
+* [33m01cd09c[m Ignore uploads folder
+* [33m3a390e6[m Remove uploads folder from repository
