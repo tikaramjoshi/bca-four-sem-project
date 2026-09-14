@@ -254,3 +254,21 @@ ALTER TABLE bookings
 ADD COLUMN ticket_status ENUM('active','used','cancelled') DEFAULT 'active',
 ADD COLUMN scanned_at DATETIME NULL,
 ADD COLUMN scanned_by INT NULL;
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE posts (
+    post_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    image VARCHAR(255) DEFAULT NULL,
+    status ENUM('active','inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -73,6 +73,8 @@ $booking_active = in_array($current_page, ['bookings.php', 'booking_history.php'
 
             <a href="popular_routes.php" class="<?= $active_page === 'popular_routes.php' ? 'active' : '' ?>">Popular Route</a>
 
+            <a href="add_post.php" class="<?= $active_page === 'add_post.php' ? 'active' : '' ?>">Add Post</a>
+
             <a href="uploads.php" class="<?= $active_page === 'uploads.php' ? 'active' : '' ?>">Images</a>
 
         </div>
