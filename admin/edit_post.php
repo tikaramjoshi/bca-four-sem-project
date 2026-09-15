@@ -55,50 +55,112 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Edit Post</title>
     <style>
         * {
-            box-sizing: border-box
-        }
-
-        body {
             margin: 0;
-            font-family: Arial;
-            background: #f4f6f9
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
 
-        .top {
-            background: #4413e5;
-            padding: 15px 30px;
+        html,
+        body {
+            min-height: 100%;
+            background: #f4f6f9;
+        }
+
+        .header {
+            height: 70px;
+            width: 100%;
+            background: #1560bd;
+            color: #fff;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center
+            padding: 0 25px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 2000;
         }
 
-        .top h2 {
-            color: white;
-            margin: 0
-        }
-
-        .top a {
-            background: white;
-            color: #4413e5;
-            text-decoration: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            font-weight: bold
+        .header h2 {
+            font-size: 24px;
         }
 
         .container {
-            width: 550px;
-            max-width: 92%;
-            margin: 40px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, .1)
+            min-height: 100vh;
+            padding-top: 50px;
         }
 
-        .container h2 {
+        .sidebar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            bottom: 0;
+            width: 190px;
+            background: #1d2c4e;
+            overflow-y: auto;
+            z-index: 1500;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            color: #fff;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background: #8c0f3b;
+        }
+
+        .sidebar a.active {
+            background: #1560bd;
+            color: #fff;
+            font-weight: bold;
+            box-shadow: rgb(255, 0, 0);
+            border-top: 5px solid #fff;
+            border-bottom: 5px solid #fff;
+            border-right: 15px solid #f3ba1e;
+        }
+
+        .content {
+            margin-left: 200px;
+            width: calc(100% - 200px);
+            min-height: calc(100vh - 70px);
+            padding: 30px;
+        }
+
+        .form-box {
+            width: 550px;
+            max-width: 100%;
+            margin: 20px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        .form-box h2 {
             text-align: center;
-            margin-top: 0
+            margin-bottom: 20px;
+            color: #222;
+        }
+
+        .view-btn {
+            display: block;
+            width: 40%;
+            text-align: center;
+            margin-top: 10px;
+            padding: 12px;
+            background: #2f353d;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .view-btn:hover {
+            background: #104d99;
         }
 
         input,
@@ -109,12 +171,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin: 10px 0;
             border: 1px solid #ddd;
             border-radius: 6px;
-            font-size: 15px
+            font-size: 15px;
         }
 
         textarea {
             height: 160px;
-            resize: vertical
+            resize: vertical;
         }
 
         .current-img {
@@ -122,22 +184,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             height: 90px;
             object-fit: cover;
             border-radius: 6px;
-            margin: 10px 0
+            margin: 10px 0;
+            display: block;
         }
 
         button {
             width: 100%;
             padding: 12px;
-            background: #4413e5;
-            color: white;
+            background: #1560bd;
+            color: #fff;
             border: 0;
             border-radius: 6px;
             font-size: 16px;
-            cursor: pointer
+            cursor: pointer;
         }
 
         button:hover {
-            background: #3510b5
+            background: #0d4f9e;
         }
 
         .error {
@@ -145,34 +208,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: red;
             padding: 10px;
             border-radius: 6px;
-            margin-bottom: 10px
+            margin-bottom: 10px;
+        }
+
+        @media(max-width:500px) {
+            .header {
+                padding: 0 15px;
+            }
+
+            .header h2 {
+                font-size: 20px;
+            }
+
+            .sidebar {
+                width: 180px;
+            }
+
+            .content {
+                margin-left: 180px;
+                width: calc(100% - 180px);
+                padding: 15px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="top">
-        <h2>Edit Post</h2>
-        <a href="view_post.php">View Posts</a>
-    </div>
-    <div class="container">
-        <h2>Edit Post</h2>
-        <?php if (isset($error)) { ?>
-            <div class="error"><?= htmlspecialchars($error) ?></div>
-        <?php } ?>
-        <form method="POST" enctype="multipart/form-data">
-            <input type="text" name="title" value="<?= htmlspecialchars($post['title']) ?>" placeholder="Post Title" required>
-            <textarea name="message" placeholder="Post Message" required><?= htmlspecialchars($post['message']) ?></textarea>
-            <?php if (!empty($post['image'])) { ?>
-                <img class="current-img" src="../uploads/posts/<?= htmlspecialchars($post['image']) ?>">
+    <?php include 'admin_header.php' ?>
+    <div class="content">
+        <div class="form-box">
+            <h2>Edit Post</h2>
+            <?php if (isset($error)) { ?>
+                <div class="error"><?= htmlspecialchars($error) ?></div>
             <?php } ?>
-            <input type="file" name="image" accept="image/*">
-            <select name="status">
-                <option value="active" <?= $post['status'] == 'active' ? 'selected' : '' ?>>Active</option>
-                <option value="inactive" <?= $post['status'] == 'inactive' ? 'selected' : '' ?>>Inactive</option>
-            </select>
-            <button type="submit">Update Post</button>
-        </form>
+            <form method="POST" enctype="multipart/form-data">
+                <input type="text" name="title" value="<?= htmlspecialchars($post['title']) ?>" placeholder="Post Title" required>
+                <textarea name="message" placeholder="Post Message" required><?= htmlspecialchars($post['message']) ?></textarea>
+                <?php if (!empty($post['image'])) { ?>
+                    <img class="current-img" src="../uploads/posts/<?= htmlspecialchars($post['image']) ?>">
+                <?php } ?>
+                <input type="file" name="image" accept="image/*">
+                <select name="status">
+                    <option value="active" <?= $post['status'] == 'active' ? 'selected' : '' ?>>Active</option>
+                    <option value="inactive" <?= $post['status'] == 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                </select>
+                <button type="submit">Update Post</button>
+                <a href="view_post.php" class="view-btn">Back</a>
+            </form>
+        </div>
+    </div>
     </div>
 </body>
 

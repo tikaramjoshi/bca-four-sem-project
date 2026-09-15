@@ -141,6 +141,11 @@ if (isset($_GET['book'])) {
     header("Location: passenger/seat_selection.php?schedule_id=" . $schedule_id . "&bus_id=" . $bus_id);
     exit;
 }
+$posts = [];
+$result = $conn->query("SELECT * FROM posts WHERE status='active' ORDER BY post_id DESC");
+while ($result && $row = $result->fetch_assoc()) {
+    $posts[] = $row;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -151,10 +156,72 @@ if (isset($_GET['book'])) {
     <title>Online Bus Ticket Booking System</title>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .post-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, .7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .post-box {
+            position: relative;
+            width: 50%;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .post-box img {
+            width: 100%;
+            max-height: 450px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .post-box h2 {
+            margin: 15px 0 8px;
+        }
+
+        .post-box p {
+            margin-bottom: 20px;
+        }
+
+        .post-box button {
+            padding: 10px 25px;
+            border: 0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #closePost {
+            position: absolute;
+            right: 15px;
+            top: 5px;
+            font-size: 30px;
+            cursor: pointer;
+        }
+    </style>
 
 </head>
 
 <body>
+    <div id="postModal" class="post-modal">
+        <div class="post-box">
+            <span id="closePost">&times;</span>
+            <img id="postImage" src="" alt="Post Image">
+            <h2 id="postTitle"></h2>
+            <p id="postMessage"></p>
+            <button id="nextPost">Next</button>
+        </div>
+    </div>
     <div class="main">
         <nav>
             <div>
@@ -376,6 +443,43 @@ if (isset($_GET['book'])) {
         }
         clock();
         setInterval(clock, 1000);
+        const posts = <?= json_encode($posts) ?>;
+        let postIndex = 0;
+
+        function showPost() {
+            if (postIndex >= posts.length) {
+                document.getElementById("postModal").style.display = "none";
+                return;
+            }
+
+            const post = posts[postIndex];
+
+            document.getElementById("postTitle").innerText = post.title;
+            document.getElementById("postMessage").innerText = post.message;
+
+            if (post.image) {
+                document.getElementById("postImage").src = "uploads/posts/" + post.image;
+                document.getElementById("postImage").style.display = "block";
+            } else {
+                document.getElementById("postImage").style.display = "none";
+            }
+
+            document.getElementById("nextPost").innerText = postIndex === posts.length - 1 ? "Close" : "Next";
+            document.getElementById("postModal").style.display = "flex";
+        }
+
+        document.getElementById("nextPost").addEventListener("click", function() {
+            postIndex++;
+            showPost();
+        });
+
+        document.getElementById("closePost").addEventListener("click", function() {
+            document.getElementById("postModal").style.display = "none";
+        });
+
+        if (posts.length > 0) {
+            showPost();
+        }
     </script>
 </body>
 

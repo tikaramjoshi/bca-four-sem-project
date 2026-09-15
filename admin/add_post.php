@@ -5,57 +5,66 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     exit();
 }
 ?>
+
 <!DOCTYPE html>
+
 <html>
 
 <head>
     <title>Add Post</title>
     <style>
         * {
-            box-sizing: border-box
-        }
-
-        body {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             font-family: Arial, sans-serif;
-            background: #f4f6f9
         }
 
-        .top {
-            background: #4413e5;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center
+        html,
+        body {
+            min-height: 100%;
+            background: #f4f6f9;
         }
 
-        .top h2 {
+        .content {
+            margin-left: 200px;
+            width: calc(100% - 200px);
+            min-height: calc(100vh - 70px);
+            padding: 100px 30px 30px;
+        }
+
+        .view-btn {
+            display: block;
+            width: 40%;
+            text-align: center;
+            margin-top: 10px;
+            padding: 12px;
+            background: #2f353d;
             color: white;
-            margin: 0
-        }
-
-        .top a {
-            background: white;
-            color: #4413e5;
             text-decoration: none;
-            padding: 10px 18px;
             border-radius: 6px;
-            font-weight: bold
         }
 
-        .container {
+        .view-btn:hover {
+            background: #104d99;
+        }
+
+
+
+
+        .form-box {
             width: 500px;
             max-width: 90%;
-            margin: 40px auto;
+            margin: 0 auto;
             background: white;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, .1)
+            box-shadow: 0 3px 15px rgba(0, 0, 0, .1);
         }
 
-        .container h2 {
+        .form-box h2 {
             text-align: center;
-            margin-top: 0
+            margin-bottom: 20px;
         }
 
         input,
@@ -65,49 +74,66 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
             margin: 10px 0;
             border: 1px solid #ddd;
             border-radius: 6px;
-            font-size: 15px
+            font-size: 15px;
         }
 
         textarea {
             height: 130px;
-            resize: none
+            resize: none;
         }
 
         input[type=file] {
-            padding: 10px
+            padding: 10px;
         }
 
         button {
             width: 100%;
             padding: 12px;
-            background: #4413e5;
+            background: #1560bd;
             color: white;
             border: 0;
             border-radius: 6px;
             font-size: 16px;
-            cursor: pointer
+            cursor: pointer;
         }
 
         button:hover {
-            background: #3510b5
+            background: #104d99;
+        }
+
+        @media (max-width: 500px) {
+            .content {
+                margin-left: 180px;
+                width: calc(100% - 180px);
+                padding: 100px 15px 15px;
+            }
         }
     </style>
+
 </head>
 
 <body>
-    <div class="top">
-        <h2>Add Post</h2>
-        <a href="view_post.php">View Posts</a>
+
+    <?php include 'admin_header.php'; ?>
+
+    <div class="content">
+
+        <div class="form-box">
+            <h2>Create New Post</h2>
+
+            <form action="save_post.php" method="POST" enctype="multipart/form-data">
+                <input type="text" name="title" placeholder="Post Title" required>
+                <textarea name="message" placeholder="Post Message" required></textarea>
+                <input type="file" name="image" accept="image/*">
+
+                <button type="submit">Post</button>
+                <a href="view_post.php" class="view-btn">Back</a>
+
+            </form>
+        </div>
+
     </div>
-    <div class="container">
-        <h2>Create New Post</h2>
-        <form action="save_post.php" method="POST" enctype="multipart/form-data">
-            <input type="text" name="title" placeholder="Post Title" required>
-            <textarea name="message" placeholder="Post Message" required></textarea>
-            <input type="file" name="image" accept="image/*">
-            <button type="submit">Post</button>
-        </form>
-    </div>
+
 </body>
 
 </html>

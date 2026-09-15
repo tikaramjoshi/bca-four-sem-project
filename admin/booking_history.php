@@ -90,7 +90,7 @@ $history = $stmt->get_result();
                     <h1>Booking History</h1>
                     <p>Deleted bookings are stored here.</p>
                 </div>
-                <a href="bookings.php" class="button back"><i class="fa fa-arrow-left"></i> Back to Bookings</a>
+                <a href="bookings.php" class="button back"> <i class="fa fa-arrow-left"></i> Back </a>
             </div>
             <section class="card">
                 <form class="search" method="get">

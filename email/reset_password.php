@@ -1,49 +1,49 @@
+```php
 <?php
 session_start();
 
-if (
-    !isset($_SESSION['otp_verified']) ||
-    !isset($_SESSION['reset_email'])
-) {
+if (!isset($_SESSION['otp_verified']) || !isset($_SESSION['reset_email'])) {
     header("Location: forgot_password.php");
     exit();
 }
 
 require_once "../db.php";
+
 $message = "";
 $message_type = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = trim($_POST['password']);
     $confirm_password = trim($_POST['confirm_password']);
+
     if ($password != $confirm_password) {
         $message = "Passwords do not match!";
         $message_type = "error";
-    } elseif (strlen($password) < 3) {
-        $message = "Password must be at least 3 characters!";
+    } elseif (strlen($password) < 6) {
+        $message = "Password must be at least 6 characters!";
         $message_type = "error";
     } else {
         $hash = password_hash($password, PASSWORD_BCRYPT);
-        $stmt = $conn->prepare("
-    UPDATE users
-    SET password=?
-    WHERE email=?
-");
-        $stmt->bind_param(
-            "ss",
-            $hash,
-            $_SESSION['reset_email']
-        );
+        $email = $_SESSION['reset_email'];
+
+        $stmt = $conn->prepare("UPDATE users SET password=? WHERE email=?");
+        $stmt->bind_param("ss", $hash, $email);
         $stmt->execute();
+
+        if ($stmt->affected_rows > 0) {
+            $message = "Password changed successfully.";
+            $message_type = "success";
+
+            unset($_SESSION['reset_email']);
+            unset($_SESSION['reset_otp']);
+            unset($_SESSION['otp_expire']);
+            unset($_SESSION['otp_verified']);
+        } else {
+            $message = "Password could not be changed!";
+            $message_type = "error";
+        }
+
         $stmt->close();
-
-        unset($_SESSION['reset_email']);
-        unset($_SESSION['reset_otp']);
-        unset($_SESSION['otp_expire']);
-        unset($_SESSION['otp_verified']);
-
-        $message = "Password changed successfully.";
-        $message_type = "success";
     }
 }
 ?>
@@ -75,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             background: #fff;
             padding: 30px;
             border-radius: 10px;
-
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
         }
 
         h2 {
@@ -127,24 +127,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="box">
         <h2>Reset Password</h2>
-        <?php
-        if ($message != "") {
-            echo "<div class='$message_type'>$message</div>";
-        }
-        ?>
-        <form method="POST">
-            <input type="password" name="password" placeholder="New Password" required>
-            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-            <button type="submit"> Reset Password </button>
-        </form>
+
+        <?php if ($message != "") { ?>
+            <div class="<?php echo $message_type; ?>">
+                <?php echo htmlspecialchars($message); ?>
+            </div>
+        <?php } ?>
+
+        <?php if ($message_type != "success") { ?>
+            <form method="POST">
+                <input type="password" name="password" placeholder="New Password" required>
+                <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+                <button type="submit">Reset Password</button>
+            </form>
+        <?php } ?>
     </div>
-    <script>
-        <?php if ($message_type == "success") { ?>
+
+    <?php if ($message_type == "success") { ?>
+        <script>
             setTimeout(function() {
                 window.location.href = "../login.php";
             }, 3000);
-        <?php } ?>
-    </script>
+        </script>
+    <?php } ?>
 </body>
 
 </html>
