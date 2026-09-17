@@ -89,11 +89,9 @@ $driver_photo = !empty($verification['profile_photo'])
     ? "../uploads/driver/profile/" . $verification['profile_photo']
     : "../uploads/profile/" . $profile_image;
 
-$posts = [];
-$result = $conn->query("SELECT * FROM posts WHERE status='active' ORDER BY post_id DESC");
-while ($result && $row = $result->fetch_assoc()) {
-    $posts[] = $row;
-}
+
+include "../include/message/sql.php";
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -103,60 +101,8 @@ while ($result && $row = $result->fetch_assoc()) {
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Driver Dashboard</title>
     <link rel="stylesheet" href="dashboard.css">
-    <style>
-        .post-modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, .7);
-            justify-content: center;
-            align-items: center;
-        }
+    <link rel="stylesheet" href="../include/message/mesage.css">
 
-        .post-box {
-            position: relative;
-            width: 450px;
-            max-width: 90%;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .post-box img {
-            width: 100%;
-            max-height: 250px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .post-box h2 {
-            margin: 15px 0 8px;
-        }
-
-        .post-box p {
-            margin-bottom: 20px;
-        }
-
-        .post-box button {
-            padding: 10px 25px;
-            border: 0;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #closePost {
-            position: absolute;
-            right: 15px;
-            top: 5px;
-            font-size: 30px;
-            cursor: pointer;
-        }
-    </style>
 </head>
 
 <body>
@@ -165,6 +111,7 @@ while ($result && $row = $result->fetch_assoc()) {
         <div class="logo">Driver Dashboard</div>
         <div><a href="scan_ticket.php">Scan</a></div>
         <div><a href="verify_ticket.php">Verify ticket</a></div>
+        <div><a href="bookings.php">Passenger Bookings</a></div>
         <div class="driver-profile" onclick="toggleProfileMenu()">
             <div class="driver-info"><strong><?= htmlspecialchars($driver['name']) ?></strong><span class="driver-status"><i></i><?= htmlspecialchars($driver_status) ?></span></div>
             <img src="../uploads/profile/<?= htmlspecialchars($profile_image) ?>" class="profile-image" alt="Driver Profile" onerror="this.onerror=null;this.src='../images/default.png';">
@@ -397,15 +344,8 @@ while ($result && $row = $result->fetch_assoc()) {
             </div>
         </div>
     </div>
-    <div id="postModal" class="post-modal">
-        <div class="post-box">
-            <span id="closePost">&times;</span>
-            <img id="postImage" src="" alt="Post Image">
-            <h2 id="postTitle"></h2>
-            <p id="postMessage"></p>
-            <button id="nextPost">Next</button>
-        </div>
-    </div>
+    <?php include "../include/message/code.php";  ?>
+    <?php include "../include/message/sql.php";  ?>
     <script>
         function toggleProfileMenu() {
             document.querySelector(".driver-profile").classList.toggle("active");
