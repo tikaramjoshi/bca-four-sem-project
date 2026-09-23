@@ -292,3 +292,37 @@ table tr:nth-child(even) {
         height: 45px;
     }
 }
+
+
+.notification{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#6a11cb,#2575fc);
+    color:white;
+    text-decoration:none;
+    font-size:22px;
+    box-shadow:0 5px 15px rgba(0,0,0,.2);
+}
+
+.notification span{
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    min-width:22px;
+    height:22px;
+    padding:2px 6px;
+    border-radius:20px;
+    background:#ff1744;
+    color:white;
+    font-size:12px;
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:2px solid white;
+}

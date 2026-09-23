@@ -39,6 +39,18 @@ $totalUsersStmt->execute();
 $totalUsersResult = $totalUsersStmt->get_result();
 $totalUsers = $totalUsersResult->fetch_row()[0];
 $totalUsersStmt->close();
+$totalChangeRequestRole = 0;
+$totalRoleVerification = 0;
+$role_request_count = 0;
+
+$result = $conn->query("SELECT COUNT(*) AS total FROM role_change_requests WHERE status='pending'");
+
+if ($result) {
+    $row = $result->fetch_assoc();
+    $role_request_count = (int)$row['total'];
+}
+
+
 ?>
 <?php require_once "admin_header.php"; ?>
 <div class="content">
@@ -87,6 +99,7 @@ $totalUsersStmt->close();
             <p><?= $totalPending ?></p>
         </div>
     </div>
+    <a href="change_role.php">Role</a>
     <div class="table-box notification-box">
         <h2><i class="fa fa-bell"></i> Notifications</h2>
         <?php if ($totalPending > 0): ?>
@@ -101,11 +114,14 @@ $totalUsersStmt->close();
         <?php if ($totalPassengerVerification > 0): ?>
             <p><?= $totalPassengerVerification ?> pending passenger verification request(s)</p>
         <?php endif; ?>
+        <?php if ($role_request_count > 0 && $totalChangeRequestRole == 0 && $totalChangeRequestRole == 0 && $totalRoleVerification == 0):  ?>
+            <p><?php echo $role_request_count; ?> pending change role request(s)</p>
+        <?php endif; ?>
         <?php if ($totalPending == 0 && $totalOwnerVerification == 0 && $totalDriverVerification == 0 && $totalPassengerVerification == 0): ?>
             <p class="no-notification">No pending requests.</p>
         <?php endif; ?>
     </div>
-    <br><br>
+
     <?php if ($totalPending > 0): ?>
         <div class="table-box">
             <h2>Pending Bus Requests</h2>
@@ -143,7 +159,7 @@ $totalUsersStmt->close();
             </div>
         </div>
     <?php endif; ?>
-    <br>
+
     <?php if ($totalOwnerVerification > 0): ?>
         <div class="table-box">
             <h2>Pending Owner Verification</h2>
@@ -181,7 +197,7 @@ $totalUsersStmt->close();
             </div>
         </div>
     <?php endif; ?>
-    <br>
+
     <?php
     $driverVerificationRows = [];
     $stmt = $conn->prepare("SELECT dv.verification_id,dv.driver_id,dv.license_number,dv.license_issue_date,dv.license_expiry_date,dv.profile_photo,dv.license_photo_front,dv.license_photo_back,dv.status,dv.created_at,u.name,u.email,u.phone FROM driver_verification dv INNER JOIN users u ON dv.driver_id=u.user_id WHERE dv.status='pending' ORDER BY dv.verification_id DESC");
@@ -231,7 +247,7 @@ $totalUsersStmt->close();
             </div>
         </div>
     <?php endif; ?>
-    <br><br>
+
     <?php if ($totalPassengerVerification > 0): ?>
         <div class="table-box">
             <h2>Pending Passenger Verification</h2>

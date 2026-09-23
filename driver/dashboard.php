@@ -102,30 +102,30 @@ include "../include/message/sql.php";
     <title>Driver Dashboard</title>
     <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="../include/message/mesage.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
-
     <header class="header">
+        <a href="../role_request.php">Change</a>
         <div class="logo">Driver Dashboard</div>
         <div><a href="scan_ticket.php">Scan</a></div>
         <div><a href="verify_ticket.php">Verify ticket</a></div>
         <div><a href="bookings.php">Passenger Bookings</a></div>
         <div class="driver-profile" onclick="toggleProfileMenu()">
             <div class="driver-info"><strong><?= htmlspecialchars($driver['name']) ?></strong><span class="driver-status"><i></i><?= htmlspecialchars($driver_status) ?></span></div>
-            <img src="../uploads/profile/<?= htmlspecialchars($profile_image) ?>" class="profile-image" alt="Driver Profile" onerror="this.onerror=null;this.src='../images/default.png';">
+            <img src="../uploads/profile/<?= htmlspecialchars($profile_image) ?>" class="profile-image" alt="Driver Profile" onerror="this.onerror=null;this.src='../uploads/default.png';">
             <div class="profile-menu" id="profileMenu">
                 <div class="menu-divider"></div>
-                <a href="profile.php"> <span>My Profile</span></a>
-                <a href="driver_verification.php">✓ <span>Verification</span></a>
-                <a href="my_bus.php"> <span>My Bus</span></a>
-                <a href="trips.php"> <span>My Trips</span></a>
-                <a href="notifications.php"><span>Notifications</span></a>
-                <a href="../changepassword.php">Change Password</a>
+                <a href="profile.php"> <i class=" fa fa-user-circle"></i> My Profile </a>
+                <a href="driver_verification.php"> <i class=" fa fa-check-circle"></i> Verification </a>
+                <a href="my_bus.php"> <i class=" fa fa-bus"></i> My Bus</a>
+                <a href="trips.php"> <i class=" fa fa-road"></i> My Trips </a>
+                <a href="notifications.php"> <i class=" fa fa-bell"></i> Notifications </a>
+                <a href="../changepassword.php"> <i class=" fa fa-key"></i>Change Password</a>
                 <hr>
                 <div class="menu-divider"></div>
-                <a href="../logout.php" class="logout-link"> <span>Logout</span></a>
+                <a href="../logout.php" class="logout-link"> <i class="fa fa-sign-out"></i>Logout</a>
             </div>
         </div>
     </header>
@@ -344,56 +344,23 @@ include "../include/message/sql.php";
             </div>
         </div>
     </div>
-    <?php include "../include/message/code.php";  ?>
-    <?php include "../include/message/sql.php";  ?>
+
+    <?php include "../include/message/code.php"; ?>
+    <script>
+        const posts = [];
+    </script>
+    <script src="../include/message/message.js"></script>
     <script>
         function toggleProfileMenu() {
             document.querySelector(".driver-profile").classList.toggle("active");
         }
+
         document.addEventListener("click", function(e) {
             const profile = document.querySelector(".driver-profile");
             if (profile && !profile.contains(e.target)) {
                 profile.classList.remove("active");
             }
         });
-
-        const posts = <?= json_encode($posts) ?>;
-        let postIndex = 0;
-
-        function showPost() {
-            if (postIndex >= posts.length) {
-                document.getElementById("postModal").style.display = "none";
-                return;
-            }
-
-            const post = posts[postIndex];
-
-            document.getElementById("postTitle").innerText = post.title;
-            document.getElementById("postMessage").innerText = post.message;
-
-            if (post.image) {
-                document.getElementById("postImage").src = "../uploads/posts/" + post.image;
-                document.getElementById("postImage").style.display = "block";
-            } else {
-                document.getElementById("postImage").style.display = "none";
-            }
-
-            document.getElementById("nextPost").innerText = postIndex === posts.length - 1 ? "Close" : "Next";
-            document.getElementById("postModal").style.display = "flex";
-        }
-
-        document.getElementById("nextPost").addEventListener("click", function() {
-            postIndex++;
-            showPost();
-        });
-
-        document.getElementById("closePost").addEventListener("click", function() {
-            document.getElementById("postModal").style.display = "none";
-        });
-
-        if (posts.length > 0) {
-            showPost();
-        }
     </script>
 </body>
 

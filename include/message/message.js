@@ -22,13 +22,19 @@
 
         document.getElementById("nextPost").addEventListener("click", function() {
             postIndex++;
+            if (postIndex >= posts.length) {
+        fetch("posts_shown.php");
+        document.getElementById("postModal").style.display = "none";
+        return;
+    }
             showPost();
         });
 
         document.getElementById("closePost").addEventListener("click", function() {
             document.getElementById("postModal").style.display = "none";
+             fetch("posts_shown.php");
         });
 
-        if (posts.length > 0) {
+        if (posts.length > 0 && showPostOnLogin) {
             showPost();
         }

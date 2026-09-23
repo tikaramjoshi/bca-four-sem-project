@@ -10,6 +10,63 @@ if (!$root || !is_dir($root)) die("Uploads folder not found.");
 $msg = $_GET['msg'] ?? '';
 $message = $msg === 'deleted' ? 'File deleted successfully.' : '';
 $type = $message ? 'success' : '';
+
+function isImageUsed($conn, $relative)
+{
+    $relative = str_replace('\\', '/', ltrim($relative, '/'));
+    $basename = basename($relative);
+
+    $result = $conn->query("
+        SELECT TABLE_NAME, COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+        AND (
+            LOWER(COLUMN_NAME) LIKE '%image%'
+            OR LOWER(COLUMN_NAME) LIKE '%photo%'
+            OR LOWER(COLUMN_NAME) LIKE '%picture%'
+            OR LOWER(COLUMN_NAME) LIKE '%file%'
+            OR LOWER(COLUMN_NAME) LIKE '%path%'
+        )
+        AND DATA_TYPE IN ('varchar','char','text','tinytext','mediumtext','longtext')
+    ");
+
+    if (!$result) return false;
+
+    $paths = [
+        $relative,
+        'uploads/' . $relative,
+        '/uploads/' . $relative,
+        '../uploads/' . $relative,
+        '../../uploads/' . $relative,
+        $basename
+    ];
+
+    while ($row = $result->fetch_assoc()) {
+        $table = str_replace('`', '``', $row['TABLE_NAME']);
+        $column = str_replace('`', '``', $row['COLUMN_NAME']);
+
+        foreach ($paths as $pathValue) {
+            $stmt = $conn->prepare("SELECT 1 FROM `$table` WHERE `$column` = ? LIMIT 1");
+
+            if (!$stmt) continue;
+
+            $stmt->bind_param("s", $pathValue);
+            $stmt->execute();
+            $stmt->store_result();
+
+            if ($stmt->num_rows > 0) {
+                $stmt->close();
+                return true;
+            }
+
+            $stmt->close();
+        }
+    }
+
+    return false;
+}
+
+
 function files($dir, $root)
 {
     $list = [];
@@ -29,21 +86,31 @@ function files($dir, $root)
     }
     return $list;
 }
+
 if (isset($_GET['delete'])) {
     $relative = ltrim(str_replace('\\', '/', urldecode($_GET['delete'])), '/');
     $path = realpath("$root/$relative");
+
     if ($path && is_file($path) && strpos($path, $root . DIRECTORY_SEPARATOR) === 0) {
-        if (unlink($path)) {
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $images = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+
+        if (in_array($extension, $images) && isImageUsed($conn, $relative)) {
+            $message = "This image is used in the database and cannot be deleted.";
+            $type = "error";
+        } elseif (unlink($path)) {
             header("Location: uploads.php?msg=deleted");
             exit;
+        } else {
+            $message = "Unable to delete the file.";
+            $type = "error";
         }
-        $message = "Unable to delete the file.";
-        $type = "error";
     } else {
         $message = "Invalid file.";
         $type = "error";
     }
 }
+
 $files = files($root, $root);
 $search = trim($_GET['search'] ?? '');
 if ($search) {
@@ -127,6 +194,7 @@ $total = count($files);
                             $url = "../uploads/" . implode("/", array_map("rawurlencode", explode("/", $file['relative'])));
                             $image = in_array($ext, $images);
                             $document = in_array($ext, $docs);
+                            $used = $image && isImageUsed($conn, $file['relative']);
                             $size = $file['size'] >= 1048576
                                 ? number_format($file['size'] / 1048576, 2) . " MB"
                                 : ($file['size'] >= 1024
@@ -157,11 +225,15 @@ $total = count($files);
                                     <div class="file-actions">
                                         <a href="<?= htmlspecialchars($url) ?>" target="_blank" class="view-btn">View</a>
                                         <a href="<?= htmlspecialchars($url) ?>" download class="download-btn">Download</a>
-                                        <a href="uploads.php?delete=<?= rawurlencode($file['relative']) ?>"
-                                            class="delete-btn"
-                                            onclick="return confirm('Are you sure you want to delete this file?')">
-                                            Delete
-                                        </a>
+                                        <?php if ($used): ?>
+                                            <button type="button" class="delete-btn" disabled>Delete</button>
+                                        <?php else: ?>
+                                            <a href="uploads.php?delete=<?= rawurlencode($file['relative']) ?>"
+                                                class="delete-btn"
+                                                onclick="return confirm('Are you sure you want to delete this file?')">
+                                                Delete
+                                            </a>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
