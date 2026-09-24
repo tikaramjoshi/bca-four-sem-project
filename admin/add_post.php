@@ -1,16 +1,12 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
-    header("Location: ../login.php");
-    exit();
-}
+require_once "auth.php";
 ?>
-
 <!DOCTYPE html>
-
 <html>
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Add Post</title>
     <style>
         * {
@@ -49,17 +45,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
             background: #104d99;
         }
 
-
-
-
         .form-box {
-            width: 500px;
-            max-width: 90%;
+            width: 700px;
             margin: 0 auto;
             background: white;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, .1);
         }
 
         .form-box h2 {
@@ -109,31 +100,22 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
             }
         }
     </style>
-
 </head>
 
 <body>
-
     <?php include 'admin_header.php'; ?>
-
     <div class="content">
-
         <div class="form-box">
             <h2>Create New Post</h2>
-
             <form action="save_post.php" method="POST" enctype="multipart/form-data">
                 <input type="text" name="title" placeholder="Post Title" required>
                 <textarea name="message" placeholder="Post Message" required></textarea>
                 <input type="file" name="image" accept="image/*">
-
                 <button type="submit">Post</button>
                 <a href="view_post.php" class="view-btn">Back</a>
-
             </form>
         </div>
-
     </div>
-
 </body>
 
 </html>

@@ -5,12 +5,6 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     exit();
 }
 require_once "../db.php";
-$offsetValue = 0;
-$limit = 5;
-if (isset($_GET['offset'])) {
-    $offsetValue = $_GET['offset'];
-}
-
 
 $active_page = 'dashboard.php';
 $totalOwners = $conn->query("SELECT COUNT(*) FROM users WHERE role='owner'")->fetch_row()[0];
@@ -50,7 +44,11 @@ if ($result) {
     $role_request_count = (int)$row['total'];
 }
 
-
+$role_request_count = 0;
+$result = $conn->query("SELECT COUNT(*) AS total FROM role_change_requests WHERE status='pending'");
+if ($result) {
+    $role_request_count = (int)$result->fetch_assoc()['total'];
+}
 ?>
 <?php require_once "admin_header.php"; ?>
 <div class="content">
@@ -262,7 +260,7 @@ if ($result) {
                         <th>Action</th>
                     </tr>
                     <?php
-                    $stmt = $conn->prepare("SELECT user_id,name,email,phone,verification_status FROM users WHERE role='passenger' AND (verification_status IS NULL OR verification_status <> 'verified') ORDER BY user_id DESC limit $limit offset $offsetValue");
+                    $stmt = $conn->prepare("SELECT user_id,name,email,phone,verification_status FROM users WHERE role='passenger' AND (verification_status IS NULL OR verification_status <> 'verified') ORDER BY user_id DESC");
                     $stmt->execute();
                     $result = $stmt->get_result();
                     while ($row = $result->fetch_assoc()):
@@ -283,11 +281,83 @@ if ($result) {
             </div>
         </div>
     <?php endif; ?>
-    <?php include 'inc.php';
-    PaginationBtn(["limit" => $limit, "noOfData" => $totalPassengerVerification])
-    ?>
+
+    <?php if ($role_request_count > 0): ?>
+        <div class="table-box">
+            <h2>Pending Change Role Requests</h2>
+            <div class="table-scroll">
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Profile</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Old Role</th>
+                        <th>Requested Role</th>
+                        <th>Reason</th>
+                        <th>Action</th>
+                    </tr>
+                    <?php
+                    $stmt = $conn->prepare("SELECT r.request_id,r.old_role,r.requested_role,r.reason,r.status,u.user_id,u.name,u.email,u.phone,u.profile_image FROM role_change_requests r INNER JOIN users u ON r.user_id=u.user_id WHERE r.status='pending' ORDER BY r.request_id DESC");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    while ($row = $result->fetch_assoc()):
+                        $profile = !empty($row['profile_image']) ? $row['profile_image'] : 'default.png';
+                    ?>
+                        <tr>
+                            <td><?= (int)$row['request_id'] ?></td>
+                            <td>
+                                <img src="../uploads/profile/<?= htmlspecialchars($profile) ?>" width="45" height="45" style="border-radius:50%;object-fit:cover;" onerror="this.src='../uploads/default.png'">
+                            </td>
+                            <td><?= htmlspecialchars($row['name']) ?></td>
+                            <td><?= htmlspecialchars($row['email']) ?></td>
+                            <td><?= htmlspecialchars($row['phone']) ?></td>
+                            <td><?= htmlspecialchars($row['old_role']) ?></td>
+                            <td><?= htmlspecialchars($row['requested_role']) ?></td>
+                            <td><?= htmlspecialchars($row['reason']) ?></td>
+                            </td>
+                            <td>
+                                <form method="POST" action="change_role.php" style="display:inline;">
+                                    <input type="hidden" name="request_id" value="<?= (int)$row['request_id'] ?>">
+                                    <button type="submit" name="approve_request" class="approve" onclick="return confirm('Approve this role request?')">Verify</button>
+                                </form>
+                                <button type="button" class="reject" onclick="openRejectModal(<?= (int)$row['request_id'] ?>)">Reject</button>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </table>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
 </div>
+<div id="rejectModal" class="reject-modal">
+    <div class="reject-box">
+        <h3>Reject Role Request</h3>
+        <form method="POST" action="change_role.php">
+            <input type="hidden" name="request_id" id="rejectRequestId">
+            <label>Reject Reason</label>
+            <textarea name="admin_reason" id="rejectReason" placeholder="Enter reject reason" required></textarea>
+            <div class="reject-actions">
+                <button type="submit" name="reject_request">Reject Request</button>
+                <button type="button" onclick="closeRejectModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openRejectModal(id) {
+        document.getElementById("rejectRequestId").value = id;
+        document.getElementById("rejectReason").value = "";
+        document.getElementById("rejectModal").style.display = "flex";
+    }
+
+    function closeRejectModal() {
+        document.getElementById("rejectModal").style.display = "none";
+    }
+</script>
 <script>
     function toggleMenu() {
         document.getElementById("settingMenu").classList.toggle("show");

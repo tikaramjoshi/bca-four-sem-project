@@ -132,21 +132,19 @@ unset($_SESSION['error']);
             overflow-x: auto;
             background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1300px;
         }
 
         th {
             background: #4413e5;
             color: white;
-            padding: 13px 10px;
+            padding: 12px 9px;
             text-align: left;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         td {

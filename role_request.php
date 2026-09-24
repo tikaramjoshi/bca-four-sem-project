@@ -1,29 +1,22 @@
 <?php
 session_start();
 require_once "db.php";
-
 if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     header("Location: login.php");
     exit;
 }
-
 $user_id = (int)$_SESSION['user_id'];
 $current_role = $_SESSION['role'];
-
 if ($current_role === "admin") {
     header("Location: admin/dashboard.php");
     exit;
 }
-
 $message = "";
 $message_type = "";
-
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $requested_role = $_POST['requested_role'] ?? "";
     $reason = trim($_POST['reason'] ?? "");
-
     $allowed_roles = ["passenger", "driver", "owner"];
-
     if (!in_array($requested_role, $allowed_roles)) {
         $message = "Please select a valid role.";
         $message_type = "error";
@@ -38,14 +31,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $check->bind_param("i", $user_id);
         $check->execute();
         $check->store_result();
-
         if ($check->num_rows > 0) {
             $message = "You already have a pending request.";
             $message_type = "error";
         } else {
             $stmt = $conn->prepare("INSERT INTO role_change_requests (user_id,old_role,requested_role,reason) VALUES (?,?,?,?)");
             $stmt->bind_param("isss", $user_id, $current_role, $requested_role, $reason);
-
             if ($stmt->execute()) {
                 $message = "Request sent successfully to admin.";
                 $message_type = "success";
@@ -53,22 +44,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $message = "Request failed. Please try again.";
                 $message_type = "error";
             }
-
             $stmt->close();
         }
-
         $check->close();
     }
 }
-
 $stmt = $conn->prepare("SELECT requested_role,reason,status,admin_reason,requested_at,reviewed_at FROM role_change_requests WHERE user_id=? ORDER BY request_id DESC");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
-
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -84,278 +70,184 @@ $result = $stmt->get_result();
         }
 
         body {
-            min-height: 100vh;
-            padding: 35px;
-            background: linear-gradient(120deg, #ffecd2, #fcb69f, #c2e9fb, #d4fc79, #a1c4fd);
-            background-size: 400% 400%;
-            animation: bg 12s ease infinite;
-        }
-
-        @keyframes bg {
-            0% {
-                background-position: 0% 50%
-            }
-
-            50% {
-                background-position: 100% 50%
-            }
-
-            100% {
-                background-position: 0% 50%
-            }
+            background: #f4f6f9;
+            padding: 25px;
+            color: #333;
         }
 
         .container {
-            max-width: 1150px;
+            max-width: 1100px;
             margin: auto;
         }
 
         .header {
-            background: linear-gradient(135deg, #6a11cb, #2575fc, #00c6ff);
-            padding: 30px;
-            border-radius: 22px;
+            background: #2575fc;
             color: white;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, .18);
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
 
         .header h1 {
-            font-size: 34px;
-            margin-bottom: 8px;
+            font-size: 26px;
+            margin-bottom: 6px;
         }
 
         .header p {
-            font-size: 17px;
-            opacity: .95;
-        }
-
-        .role {
-            padding: 15px 25px;
-            border-radius: 50px;
-            background: linear-gradient(135deg, #ff512f, #dd2476);
-            font-size: 17px;
-            font-weight: bold;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, .2);
-        }
-
-        .message {
-            padding: 16px 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            font-size: 17px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .success {
-            background: linear-gradient(135deg, #00b09b, #96c93d);
-            color: white;
-        }
-
-        .error {
-            background: linear-gradient(135deg, #ff416c, #ff4b2b);
-            color: white;
+            font-size: 15px;
         }
 
         .main {
             display: grid;
-            grid-template-columns: 1.1fr .9fr;
-            gap: 25px;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
 
-        .form-card {
-            background: rgba(255, 255, 255, .94);
-            padding: 30px;
-            border-radius: 22px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, .15);
+        .form-card,
+        .info-card,
+        .history {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
         }
 
-        .form-card h2 {
-            color: #6a11cb;
-            font-size: 28px;
-            margin-bottom: 8px;
+        .form-card h2,
+        .info-card h2,
+        .history h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
         }
 
-        .form-card .sub {
-            color: #64748b;
-            font-size: 15px;
-            margin-bottom: 25px;
+        .form-card h2,
+        .history h2 {
+            color: #2575fc;
+        }
+
+        .sub {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
         }
 
         .field {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .field label {
             display: block;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
-            color: #334155;
-            margin-bottom: 8px;
+            margin-bottom: 7px;
         }
 
         .current {
-            width: 100%;
-            padding: 15px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #ede9fe, #dbeafe);
-            color: #6d28d9;
-            font-size: 17px;
-            font-weight: bold;
-            border: 2px solid #c4b5fd;
+            padding: 12px;
+            background: #f1f5f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
         }
 
         select,
         textarea {
             width: 100%;
-            border: 2px solid #cbd5e1;
-            border-radius: 12px;
-            padding: 14px;
-            font-size: 16px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
             outline: none;
-            background: white;
-            transition: .3s;
         }
 
         select:focus,
         textarea:focus {
-            border-color: #7c3aed;
-            box-shadow: 0 0 0 4px rgba(124, 58, 237, .12);
+            border-color: #2575fc;
         }
 
         textarea {
-            min-height: 140px;
+            height: 100px;
             resize: vertical;
         }
 
         button {
             width: 100%;
+            padding: 12px;
             border: 0;
-            padding: 16px;
-            border-radius: 13px;
+            border-radius: 6px;
+            background: #2575fc;
             color: white;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            background: linear-gradient(90deg, #ff512f, #dd2476, #6a11cb, #2575fc);
-            background-size: 300% 100%;
-            transition: .4s;
         }
 
         button:hover {
-            background-position: 100% 0;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(106, 17, 203, .3);
+            background: #145dcc;
         }
 
         .info-card {
-            padding: 30px;
-            border-radius: 22px;
+            background: #505d61;
             color: white;
-            background: linear-gradient(145deg, #11998e, #38ef7d, #00c6ff, #0072ff);
-            background-size: 250% 250%;
-            animation: bg 8s ease infinite;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, .16);
         }
 
         .info-card h2 {
-            font-size: 28px;
-            margin-bottom: 25px;
-        }
-
-        .role-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 18px;
-            margin-bottom: 15px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, .2);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, .3);
-        }
-
-        .icon {
-            width: 55px;
-            height: 55px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: white;
-            color: #6a11cb;
-            font-size: 22px;
-            font-weight: bold;
+            color: white;
         }
 
         .role-item h3 {
-            font-size: 19px;
-            margin-bottom: 4px;
+            font-size: 17px;
+            margin-top: 18px;
+            margin-bottom: 5px;
         }
 
         .role-item p {
             font-size: 14px;
-            opacity: .9;
+            line-height: 1.5;
         }
 
         .history {
-            margin-top: 25px;
-            background: rgba(255, 255, 255, .95);
-            border-radius: 22px;
-            padding: 30px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, .15);
+            max-width: 1100px;
+            margin: 20px auto 0;
+            overflow-x: auto;
         }
 
         .history h2 {
-            color: #2575fc;
-            font-size: 27px;
-            margin-bottom: 20px;
-        }
-
-        .table-box {
-            width: 100%;
-            overflow-x: auto;
+            margin-bottom: 15px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 900px;
         }
 
         th {
-            padding: 15px;
-            text-align: left;
+            background: #4f6387;
             color: white;
-            font-size: 15px;
-            background: linear-gradient(90deg, #6a11cb, #2575fc, #00c6ff);
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
         }
 
         td {
-            padding: 14px 15px;
-            border-bottom: 1px solid #e2e8f0;
-            color: #334155;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
             font-size: 14px;
-            font-weight: 600;
         }
 
-        tr:hover td {
-            background: #f8f7ff;
+        tr:hover {
+            background: #f8fafc;
         }
 
         .status {
             display: inline-block;
-            padding: 7px 13px;
-            border-radius: 30px;
+            padding: 5px 10px;
+            border-radius: 15px;
             font-size: 13px;
             font-weight: bold;
         }
 
         .status.pending {
-            background: #fff3cd;
+            background: #fef3c7;
             color: #b45309;
         }
 
@@ -371,93 +263,132 @@ $result = $stmt->get_result();
 
         .empty {
             text-align: center;
-            padding: 30px;
-            color: #64748b;
+            padding: 25px;
+            color: #777;
         }
 
-        @media(max-width:800px) {
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, .5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .popup-box {
+            width: 380px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, .2);
+        }
+
+        .popup-box h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .popup-box p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .popup-box.success h3 {
+            color: #16a34a;
+        }
+
+        .popup-box.error h3 {
+            color: #dc2626;
+        }
+
+        .popup-box button {
+            width: auto;
+            min-width: 100px;
+            padding: 10px 25px;
+            background: #2575fc;
+            color: white;
+        }
+
+        .popup-box button:hover {
+            background: #145dcc;
+        }
+
+        @media(max-width:768px) {
             body {
                 padding: 15px;
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 20px;
-            }
-
-            .header h1 {
-                font-size: 27px;
             }
 
             .main {
                 grid-template-columns: 1fr;
             }
 
+            .header h1 {
+                font-size: 22px;
+            }
+
             .form-card,
             .info-card,
             .history {
-                padding: 20px;
+                padding: 18px;
             }
 
+            table {
+                min-width: 750px;
+            }
         }
     </style>
-
 </head>
 
 <body>
-
     <div class="container">
-
-        ```
         <div class="header">
-            <div>
-                <h1>Role Change Request</h1>
-                <p>Request a new role from the system administrator</p>
-            </div>
-            <div class="role">
-                <?php echo strtoupper(htmlspecialchars($current_role)); ?>
-            </div>
+            <h1>Role Change Request</h1>
+            <p>Request a new role from the system administrator</p>
         </div>
 
         <?php if ($message != ""): ?>
-            <div class="message <?php echo $message_type; ?>">
-                <?php echo htmlspecialchars($message); ?>
+            <div id="messagePopup" class="popup">
+                <div class="popup-box <?php echo $message_type; ?>">
+                    <h3><?php echo $message_type === "success" ? "Success" : "Error"; ?></h3>
+                    <p><?php echo htmlspecialchars($message); ?></p>
+                    <?php if ($message_type === "success"): ?>
+                        <button type="button" onclick="goBack()">OK</button>
+                    <?php else: ?>
+                        <button type="button" onclick="closePopup()">OK</button>
+                    <?php endif; ?>
+                </div>
             </div>
         <?php endif; ?>
 
         <div class="main">
-
             <div class="form-card">
                 <h2>Send Request</h2>
                 <p class="sub">Fill in the details below and send your request to admin.</p>
-
                 <form method="POST" action="role_request.php" id="roleForm">
-
                     <div class="field">
                         <label>Current Role</label>
-                        <div class="current">
-                            <?php echo ucfirst(htmlspecialchars($current_role)); ?>
-                        </div>
+                        <div class="current"><?php echo ucfirst(htmlspecialchars($current_role)); ?></div>
                     </div>
 
                     <div class="field">
                         <label>Request New Role</label>
                         <select name="requested_role" required>
                             <option value="">Select Role</option>
-
                             <?php if ($current_role != "passenger"): ?>
                                 <option value="passenger">Passenger</option>
                             <?php endif; ?>
-
                             <?php if ($current_role != "driver"): ?>
                                 <option value="driver">Driver</option>
                             <?php endif; ?>
-
                             <?php if ($current_role != "owner"): ?>
                                 <option value="owner">Owner</option>
                             <?php endif; ?>
-
                         </select>
                     </div>
 
@@ -466,132 +397,98 @@ $result = $stmt->get_result();
                         <textarea name="reason" placeholder="Write your reason for requesting this role change..." required></textarea>
                     </div>
 
-                    <button type="submit">Send Request to Admin</button>
-
+                    <button type="submit">Send Request</button>
                 </form>
             </div>
 
             <div class="info-card">
                 <h2>Available Roles</h2>
-
                 <div class="role-item">
-                    <div class="icon">P</div>
-                    <div>
-                        <h3>Passenger</h3>
-                        <p>Search buses, book seats and manage tickets.</p>
-                    </div>
-                </div>
-
-                <div class="role-item">
-                    <div class="icon">D</div>
-                    <div>
-                        <h3>Driver</h3>
-                        <p>Manage assigned bus and passenger trips.</p>
-                    </div>
-                </div>
-
-                <div class="role-item">
-                    <div class="icon">O</div>
-                    <div>
-                        <h3>Owner</h3>
-                        <p>Manage buses, schedules and bus services.</p>
-                    </div>
+                    <h3>Passenger</h3>
+                    <p>Search buses, book seats and manage tickets.</p>
+                    <h3>Driver</h3>
+                    <p>Manage assigned bus and passenger trips.</p>
+                    <h3>Owner</h3>
+                    <p>Manage buses, schedules and bus services.</p>
                 </div>
             </div>
-
         </div>
+    </div>
 
-        <div class="history">
-            <h2>My Request History</h2>
-
-            <div class="table-box">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Requested Role</th>
-                            <th>Reason</th>
-                            <th>Status</th>
-                            <th>Admin Response</th>
-                            <th>Requested Date</th>
-                            <th>Reviewed Date</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <?php if ($result->num_rows > 0): ?>
-
-                            <?php while ($row = $result->fetch_assoc()): ?>
-
-                                <tr>
-                                    <td>
-                                        <?php echo ucfirst(htmlspecialchars($row['requested_role'])); ?>
-                                    </td>
-
-                                    <td>
-                                        <?php echo htmlspecialchars($row['reason']); ?>
-                                    </td>
-
-                                    <td>
-                                        <span class="status <?php echo htmlspecialchars($row['status']); ?>">
-                                            <?php echo ucfirst(htmlspecialchars($row['status'])); ?>
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <?php echo $row['admin_reason'] ? htmlspecialchars($row['admin_reason']) : "Waiting for admin"; ?>
-                                    </td>
-
-                                    <td>
-                                        <?php echo htmlspecialchars($row['requested_at']); ?>
-                                    </td>
-
-                                    <td>
-                                        <?php echo $row['reviewed_at'] ? htmlspecialchars($row['reviewed_at']) : "-"; ?>
-                                    </td>
-                                </tr>
-
-                            <?php endwhile; ?>
-
-                        <?php else: ?>
-
+    <div class="history">
+        <h2>My Request History</h2>
+        <div class="table-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Requested Role</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Admin Response</th>
+                        <th>Requested Date</th>
+                        <th>Reviewed Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($result->num_rows > 0): ?>
+                        <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
-                                <td colspan="6" class="empty">
-                                    No role change requests yet.
+                                <td><?php echo ucfirst(htmlspecialchars($row['requested_role'])); ?></td>
+                                <td><?php echo htmlspecialchars($row['reason']); ?></td>
+                                <td>
+                                    <span class="status <?php echo htmlspecialchars($row['status']); ?>">
+                                        <?php echo ucfirst(htmlspecialchars($row['status'])); ?>
+                                    </span>
                                 </td>
+                                <td><?php echo $row['admin_reason'] ? htmlspecialchars($row['admin_reason']) : "Waiting for admin"; ?></td>
+                                <td><?php echo htmlspecialchars($row['requested_at']); ?></td>
+                                <td><?php echo $row['reviewed_at'] ? htmlspecialchars($row['reviewed_at']) : "-"; ?></td>
                             </tr>
-
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="6" class="empty">No role change requests yet.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
-        ```
-
     </div>
 
     <script>
+        function goBack() {
+            <?php
+            if ($current_role === "passenger") {
+                echo 'window.location.href="passenger/dashboard.php";';
+            } elseif ($current_role === "driver") {
+                echo 'window.location.href="driver/dashboard.php";';
+            } elseif ($current_role === "owner") {
+                echo 'window.location.href="owner/dashboard.php";';
+            }
+            ?>
+        }
+
+        function closePopup() {
+            document.getElementById("messagePopup").style.display = "none";
+        }
         document.getElementById("roleForm").addEventListener("submit", function(e) {
             let role = document.querySelector("[name='requested_role']").value;
             let reason = document.querySelector("[name='reason']").value.trim();
-
             if (role === "") {
                 e.preventDefault();
                 alert("Please select a role.");
                 return;
             }
-
             if (reason === "") {
                 e.preventDefault();
                 alert("Please enter a reason.");
                 return;
             }
-
             if (!confirm("Are you sure you want to send this role change request to admin?")) {
                 e.preventDefault();
             }
         });
     </script>
-
 </body>
 
 </html>

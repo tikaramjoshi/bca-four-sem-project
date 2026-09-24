@@ -11,7 +11,7 @@
         </div>
         <div class="last-contact" id="contactSection">
             <h3>Contact</h3>
-            <p>Email: <a href="mailto:tikaramj519@://gmail.com">tikaramj519@gmail.com</a></p>
+            <p>Email: <a href="mailto:tikaramjoshi883@://gmail.com">tikaramj519@gmail.com</a></p>
             <p>Phone:<a href="tel:+9779840792553">+9779840792553</a></p>
             <p>Whatsapp:<a href="https://wa.me/9779840792553">+9779840792553</a></p>
         </div>
