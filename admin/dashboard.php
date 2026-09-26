@@ -33,34 +33,33 @@ $totalUsersStmt->execute();
 $totalUsersResult = $totalUsersStmt->get_result();
 $totalUsers = $totalUsersResult->fetch_row()[0];
 $totalUsersStmt->close();
-$totalChangeRequestRole = 0;
-$totalRoleVerification = 0;
-$role_request_count = 0;
-
-$result = $conn->query("SELECT COUNT(*) AS total FROM role_change_requests WHERE status='pending'");
-
-if ($result) {
-    $row = $result->fetch_assoc();
-    $role_request_count = (int)$row['total'];
-}
 
 $role_request_count = 0;
 $result = $conn->query("SELECT COUNT(*) AS total FROM role_change_requests WHERE status='pending'");
 if ($result) {
     $role_request_count = (int)$result->fetch_assoc()['total'];
 }
+
+$result = $conn->query("SELECT COUNT(*) AS total FROM role_change_requests WHERE status='pending'");
+if ($result) {
+    $role_request_count = (int)$result->fetch_assoc()['total'];
+}
+$total_role_change = 0;
+$result = $conn->query("SELECT COUNT(*) AS total FROM role_change_requests WHERE status IN ('approved','rejected')");
+if ($result) {
+    $total_role_change = (int)$result->fetch_assoc()['total'];
+}
 ?>
 <?php require_once "admin_header.php"; ?>
 <div class="content">
     <div class="section-title">
 
-        <h2>Dashboard Overview</h2>
+        <h2>Dashboard Overview</h2><br>
         <div class="box">
-            <p>Total Users</p>
-            <h2><?= $totalUsers ?></h2>
+            <h2>Total Users&nbsp;<i class="fa fa-users" style="color:green; font-size:40px; "></i> &nbsp;<?= $totalUsers ?>
+            </h2>
         </div>
     </div>
-
     <div class="cards">
         <div class="card">
             <h3>Total Owners </h3>
@@ -77,6 +76,10 @@ if ($result) {
         <div class="card">
             <h3>Total Bus</h3>
             <p><?= $totalBuses ?></p>
+        </div>
+        <div class="card">
+            <h3>Total Change Role Request</h3>
+            <p><?= $total_role_change ?></p>
         </div>
     </div>
     <div class="cards pending-cards">
@@ -96,8 +99,11 @@ if ($result) {
             <h3>Pending Bus</h3>
             <p><?= $totalPending ?></p>
         </div>
+        <div class="card pending-bus">
+            <h3>Pending change Roles</h3>
+            <p><?= $role_request_count ?></p>
+        </div>
     </div>
-    <a href="change_role.php">Role</a>
     <div class="table-box notification-box">
         <h2><i class="fa fa-bell"></i> Notifications</h2>
         <?php if ($totalPending > 0): ?>
@@ -112,9 +118,11 @@ if ($result) {
         <?php if ($totalPassengerVerification > 0): ?>
             <p><?= $totalPassengerVerification ?> pending passenger verification request(s)</p>
         <?php endif; ?>
-        <?php if ($role_request_count > 0 && $totalChangeRequestRole == 0 && $totalChangeRequestRole == 0 && $totalRoleVerification == 0):  ?>
-            <p><?php echo $role_request_count; ?> pending change role request(s)</p>
+
+        <?php if ($role_request_count > 0): ?>
+            <p><?= $role_request_count ?> pending change role request(s)</p>
         <?php endif; ?>
+
         <?php if ($totalPending == 0 && $totalOwnerVerification == 0 && $totalDriverVerification == 0 && $totalPassengerVerification == 0): ?>
             <p class="no-notification">No pending requests.</p>
         <?php endif; ?>
@@ -316,7 +324,6 @@ if ($result) {
                             <td><?= htmlspecialchars($row['old_role']) ?></td>
                             <td><?= htmlspecialchars($row['requested_role']) ?></td>
                             <td><?= htmlspecialchars($row['reason']) ?></td>
-                            </td>
                             <td>
                                 <form method="POST" action="change_role.php" style="display:inline;">
                                     <input type="hidden" name="request_id" value="<?= (int)$row['request_id'] ?>">

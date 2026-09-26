@@ -208,7 +208,7 @@ include "./include/message/sql.php";
                 <?php } ?>
                 <?php foreach ($buses as $bus) { ?>
                     <div class="route">
-                        <img src="Bus Image" alt="Bus">
+                        <img src="./images/bus.png" class="bus-image" alt="Bus" onerror="this.onerror=null;this.src='../images/bus.png';">
                         <h4><?= htmlspecialchars($bus['bus_name']) ?></h4>
                         <p>Bus Number: <?= htmlspecialchars($bus['bus_number']) ?></p>
                         <p>Bus Type: <?= htmlspecialchars($bus['bus_type']) ?></p>

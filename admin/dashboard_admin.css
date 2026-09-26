@@ -87,7 +87,7 @@ body {
 .cards {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 20px;
     margin-bottom: 20px;
 }
@@ -176,6 +176,7 @@ table tr:nth-child(even) {
     text-decoration: none;
     border-radius: 5px;
     margin: 2px;
+    border: 0px;
 }
 
 .approve {

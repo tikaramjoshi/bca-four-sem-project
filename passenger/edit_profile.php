@@ -256,7 +256,11 @@ $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'defa
                 <input type="text" name="phone" value="<?= htmlspecialchars($user['phone'] ?? '') ?>" required>
                 <label>Profile Picture</label>
                 <div class="profile-preview">
-                    <img src="../uploads/profile/passenger/<?= htmlspecialchars($user['name'] ?? '') ?>/<?= htmlspecialchars($profile_image) ?>" alt="Profile">
+                    <?php
+                    $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png';
+                    ?>
+
+                    <img src="../uploads/profile/passenger/<?= htmlspecialchars($user['name']) ?>/<?= htmlspecialchars($image) ?>" alt="Profile" onerror="this.onerror=null;this.src='../uploads/default.png';">
                 </div>
                 <input type="file" name="profile_image" accept=".jpg,.jpeg,.png,.webp,image/*">
                 <button type="submit">Update Profile</button>

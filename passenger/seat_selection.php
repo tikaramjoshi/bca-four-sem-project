@@ -5,35 +5,21 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'passenger') {
     header("Location: ../login.php");
     exit;
 }
+$userId = (int)$_SESSION['user_id'];
+$stmt = $conn->prepare("SELECT verification_status FROM users WHERE user_id=? AND role='passenger' LIMIT 1");
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+$verification_status = $user['verification_status'] ?? '';
+
 $scheduleId = filter_input(INPUT_GET, 'schedule_id', FILTER_VALIDATE_INT);
 $busId = filter_input(INPUT_GET, 'bus_id', FILTER_VALIDATE_INT);
 if (!$scheduleId || !$busId) {
     exit('Invalid schedule or bus.');
 }
-$stmt = $conn->prepare("
-    SELECT 
-        s.schedule_id,
-        s.bus_id,
-        s.from_city,
-        s.to_city,
-        s.departure_date,
-        s.departure_time,
-        s.ticket_price,
-        s.available_seats,
-        s.status,
-        b.bus_number,
-        b.bus_name,
-        b.bus_type,
-        b.seats
-    FROM schedules s
-    INNER JOIN bus b ON s.bus_id = b.bus_id
-    WHERE s.schedule_id = ?
-    AND s.bus_id = ?  
-    AND s.status = 'active'
-    AND b.status = 'approved'
-  
-    LIMIT 1
-");
+$stmt = $conn->prepare(" SELECT  s.schedule_id, s.bus_id, s.from_city, s.to_city, s.departure_date, s.departure_time, s.ticket_price, s.available_seats, s.status, b.bus_number, b.bus_name, b.bus_type, b.seats FROM schedules s INNER JOIN bus b ON s.bus_id = b.bus_id WHERE s.schedule_id = ? AND s.bus_id = ?   AND s.status = 'active' AND b.status = 'approved' LIMIT 1 ");
 $stmt->bind_param("ii", $scheduleId, $busId);
 $stmt->execute();
 $trip = $stmt->get_result()->fetch_assoc();
@@ -112,210 +98,19 @@ $seatRows = generateSeats($totalSeats);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Select Seat</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            color: #263238;
-        }
-
-        .wrap {
-            max-width: 850px;
-            margin: 35px auto;
-            padding: 0 16px;
-        }
-
-        .card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 3px 15px #ddd;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            color: #1560bd;
-        }
-
-        .trip {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            padding-bottom: 20px;
-            margin-bottom: 25px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .trip div {
-            background: #f5f7fa;
-            padding: 12px;
-            border-radius: 7px;
-        }
-
-        .trip small {
-            display: block;
-            color: #777;
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-
-        .layout {
-            max-width: 400px;
-            margin: auto;
-            border: 2px solid #334155;
-            border-radius: 22px;
-            padding: 20px;
-            background: #fafafa;
-        }
-
-        .driver {
-            text-align: right;
-            color: #555;
-            font-size: 14px;
-            margin-bottom: 18px;
-        }
-
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 25px 1fr 1fr;
-            gap: 9px;
-            margin: 9px 0;
-        }
-
-        .last-row {
-            grid-template-columns: repeat(5, 1fr);
-        }
-
-        .gap {
-            width: 100%;
-        }
-
-        .seat {
-            border: 0;
-            border-radius: 5px;
-            padding: 11px 3px;
-            background: #198754;
-            color: #fff;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .seat:hover {
-            background: #1560bd;
-        }
-
-        .seat.selected {
-            background: #2312df;
-            outline: 2px solid #0f766e;
-        }
-
-        .seat.booked {
-            background: #dc3545;
-            color: #fff;
-            cursor: not-allowed;
-        }
-
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 20px 0;
-            font-size: 13px;
-        }
-
-        .dot {
-            display: inline-block;
-            width: 13px;
-            height: 13px;
-            border-radius: 3px;
-            margin-right: 5px;
-            vertical-align: -2px;
-        }
-
-        .available {
-            background: #198754;
-        }
-
-        .unavailable {
-            background: #dc3545;
-        }
-
-        .selected-dot {
-            background: #2312df;
-        }
-
-        .actions {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .actions button {
-            border: 0;
-            background: #1560bd;
-            color: #fff;
-            padding: 12px 30px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 15px;
-        }
-
-        .actions button:disabled {
-            background: #aaa;
-            cursor: not-allowed;
-        }
-
-        .notice {
-            text-align: center;
-            color: #666;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-
-        .back {
-            display: inline-block;
-            height: 30px;
-            text-align: center;
-            border-radius: 10px;
-            padding: 5px;
-            text-decoration: none;
-            color: #fff;
-            background-color: #0d36ed;
-        }
-
-        @media(max-width:500px) {
-            .card {
-                padding: 15px;
-            }
-
-            .trip {
-                grid-template-columns: 1fr;
-            }
-
-            .layout {
-                padding: 12px;
-            }
-
-            .row {
-                gap: 5px;
-                grid-template-columns: 1fr 1fr 18px 1fr 1fr;
-            }
-
-            .seat {
-                padding: 9px 2px;
-                font-size: 12px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="seat_selection.css">
 </head>
 
 <body>
     <main class="wrap">
+        <div id="verifyPopup" class="verify-popup">
+            <div class="verify-box">
+                <span id="closeVerify">&times;</span>
+                <h3>Verification Required</h3>
+                <p>Your account is not verified. Please wait for admin verification.</p>
+                <button type="button" id="verifyOk">OK</button>
+            </div>
+        </div>
         <section class="card">
             <a href="search_bus.php?from=<?= urlencode($from) ?>&to=<?= urlencode($to) ?>&date=<?= urlencode($date) ?>" class="back">Back to Bus List</a>
             <h2>Select Your Seat</h2>
@@ -430,6 +225,26 @@ $seatRows = generateSeats($totalSeats);
                 availableSeatsElement.textContent = initialAvailableSeats - chosen.length;
             });
         });
+        const verificationStatus = "<?= htmlspecialchars($verification_status ?? '') ?>";
+        const seatForm = document.getElementById("seatForm");
+        const verifyPopup = document.getElementById("verifyPopup");
+        const closeVerify = document.getElementById("closeVerify");
+        const verifyOk = document.getElementById("verifyOk");
+
+        seatForm.addEventListener("submit", function(e) {
+            if (verificationStatus !== "verified") {
+                e.preventDefault();
+                verifyPopup.style.display = "flex";
+            }
+        });
+
+        closeVerify.onclick = function() {
+            verifyPopup.style.display = "none";
+        };
+
+        verifyOk.onclick = function() {
+            verifyPopup.style.display = "none";
+        };
     </script>
 </body>
 

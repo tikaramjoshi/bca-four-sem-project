@@ -1,0 +1,240 @@
+    <style>
+        body {
+            background: #eef4fb;
+            color: #263238
+        }
+
+        .wrap {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 10px
+        }
+
+        .ticket {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 18px #0002
+        }
+
+        .head {
+            background: #1560bd;
+            color: #fff;
+            padding: 25px
+        }
+
+        .head-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px
+        }
+
+        .head h1 {
+            margin-bottom: 8px
+        }
+
+        .head p {
+            margin: 5px 0
+        }
+
+        .group-status {
+            background: #fff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            height: max-content
+        }
+
+        .complete {
+            color: #218838
+        }
+
+        .waiting {
+            color: #856404
+        }
+
+        .cancelled {
+            color: #c82333
+        }
+
+        .content {
+            padding: 25px
+        }
+
+        .title {
+            color: #1560bd;
+            margin-bottom: 15px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            padding-bottom: 22px;
+            border-bottom: 1px dashed #94a3b8
+        }
+
+        .item small {
+            display: block;
+            color: #64748b;
+            margin-bottom: 5px
+        }
+
+        .item strong {
+            font-size: 16px
+        }
+
+        .seats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 25px
+        }
+
+        .box {
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid #ddd
+        }
+
+        .box h3 {
+            margin-bottom: 10px
+        }
+
+        .numbers {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px
+        }
+
+        .confirmed-box {
+            background: #f0fff4;
+            border-color: #b7e4c7
+        }
+
+        .confirmed-box h3,
+        .confirmed-box .numbers {
+            color: #218838
+        }
+
+        .pending-box {
+            background: #fffaf0;
+            border-color: #f5d78e
+        }
+
+        .pending-box h3,
+        .pending-box .numbers {
+            color: #d68910
+        }
+
+        .cancelled-box {
+            background: #fff5f5;
+            border-color: #f1b0b7
+        }
+
+        .cancelled-box h3,
+        .cancelled-box .numbers {
+            color: #dc3545
+        }
+
+        .none {
+            color: #777
+        }
+
+        .summary {
+            margin-top: 25px;
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: 10px
+        }
+
+        .summary h3 {
+            color: #1560bd;
+            margin-bottom: 10px
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb
+        }
+
+        .green {
+            color: #218838
+        }
+
+        .orange {
+            color: #d68910
+        }
+
+        .red {
+            color: #dc3545
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px
+        }
+
+        .btn {
+            background: #1560bd;
+            color: #fff;
+            padding: 11px 18px;
+            border: 0;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer
+        }
+
+        .secondary {
+            background: #64748b
+        }
+
+        @media(max-width:700px) {
+
+            .head-top,
+            .grid,
+            .seats {
+                grid-template-columns: 1fr;
+                display: grid
+            }
+
+            .head-top {
+                gap: 15px
+            }
+        }
+
+        @media print {
+            body * {
+                visibility: hidden
+            }
+
+            .ticket,
+            .ticket * {
+                visibility: visible
+            }
+
+            .ticket {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none
+            }
+
+            .actions {
+                display: none
+            }
+
+            .wrap {
+                margin: 0;
+                max-width: none;
+                padding: 0
+            }
+        }
+
+        .download {
+            background: #218838
+        }

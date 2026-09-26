@@ -6,19 +6,6 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'passenger') {
     exit;
 }
 $user_id = (int)$_SESSION['user_id'];
-$stmt = $conn->prepare("SELECT name,profile_image,verification_status FROM users WHERE user_id=? AND role='passenger' LIMIT 1");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$user = $stmt->get_result()->fetch_assoc();
-$stmt->close();
-if (!$user) {
-    session_destroy();
-    header("Location: ../login.php");
-    exit;
-}
-$name = $user['name'] ?? 'Passenger';
-$image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png';
-$verification = $user['verification_status'] ?? 'pending';
 $sql = "SELECT
 booking_group_id,
 MIN(booking_id) AS booking_id,
@@ -52,72 +39,9 @@ $result = $stmt->get_result();
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Booking History</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box
-        }
-
         body {
-            font-family: Arial;
             background: #eef4fb;
             color: #222
-        }
-
-        .main {
-            background: #1560bd;
-            height: 65px
-        }
-
-        nav {
-            height: 65px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 35px
-        }
-
-        nav a {
-            color: #fff;
-            background: #645e8d;
-            text-decoration: none;
-            padding: 12px 16px;
-            border-radius: 6px
-        }
-
-        .profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: orange;
-            font-weight: bold
-        }
-
-        .profile img {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid white
-        }
-
-        .verify {
-            padding: 5px 9px;
-            border-radius: 15px;
-            color: white;
-            font-size: 12px
-        }
-
-        .verified {
-            background: #28a745
-        }
-
-        .pending {
-            background: #f39c12
-        }
-
-        .rejected {
-            background: #dc3545
         }
 
         .container {
@@ -303,22 +227,14 @@ $result = $stmt->get_result();
             }
         }
     </style>
+    <link rel="stylesheet" href="dashboard.css">
 </head>
 
 <body>
-    <div class="main">
-        <nav>
-            <a href="dashboard.php">Home</a>
-            <div class="profile">
-                <span><?= htmlspecialchars($name) ?></span>
-                <span class="verify <?= htmlspecialchars($verification) ?>"><?= ucfirst(htmlspecialchars($verification)) ?></span>
-                <img src="../uploads/profile/<?= htmlspecialchars($image) ?>" onerror="this.src='../images/default.png'">
-            </div>
-        </nav>
-    </div>
+    <?php include "pass_header.php"; ?>
     <div class="container">
         <div class="title">
-            <h1><?= htmlspecialchars($name) ?> Booking History</h1>
+            <h1><?= htmlspecialchars($passenger_name) ?> Booking History</h1>
             <p>View all your bus bookings and ticket details</p>
         </div>
         <?php if ($result->num_rows == 0): ?>
@@ -413,6 +329,7 @@ $result = $stmt->get_result();
             </div>
         <?php endwhile; ?>
     </div>
+    <?php include "pass_footer.php" ?>
 </body>
 
 </html>

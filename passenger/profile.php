@@ -133,18 +133,25 @@ $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png'
             border-radius: 5px;
         }
 
+        .back {
+            background: #1c3125;
+        }
+
         .edit {
             background: #1560BD;
         }
 
-        .back {
-            background: #28a745;
+        .role {
+            background: #bd2e15;
         }
 
         .btn:hover {
             opacity: .9;
+            background-color: #28a745;
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 </head>
 
 <body>
@@ -156,7 +163,11 @@ $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png'
         <div class="profile-box">
             <h2>Welcome</h2>
             <div class="profile-img">
-                <img src="../uploads/profile/passenger/<?= htmlspecialchars($user['name']) ?>/<?= htmlspecialchars($image) ?>" alt="Profile">
+                <?php
+                $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png';
+                ?>
+
+                <img src="../uploads/profile/passenger/<?= htmlspecialchars($user['name']) ?>/<?= htmlspecialchars($image) ?>" alt="Profile" onerror="this.onerror=null;this.src='../uploads/default.png';">
             </div>
             <table>
                 <tr>
@@ -187,8 +198,9 @@ $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png'
                 </tr>
             </table>
             <div class="btns">
-                <a class="btn edit" href="edit_profile.php">Edit Profile</a>
-                <a class="btn back" href="dashboard.php">Back</a>
+                <a class="btn back" href="dashboard.php"><i class="fa fa-long-arrow-left"></i> Back</a>
+                <a class="btn edit" href="edit_profile.php"><i class="fa fa-edit"></i> Edit Profile</a>
+                <a class="btn role" href="../role_request.php"><i class="fa fa-user"></i> Change Role</a>
             </div>
         </div>
     </div>

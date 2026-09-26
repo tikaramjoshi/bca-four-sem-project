@@ -61,6 +61,8 @@ $booking_active = in_array($current_page, ['bookings.php', 'booking_history.php'
 
             <a href="all_bus.php" class="<?= $active_page === 'all_bus.php' ? 'active' : '' ?>">Buses</a>
 
+            <a href="change_role.php" class="<?= $active_page === 'change_role.php' ? 'active' : '' ?>">Change Role</a>
+
             <a href="assign_driver.php" class="<?= $active_page === 'assign_driver.php' ? 'active' : '' ?>">Assign Driver</a>
 
             <a href="routes.php" class="<?= $active_page === 'routes.php' ? 'active' : '' ?>">Routes</a>
@@ -68,8 +70,6 @@ $booking_active = in_array($current_page, ['bookings.php', 'booking_history.php'
             <a href="schedule.php" class="<?= $active_page === 'schedule.php' ? 'active' : '' ?>">Schedule</a>
 
             <a href="bookings.php" class="<?= $active_page === 'bookings.php' ? 'active' : '' ?>">Bookings</a>
-
-            <!-- <a href="change_role.php" class="<?= $active_page === 'change_role.php' ? 'active' : '' ?>">Change Role</a> -->
 
             <a href="popular_routes.php" class="<?= $active_page === 'popular_routes.php' ? 'active' : '' ?>">Popular Route</a>
 

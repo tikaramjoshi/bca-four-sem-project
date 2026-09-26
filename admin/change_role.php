@@ -196,32 +196,14 @@ unset($_SESSION['error']);
         .rejected {
             background: #f8d7da;
             color: #842029;
+            border: none;
         }
 
-        .approve-btn {
-            padding: 8px 12px;
-            border: 0;
-            border-radius: 5px;
-            background: #198754;
-            color: white;
-            cursor: pointer;
-        }
 
-        .reject-btn {
-            padding: 8px 12px;
-            border: 0;
-            border-radius: 5px;
-            background: #dc3545;
-            color: white;
-            cursor: pointer;
-        }
-
-        .approve-btn:hover {
-            background: #157347;
-        }
-
-        .reject-btn:hover {
-            background: #bb2d3b;
+        .rejected:hover,
+        .approved:hover {
+            background: #a86c11;
+            color: #fff;
         }
 
         .modal {
@@ -297,6 +279,39 @@ unset($_SESSION['error']);
                 font-size: 20px;
             }
         }
+
+        .reason-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, .5);
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .reason-box {
+            width: 420px;
+            max-width: 90%;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        .reason-box h3 {
+            margin: 0 0 15px;
+        }
+
+        .reason-text {
+            padding: 12px;
+            background: #f8d7da;
+            color: #842029;
+            border-radius: 6px;
+            line-height: 1.5;
+        }
     </style>
 </head>
 
@@ -368,7 +383,7 @@ unset($_SESSION['error']);
                                     <?php
                                     } elseif ($row['status'] == 'rejected') {
                                     ?>
-                                        <span class="status rejected">Rejected</span>
+                                        <button type="button" class="status rejected" onclick="viewRejectReason(<?php echo htmlspecialchars(json_encode($row['admin_reason'] ?? 'No reason provided')); ?>)">Rejected</button>
                                     <?php
                                     }
                                     ?>
@@ -399,6 +414,15 @@ unset($_SESSION['error']);
             </form>
         </div>
     </div>
+    <div id="reasonModal" class="reason-modal">
+        <div class="reason-box">
+            <h3>Reject Reason</h3>
+            <div class="reason-text" id="reasonText"></div>
+            <div class="modal-buttons">
+                <button type="button" class="cancel-btn" onclick="closeReason()">Close</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         function openRejectForm(requestId) {
@@ -418,6 +442,15 @@ unset($_SESSION['error']);
                 closeRejectForm();
             }
         });
+
+        function viewRejectReason(reason) {
+            document.getElementById("reasonText").textContent = reason;
+            document.getElementById("reasonModal").style.display = "flex";
+        }
+
+        function closeReason() {
+            document.getElementById("reasonModal").style.display = "none";
+        }
     </script>
 </body>
 

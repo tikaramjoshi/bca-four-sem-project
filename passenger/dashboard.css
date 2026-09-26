@@ -314,14 +314,6 @@ button {
     color: #222;
 }
 
-/* .dropdown-profile-image {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #1560bd;
-} */
-
 .profile-menu-header strong {
     display: block;
 }
@@ -374,6 +366,7 @@ button {
     color: #fff;
     padding: 25px 35px 5px;
     margin-top: auto;
+    margin-bottom: 0px;
 }
 
 .last-main {
@@ -395,6 +388,7 @@ button {
     font-size: 24px;
     margin-bottom: 15px;
     padding-bottom: 8px;
+
 }
 
 .last a {
@@ -415,7 +409,7 @@ button {
 }
 
 .last-mission {
-    width: 90%;
+    width: 100%;
     margin-top: 25px;
     text-align: center;
 }
@@ -425,8 +419,7 @@ button {
 }
 
 .last hr {
-  
-    margin: 0px 20px;
+    margin: 5px;
     border: none;
     border-top: 1px solid rgba(255, 255, 255, .4);
 }
@@ -436,6 +429,7 @@ button {
     text-align: center;
     font-size: 16px;
     color: #eee;
+    margin-top: 10px;
 }
 @media (max-width: 500px) {
     .main {
