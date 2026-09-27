@@ -99,9 +99,11 @@ $seatRows = generateSeats($totalSeats);
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Select Seat</title>
     <link rel="stylesheet" href="seat_selection.css">
+    <link rel="stylesheet" href="dashboard.css">
 </head>
 
 <body>
+    <?php include "pass_header.php" ?>
     <main class="wrap">
         <div id="verifyPopup" class="verify-popup">
             <div class="verify-box">
@@ -112,7 +114,6 @@ $seatRows = generateSeats($totalSeats);
             </div>
         </div>
         <section class="card">
-            <a href="search_bus.php?from=<?= urlencode($from) ?>&to=<?= urlencode($to) ?>&date=<?= urlencode($date) ?>" class="back">Back to Bus List</a>
             <h2>Select Your Seat</h2>
             <div class="trip">
                 <div>
@@ -180,9 +181,8 @@ $seatRows = generateSeats($totalSeats);
                     <span><i class="dot unavailable"></i>Booked</span>
                 </div>
                 <div class="actions">
-                    <button type="submit" id="continueButton" disabled>
-                        Continue
-                    </button>
+                    <a href="search_bus.php?from=<?= urlencode($from) ?>&to=<?= urlencode($to) ?>&date=<?= urlencode($date) ?>" class="back"> Back </a> &nbsp; &nbsp;
+                    <button type="submit" id="continueButton" disabled> Continue </button>
                 </div>
                 <p class="notice" id="selectedText">
                     Choose minimum 1 and maximum 4 seats.
@@ -190,6 +190,7 @@ $seatRows = generateSeats($totalSeats);
             </form>
         </section>
     </main>
+    <?php include "pass_footer.php" ?>
     <script>
         const availableSeatsElement = document.getElementById("availableSeats");
         const initialAvailableSeats = <?= $availableSeats ?>;

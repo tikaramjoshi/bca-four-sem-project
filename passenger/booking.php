@@ -233,30 +233,16 @@ $amount = (float)$booking['amount'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Confirm Booking</title>
+    <link rel="stylesheet" href="dashboard.css">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0
-        }
-
-        body {
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            background: #f4f6f8;
-            font-family: Arial, sans-serif;
-            color: #263238
-        }
-
         .box {
             width: 420px;
-            max-width: calc(100% - 30px);
-            background: #fff;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 3px 15px #0002;
-            text-align: center
+            text-align: center;
+            background: #f4f6f8;
+            color: #263238;
+            margin: 50px auto;
         }
 
         h2 {
@@ -337,6 +323,7 @@ $amount = (float)$booking['amount'];
 </head>
 
 <body>
+    <?php include "pass_header.php" ?>
     <div class="box">
         <?php if (!empty($_SESSION['booking_error'])): ?>
             <div class="message"><?= htmlspecialchars($_SESSION['booking_error']) ?></div>
@@ -348,7 +335,7 @@ $amount = (float)$booking['amount'];
             <p><strong>Bus Number:</strong> <?= htmlspecialchars($busNumber) ?></p>
             <p><strong>Route:</strong> <?= htmlspecialchars($route) ?></p>
             <p><strong>Date:</strong> <?= htmlspecialchars($travelDate) ?></p>
-            <p><strong>Seats:</strong> <?= htmlspecialchars(implode(', ', $seats)) ?></p>
+            <p><strong>Seat Numbers:</strong> <?= htmlspecialchars(implode(', ', $seats)) ?></p>
             <p><strong>Price:</strong> NPR <?= number_format($amount, 2) ?> per seat</p>
         </div>
         <div class="total">Total: NPR <?= number_format($amount * count($seats), 2) ?></div>
@@ -360,6 +347,7 @@ $amount = (float)$booking['amount'];
             <a href="seat_selection.php?schedule_id=<?= $scheduleId ?>&bus_id=<?= $busId ?>" class="cancel">Cancel</a>
         </div>
     </div>
+    <?php include "pass_footer.php" ?>
 </body>
 
 </html>

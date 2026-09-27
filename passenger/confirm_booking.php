@@ -87,6 +87,7 @@ if ($status !== 'verified') {
     </head>
 
     <body>
+
         <div class="box">
             <h2>Booking Not Allowed</h2>
             <p><?= htmlspecialchars($message) ?></p>

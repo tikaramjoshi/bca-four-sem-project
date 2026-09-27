@@ -30,22 +30,14 @@ if ($from && $to && $date) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Bus</title>
+    <link rel="stylesheet" href="dashboard.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-        }
-
         .container {
-            width: 90%;
-            max-width: 1100px;
+            width: 80%;
             margin: 30px auto;
+            background: #f5f6fa;
+            border-radius: 10px;
+            padding: 20px;
         }
 
         .top {
@@ -53,6 +45,11 @@ if ($from && $to && $date) {
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #115f3a;
+            margin: 0px 40%;
         }
 
         .back-btn {
@@ -191,13 +188,14 @@ if ($from && $to && $date) {
             }
         }
     </style>
+
 </head>
 
 <body>
+    <?php include "pass_header.php" ?>
     <div class="container">
         <div class="top">
             <h1>Search Bus</h1>
-            <a href="dashboard.php" class="back-btn">Home</a>
         </div>
         <div class="search-info">
             <h2>Available Buses</h2>
@@ -262,6 +260,7 @@ if ($from && $to && $date) {
             </div>
         <?php endif; ?>
     </div>
+    <?php include "pass_footer.php" ?>
 </body>
 
 </html>

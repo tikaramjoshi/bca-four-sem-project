@@ -164,15 +164,16 @@
 
         .back {
             display: inline-block;
-            height: 30px;
             text-align: center;
             border-radius: 10px;
-            padding: 5px;
+            padding: 10px;
             text-decoration: none;
             color: #fff;
             background-color: #0d36ed;
         }
-
+.back:hover{
+    background-color: #aaa;
+}
         @media(max-width:500px) {
             .card {
                 padding: 15px;

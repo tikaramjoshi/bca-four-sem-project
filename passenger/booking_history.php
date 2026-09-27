@@ -56,12 +56,12 @@ $result = $stmt->get_result();
         }
 
         .title h1 {
-            color: #1560bd;
+            color: #583a3a;
             margin-bottom: 8px
         }
 
         .title p {
-            color: #777
+            color: #583a3a;
         }
 
         .card {

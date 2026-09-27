@@ -135,8 +135,8 @@ if (count($cancelled) === $total) {
             if (groupId) {
                 new QRCode(document.getElementById("ticketQR"), {
                     text: groupId,
-                    width: 120,
-                    height: 120,
+                    width: 100,
+                    height: 100,
                     correctLevel: QRCode.CorrectLevel.H
                 });
             }
@@ -147,8 +147,8 @@ if (count($cancelled) === $total) {
             if (qr) {
                 const img = document.createElement("img");
                 img.src = qr.toDataURL("image/png");
-                img.style.width = "120px";
-                img.style.height = "120px";
+                img.style.width = "100px";
+                img.style.height = "100px";
                 document.querySelector("#ticketQR").innerHTML = "";
                 document.querySelector("#ticketQR").appendChild(img);
             }
