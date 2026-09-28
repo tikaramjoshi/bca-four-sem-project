@@ -21,8 +21,7 @@ $driver = $stmt->get_result()->fetch_assoc();
 if (!$driver) {
     die("Driver Not Found");
 }
-
-$stmt = $conn->prepare("SELECT profile_photo FROM driver_verification WHERE driver_id=? ORDER BY verification_id DESC LIMIT 1");
+$stmt = $conn->prepare("SELECT profile_photo,license_number,license_issue_date,license_expiry_date,license_photo_front,license_photo_back FROM driver_verification WHERE driver_id=? ORDER BY verification_id DESC LIMIT 1");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $verification = $stmt->get_result()->fetch_assoc();
@@ -173,10 +172,37 @@ $verified = $driver['verification_status'] === 'verified';
                             <div><small>Verification </small>: <strong><?= $verified ? 'Verified' : 'Unverified' ?></strong></div>
                             <div><small>Driver Status </small>: <strong><?= $status ?></strong></div>
                             <div><small>Registered Date </small>: <strong><?= date("d M Y", strtotime($driver['created_at'])) ?></strong></div>
-                            <div><small>Account Role </small>: <strong>Driver</strong></div>
+
+                            <div><small>License Number </small>: <strong><?= htmlspecialchars($verification['license_number'] ?? 'Not Provided') ?></strong></div>
+                            <div><small>License Issue Date </small>: <strong><?= !empty($verification['license_issue_date']) ? date("d M Y", strtotime($verification['license_issue_date'])) : 'Not Provided' ?></strong></div>
+                            <div><small>License Expiry Date </small>: <strong><?= !empty($verification['license_expiry_date']) ? date("d M Y", strtotime($verification['license_expiry_date'])) : 'Not Provided' ?></strong></div>
+                            <div class="license">
+                                <small>Driving License</small>
+                                <?php if (!empty($verification['license_image'])): ?>
+                                    <img src="../uploads/driver/license/<?= htmlspecialchars($verification['license_image']) ?>" alt="Driving License">
+
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
-
+                    <div class="license-images">
+                        <div>
+                            <small>License Front</small>
+                            <?php if (!empty($verification['license_photo_front'])): ?>
+                                <img src="../uploads/driver/license/<?= htmlspecialchars($verification['license_photo_front']) ?>" alt="License Front">
+                            <?php else: ?>
+                                <strong>Not Provided</strong>
+                            <?php endif; ?>
+                        </div>
+                        <div>
+                            <small>License Back</small>
+                            <?php if (!empty($verification['license_photo_back'])): ?>
+                                <img src="../uploads/driver/license/<?= htmlspecialchars($verification['license_photo_back']) ?>" alt="License Back">
+                            <?php else: ?>
+                                <strong>Not Provided</strong>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                     <div class="box">
                         <h2>Today's Trips</h2>
 

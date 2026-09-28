@@ -328,12 +328,14 @@ tr:hover td {
     display: flex;
 }
 
-.modal-box {
-    width: 100%;
-    max-width: 500px;
-    background: #fff;
-    border-radius: 13px;
-    overflow: hidden;
+.modal-box{
+width:100%;
+height:auto;
+max-width:800px;
+max-height:90vh;
+background:#fff;
+border-radius:13px;
+overflow:hidden;
 }
 
 .modal-header {
@@ -357,8 +359,10 @@ tr:hover td {
     cursor: pointer;
 }
 
-.modal-body {
-    padding: 22px;
+.modal-body{
+padding:22px;
+max-height:calc(90vh - 65px);
+overflow-y:auto;
 }
 
 .modal-profile {
@@ -383,10 +387,9 @@ tr:hover td {
     color: #777;
     font-size: 13px;
 }
-
 .detail-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
 }
 
@@ -426,4 +429,33 @@ tr:hover td {
     .clear-btn {
         width: 100%;
     }
+}
+
+.license-images{
+display:flex;
+gap:20px;
+margin-top:20px;
+}
+.license-images>div{
+flex:1;
+}
+.license-images small{
+display:block;
+font-weight:bold;
+margin-bottom:8px;
+}
+.license-images img{
+width:100%;
+height:180px;
+object-fit:cover;
+border:1px solid #ddd;
+border-radius:8px;
+}
+@media(max-width:600px){
+.detail-grid{
+grid-template-columns:1fr;
+}
+.license-images{
+flex-direction:column;
+}
 }

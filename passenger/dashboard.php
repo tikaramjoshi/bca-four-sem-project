@@ -18,10 +18,13 @@ foreach ($popular_routes as &$route) {
     $route['schedule_id'] = 0;
     $route['available_seats'] = (int)$route['seats'];
     $stmt = $conn->prepare("SELECT schedule_id,available_seats FROM schedules WHERE bus_id=? AND LOWER(TRIM(from_city))=LOWER(TRIM(?)) AND LOWER(TRIM(to_city))=LOWER(TRIM(?)) AND DATE(departure_date)=DATE(?) AND TIME(departure_time)=TIME(?) AND status='active' LIMIT 1");
+
+
     $stmt->bind_param("issss", $route['bus_id'], $route['from_city'], $route['to_city'], $route['departure_date'], $route['departure_time']);
     $stmt->execute();
     $schedule = $stmt->get_result()->fetch_assoc();
     $stmt->close();
+
     if ($schedule) {
         $route['schedule_id'] = (int)$schedule['schedule_id'];
         $booking_stmt = $conn->prepare("SELECT COUNT(*) AS booked_seats FROM bookings WHERE schedule_id=? AND status IN ('pending','confirmed','paid')");

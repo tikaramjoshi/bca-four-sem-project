@@ -6,6 +6,7 @@ if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     exit;
 }
 $user_id = (int)$_SESSION['user_id'];
+$back_url = $_SERVER['HTTP_REFERER'] ?? 'login.php';
 $current_role = $_SESSION['role'];
 if ($current_role === "admin") {
     header("Location: admin/dashboard.php");
@@ -115,8 +116,10 @@ $result = $stmt->get_result();
                         <label>Reason for Role Change</label>
                         <textarea name="reason" placeholder="Write your reason for requesting this role change..." required></textarea>
                     </div>
-
-                    <button type="submit">Send Request</button>
+                    <div class="form-buttons">
+                        <a href="<?php echo htmlspecialchars($back_url); ?>" class="back">Back</a>
+                        <button type="submit">Send Request</button>
+                    </div>
                 </form>
             </div>
 

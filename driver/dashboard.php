@@ -114,7 +114,7 @@ include "../include/message/sql.php";
         <div><a href="bookings.php">Passenger Bookings</a></div>
         <div class="driver-profile" onclick="toggleProfileMenu()">
             <div class="driver-info"><strong><?= htmlspecialchars($driver['name']) ?></strong><span class="driver-status"><i></i><?= htmlspecialchars($driver_status) ?></span></div>
-            <img src="../uploads/profile/<?= htmlspecialchars($profile_image) ?>" class="profile-image" alt="Driver Profile" onerror="this.onerror=null;this.src='../uploads/default.png';">
+            <img src="../uploads/driver/<?= htmlspecialchars($profile_image) ?>" class="profile-image" alt="Driver Profile" onerror="this.onerror=null;this.src='../uploads/default.png';">
             <div class="profile-menu" id="profileMenu">
                 <div class="menu-divider"></div>
                 <a href="profile.php"> <i class=" fa fa-user-circle"></i> My Profile </a>

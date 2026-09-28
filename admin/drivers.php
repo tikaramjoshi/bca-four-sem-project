@@ -24,7 +24,7 @@ if (isset($_GET['action'], $_GET['id'])) {
 }
 $search = trim($_GET['search'] ?? '');
 $status = $_GET['status'] ?? 'all';
-$sql = "SELECT u.user_id,u.name,u.email,u.phone,u.profile_image,u.verification_status,u.created_at,b.bus_id,b.bus_number,b.bus_name,b.bus_type,b.status AS bus_status FROM users u LEFT JOIN bus_driver bd ON u.user_id=bd.driver_id LEFT JOIN bus b ON bd.bus_id=b.bus_id WHERE u.role='driver'";
+$sql = "SELECT u.user_id,u.name,u.email,u.phone,u.profile_image,u.verification_status,u.created_at,b.bus_id,b.bus_number,b.bus_name,b.bus_type,b.seats,b.status AS bus_status,dv.profile_photo,dv.license_number,dv.license_issue_date,dv.license_expiry_date,dv.license_photo_front,dv.license_photo_back FROM users u LEFT JOIN bus_driver bd ON u.user_id=bd.driver_id LEFT JOIN bus b ON bd.bus_id=b.bus_id LEFT JOIN driver_verification dv ON u.user_id=dv.driver_id WHERE u.role='driver'";
 $params = [];
 $types = "";
 if ($search !== '') {
@@ -181,6 +181,19 @@ $message = match ($_GET['msg'] ?? '') {
                         <div class="detail-item"><small>Bus Type</small><strong id="modalBusType">-</strong></div>
                         <div class="detail-item"><small>Bus Status</small><strong id="modalBusStatus">-</strong></div>
                         <div class="detail-item"><small>Registered Date</small><strong id="modalDate">-</strong></div>
+                        <div class="detail-item"><small>License Number</small><strong id="modalLicense">-</strong></div>
+                        <div class="detail-item"><small>License Issue Date</small><strong id="modalLicenseIssue">-</strong></div>
+                        <div class="detail-item"><small>License Expiry Date</small><strong id="modalLicenseExpiry">-</strong></div>
+                    </div>
+                    <div class="license-images">
+                        <div>
+                            <small>License Front</small>
+                            <img id="modalLicenseFront" src="../uploads/default.png" alt="License Front">
+                        </div>
+                        <div>
+                            <small>License Back</small>
+                            <img id="modalLicenseBack" src="../uploads/default.png" alt="License Back">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -222,6 +235,25 @@ $message = match ($_GET['msg'] ?? '') {
         document.addEventListener("keydown", e => {
             if (e.key === "Escape") closeDriverModal()
         });
+        document.getElementById("modalLicense").textContent = d.license_number || "Not Provided";
+        document.getElementById("modalLicenseIssue").textContent = d.license_issue_date || "Not Provided";
+        document.getElementById("modalLicenseExpiry").textContent = d.license_expiry_date || "Not Provided";
+
+        let front = document.getElementById("modalLicenseFront");
+        let back = document.getElementById("modalLicenseBack");
+
+        front.src = d.license_photo_front ? "../uploads/driver/license/" + d.license_photo_front : "../uploads/default.png";
+        back.src = d.license_photo_back ? "../uploads/driver/license/" + d.license_photo_back : "../uploads/default.png";
+
+        front.onerror = function() {
+            this.onerror = null;
+            this.src = "../uploads/default.png";
+        };
+
+        back.onerror = function() {
+            this.onerror = null;
+            this.src = "../uploads/default.png";
+        };
     </script>
 </body>
 

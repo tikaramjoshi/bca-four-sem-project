@@ -93,25 +93,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $success = $stmt->execute();
                     $stmt->close();
 
-                    if ($success && $old) {
-                        $stmt = $conn->prepare("SELECT schedule_id FROM schedules WHERE bus_id=? AND LOWER(TRIM(from_city))=LOWER(TRIM(?)) AND LOWER(TRIM(to_city))=LOWER(TRIM(?)) AND departure_date=? AND TIME(departure_time)=? LIMIT 1");
-                        $stmt->bind_param("issss", $old['bus_id'], $old['from_city'], $old['to_city'], $old['departure_date'], $old['departure_time']);
+                    if ($success) {
+                        $stmt = $conn->prepare("SELECT schedule_id FROM schedules WHERE bus_id=? AND LOWER(TRIM(from_city))=LOWER(TRIM(?)) AND LOWER(TRIM(to_city))=LOWER(TRIM(?)) AND departure_date=? AND TIME(departure_time)=TIME(?) LIMIT 1");
+                        $stmt->bind_param("issss", $bus_id, $from_city, $to_city, $departure_date, $departure_time);
                         $stmt->execute();
-                        $old_schedule = $stmt->get_result()->fetch_assoc();
+                        $schedule = $stmt->get_result()->fetch_assoc();
                         $stmt->close();
 
-                        if ($old_schedule) {
+                        if ($schedule) {
                             $stmt = $conn->prepare("UPDATE schedules SET bus_id=?,from_city=?,to_city=?,departure_date=?,departure_time=?,ticket_price=?,available_seats=?,status=? WHERE schedule_id=?");
-                            $stmt->bind_param("issssdisi", $bus_id, $from_city, $to_city, $departure_date, $departure_time, $price, $total_seats, $status, $old_schedule['schedule_id']);
+                            $stmt->bind_param("issssdisi", $bus_id, $from_city, $to_city, $departure_date, $departure_time, $price, $total_seats, $status, $schedule['schedule_id']);
+                            $stmt->execute();
+                            $stmt->close();
+                        } else {
+                            $stmt = $conn->prepare("INSERT INTO schedules(bus_id,from_city,to_city,departure_date,departure_time,ticket_price,available_seats,status) VALUES(?,?,?,?,?,?,?,?)");
+                            $stmt->bind_param("issssdis", $bus_id, $from_city, $to_city, $departure_date, $departure_time, $price, $total_seats, $status);
                             $stmt->execute();
                             $stmt->close();
                         }
                     }
-                } else {
-                    $stmt = $conn->prepare("INSERT INTO popular_routes(bus_id,from_city,to_city,departure_date,departure_time,price,image,status) VALUES(?,?,?,?,?,?,?,?)");
-                    $stmt->bind_param("issssdss", $bus_id, $from_city, $to_city, $departure_date, $departure_time, $price, $image, $status);
-                    $success = $stmt->execute();
-                    $stmt->close();
 
                     if ($success && $status === 'active') {
                         $stmt = $conn->prepare("SELECT schedule_id FROM schedules WHERE bus_id=? AND LOWER(TRIM(from_city))=LOWER(TRIM(?)) AND LOWER(TRIM(to_city))=LOWER(TRIM(?)) AND departure_date=? AND TIME(departure_time)=TIME(?) LIMIT 1");
