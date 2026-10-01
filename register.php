@@ -21,10 +21,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $role = "passenger";
     }
     if (!preg_match('/^[0-9]{10}$/', $phone)) {
-        $message = "BOSS Phone number must be exactly 10 digits!";
+        $message = "Your Phone number must be exactly 10 digits!";
         $message_type = "error";
     } elseif ($password !== $confirm_password) {
-        $message = "BOSS Password does not match!";
+        $message = "Your Password does not match!";
         $message_type = "error";
     } else {
         $emailCheck = $conn->prepare("SELECT 1 FROM users WHERE email=?");
@@ -40,13 +40,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $phoneExists = $phoneResult->fetch_assoc();
         $phoneCheck->close();
         if ($emailExists && $phoneExists) {
-            $message = "BOSS Email and Phone already registered!";
+            $message = "Email and Phone already registered!";
             $message_type = "error";
         } elseif ($emailExists) {
-            $message = "BOSS Email already registered!";
+            $message = "Email already registered!";
             $message_type = "error";
         } elseif ($phoneExists) {
-            $message = "BOSS Phone already registered!";
+            $message = "Phone already registered!";
             $message_type = "error";
         } else {
             $password = password_hash($password, PASSWORD_BCRYPT);
@@ -67,7 +67,7 @@ VALUES(?,?,?,?,?)";
                 $message = ucfirst($role) . " Registration Successful!";
                 $message_type = "success";
             } catch (Exception $e) {
-                $message = "BOSS Something went wrong. Please try again.";
+                $message = " Something went wrong. Please try again.";
                 error_log($e->getMessage());
                 $message_type = "error";
             }

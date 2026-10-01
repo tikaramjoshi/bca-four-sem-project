@@ -223,13 +223,14 @@ $total_assignments = count($assignments);
 </head>
 
 <body>
+    <?php require_once "owner_header.php"; ?>
     <div class="page">
         <div class="header">
             <div>
                 <h1>Driver Management</h1>
                 <p>Assign approved drivers to your approved buses.</p>
             </div>
-            <a href="dashboard.php" class="back-btn">← Dashboard</a>
+            <a href="dashboard.php" class="back-btn">Dashboard</a>
         </div>
 
         <?php if ($message !== ""): ?>
@@ -253,7 +254,7 @@ $total_assignments = count($assignments);
             </div>
         </div>
 
-        <div class="box">
+        <div class="boxdriver">
             <h2>Assign Driver</h2>
             <p class="box-description"> Only drivers approved by Admin and not assigned to another bus are available. </p>
 
@@ -350,7 +351,7 @@ $total_assignments = count($assignments);
                                     </td>
 
                                     <td>
-                                        <span class="badge verified">
+                                        <span class="badge verifie">
                                             Approved
                                         </span>
                                     </td>
@@ -402,6 +403,7 @@ $total_assignments = count($assignments);
             <?php endif; ?>
         </div>
     </div>
+    <?php require_once "owner_footer.php"; ?>
 </body>
 
 </html>

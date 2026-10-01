@@ -1,22 +1,12 @@
-* {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif
+
+
+        .container {
+            width: 85%;
+            margin: 10px auto 20px 160px;
+            display: flexbox;
         }
 
-        body {
-            background: #f4f6f9;
-            color: #222
-        }
-
-        .page {
-            width: 94%;
-            max-width: 1250px;
-            margin: 30px auto
-        }
-
-        .page-header {
+        .container-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -24,12 +14,12 @@
             margin-bottom: 25px
         }
 
-        .page-header h1 {
+        .container-header h1 {
             font-size: 28px;
             margin-bottom: 6px
         }
 
-        .page-header p {
+        .container-header p {
             color: #777;
             font-size: 14px
         }
@@ -51,7 +41,7 @@
         .booking-card {
             background: #fff;
             border-radius: 14px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, .08)
+            margin-top: 10px;
         }
 
         .profile-card {
@@ -225,12 +215,12 @@
         }
 
         @media(max-width:600px) {
-            .page {
+            .container {
                 width: 94%;
                 margin: 20px auto
             }
 
-            .page-header {
+            .container-header {
                 align-items: flex-start;
                 flex-direction: column
             }

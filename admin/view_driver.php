@@ -41,14 +41,14 @@ $total_bookings = 0;
 $today_bookings = 0;
 
 if ($driver['bus_id']) {
-    $stmt = $conn->prepare("SELECT schedule_id,from_city,to_city,travel_date,departure_time,arrival_time FROM schedules WHERE bus_id=? ORDER BY travel_date DESC,departure_time DESC");
+    $stmt = $conn->prepare("SELECT schedule_id, bus_id, from_city, to_city, departure_date, departure_time, ticket_price, available_seats, status FROM schedules WHERE bus_id=?");
     $stmt->bind_param("i", $driver['bus_id']);
     $stmt->execute();
     $res = $stmt->get_result();
     $total_trips = $res->num_rows;
 
     while ($r = $res->fetch_assoc()) {
-        if ($r['travel_date'] === $today) {
+        if ($r['departure_date'] === $today) {
             $today_trips[] = $r;
         }
     }
@@ -58,16 +58,15 @@ if ($driver['bus_id']) {
     $stmt->execute();
     $total_bookings = (int)$stmt->get_result()->fetch_assoc()['total'];
 
-    $stmt = $conn->prepare("SELECT COUNT(*) total FROM bookings bk INNER JOIN schedules s ON bk.schedule_id=s.schedule_id WHERE s.bus_id=? AND s.travel_date=?");
+    $stmt = $conn->prepare("SELECT COUNT(*) total FROM bookings bk INNER JOIN schedules s ON bk.schedule_id=s.schedule_id WHERE s.bus_id=? AND s.departure_date=?");
     $stmt->bind_param("is", $driver['bus_id'], $today);
     $stmt->execute();
     $today_bookings = (int)$stmt->get_result()->fetch_assoc()['total'];
 }
-
 $status = "Available";
 
 foreach ($today_trips as $trip) {
-    if (date("H:i:s") >= $trip['departure_time'] && date("H:i:s") <= $trip['arrival_time']) {
+    if (date("H:i:s") >= $trip['departure_time']) {
         $status = "On Trip";
         break;
     }
@@ -222,7 +221,7 @@ $verified = $driver['verification_status'] === 'verified';
                                         </td>
                                         <td><?= date("h:i A", strtotime($trip['departure_time'])) ?></td>
                                         <td><?= date("h:i A", strtotime($trip['arrival_time'])) ?></td>
-                                        <td><?= date("d M Y", strtotime($trip['travel_date'])) ?></td>
+                                        <td><?= date("d M Y", strtotime($trip['departure_date'])) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </table>

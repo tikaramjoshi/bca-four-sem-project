@@ -33,7 +33,7 @@ if (isset($_POST['submit'])) {
                 $message = "Invalid owner photo format.";
                 $message_type = "error";
             } else {
-                $owner_photo = "owner_photo_" . time() . "." . $extension;
+                $owner_photo = "owner_" . $owner_id . "_" . time() . "." . $extension;
                 move_uploaded_file($_FILES['owner_photo']['tmp_name'], $uploadDir . $owner_photo);
             }
         }
@@ -54,8 +54,8 @@ if (isset($_POST['submit'])) {
                     $stmt = $conn->prepare("UPDATE owner_verification SET company_name=?, company_registration_no=?, owner_photo=?, company_certificate=?, status='pending', reject_reason=NULL WHERE owner_id=?");
                     $stmt->bind_param("ssssi", $company_name, $company_registration_no, $owner_photo, $company_certificate, $owner_id);
                     if ($stmt->execute()) {
-                        $update = $conn->prepare("UPDATE users SET verification_status='pending' WHERE user_id=?");
-                        $update->bind_param("i", $owner_id);
+                        $update = $conn->prepare("UPDATE users SET profile_image=?, verification_status='pending' WHERE user_id=?");
+                        $update->bind_param("si", $owner_photo, $owner_id);
                         $update->execute();
                         $update->close();
                         $message = "Verification resubmitted successfully. Please wait for admin approval.";
@@ -77,11 +77,13 @@ if (isset($_POST['submit'])) {
                 } else {
                     $insert = $conn->prepare("INSERT INTO owner_verification (owner_id, company_name, company_registration_no, owner_photo, company_certificate, status) VALUES (?, ?, ?, ?, ?, 'pending')");
                     $insert->bind_param("issss", $owner_id, $company_name, $company_registration_no, $owner_photo, $company_certificate);
+
                     if ($insert->execute()) {
-                        $update = $conn->prepare("UPDATE users SET verification_status='pending' WHERE user_id=?");
-                        $update->bind_param("i", $owner_id);
+                        $update = $conn->prepare("UPDATE users SET profile_image=?, verification_status='pending' WHERE user_id=?");
+                        $update->bind_param("si", $owner_photo, $owner_id);
                         $update->execute();
                         $update->close();
+
                         $message = "Verification submitted successfully. Please wait for admin approval.";
                         $message_type = "success";
                         $data = [

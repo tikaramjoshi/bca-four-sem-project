@@ -129,39 +129,6 @@ $user = $result->fetch_assoc();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: #f4f7f6;
-        }
-
-        .header {
-            background: #1560BD;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header a {
-            text-decoration: none;
-            background: #ffc107;
-            font-size: 20px;
-            padding: 6px 13px;
-            border-radius: 5px;
-        }
-
-        .header a:hover {
-            background-color: #0f8c63;
-            color: #fff;
-        }
-
         .container {
             width: 500px;
             max-width: 95%;

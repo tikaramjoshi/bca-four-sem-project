@@ -272,6 +272,7 @@ if (isset($_POST['update_bus'])) {
             </form>
         </div>
     </div>
+    <?php require_once "owner_footer.php"; ?>
     <script>
         function previewImage(event) {
             let image = document.getElementById("preview");

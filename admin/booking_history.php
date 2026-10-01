@@ -138,7 +138,6 @@ $history = $stmt->get_result();
                             </tbody>
                         </table>
                     </div>
-                    <?php include "pagination.php"; ?>
                 <?php else: ?>
                     <div class="empty">
                         <i class="fa fa-history" style="font-size:40px;margin-bottom:15px"></i>

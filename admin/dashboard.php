@@ -190,8 +190,8 @@ if ($result) {
                             <td><?= htmlspecialchars($row['verification_id']) ?></td>
                             <td><?= htmlspecialchars($row['name']) ?></td>
                             <td><?= htmlspecialchars($row['company_name']) ?></td>
-                            <td><a href="../uploads/<?= htmlspecialchars($row['owner_photo']) ?>" target="_blank">View Photo</a></td>
-                            <td><a href="../uploads/<?= htmlspecialchars($row['company_certificate']) ?>" target="_blank">View Certificate</a></td>
+                            <td><a href="../uploads/profile/<?= (int)$row['owner_id'] ?>/profile/<?= htmlspecialchars($row['owner_photo']) ?>" target="_blank">View Photo</a></td>
+                            <td><a href="../uploads/profile/<?= (int)$row['owner_id'] ?>/profile/<?= htmlspecialchars($row['company_certificate']) ?>" target="_blank">View Certificate</a></td>
                             <td><span class="pending-text">Pending</span></td>
                             <td>
                                 <a href="verify_owner.php?id=<?= (int)$row['verification_id'] ?>" class="approve" onclick="return confirm('Verify this owner?')">Verify</a>

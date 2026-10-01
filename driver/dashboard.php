@@ -5,6 +5,7 @@ if (!isset($_SESSION['user_id'], $_SESSION['role']) || $_SESSION['role'] !== 'dr
     header("Location: ../login.php");
     exit;
 }
+include "../post_popup.php";
 $driver_id = (int)$_SESSION['user_id'];
 $stmt = $conn->prepare(" SELECT user_id,name,email,phone,profile_image,verification_status FROM users WHERE user_id=? AND role='driver' LIMIT 1
 ");
@@ -89,9 +90,6 @@ $driver_photo = !empty($verification['profile_photo'])
     ? "../uploads/driver/profile/" . $verification['profile_photo']
     : "../uploads/profile/" . $profile_image;
 
-
-include "../include/message/sql.php";
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -101,34 +99,11 @@ include "../include/message/sql.php";
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Driver Dashboard</title>
     <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="../include/message/mesage.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
-    <header class="header">
-        <a href="../role_request.php">Change</a>
-        <div class="logo">Driver Dashboard</div>
-        <div><a href="scan_ticket.php">Scan</a></div>
-        <div><a href="verify_ticket.php">Verify ticket</a></div>
-        <div><a href="bookings.php">Passenger Bookings</a></div>
-        <div class="driver-profile" onclick="toggleProfileMenu()">
-            <div class="driver-info"><strong><?= htmlspecialchars($driver['name']) ?></strong><span class="driver-status"><i></i><?= htmlspecialchars($driver_status) ?></span></div>
-            <img src="../uploads/driver/<?= htmlspecialchars($profile_image) ?>" class="profile-image" alt="Driver Profile" onerror="this.onerror=null;this.src='../uploads/default.png';">
-            <div class="profile-menu" id="profileMenu">
-                <div class="menu-divider"></div>
-                <a href="profile.php"> <i class=" fa fa-user-circle"></i> My Profile </a>
-                <a href="driver_verification.php"> <i class=" fa fa-check-circle"></i> Verification </a>
-                <a href="my_bus.php"> <i class=" fa fa-bus"></i> My Bus</a>
-                <a href="trips.php"> <i class=" fa fa-road"></i> My Trips </a>
-                <a href="notifications.php"> <i class=" fa fa-bell"></i> Notifications </a>
-                <a href="../changepassword.php"> <i class=" fa fa-key"></i>Change Password</a>
-                <hr>
-                <div class="menu-divider"></div>
-                <a href="../logout.php" class="logout-link"> <i class="fa fa-sign-out"></i>Logout</a>
-            </div>
-        </div>
-    </header>
+    <?php include "dri_header.php"; ?>
     <div class="container">
         <div class="welcome">
             <h1>Welcome, <?= htmlspecialchars($driver['name']) ?> </h1>
@@ -344,24 +319,6 @@ include "../include/message/sql.php";
             </div>
         </div>
     </div>
-
-    <?php include "../include/message/code.php"; ?>
-    <script>
-        const posts = [];
-    </script>
-    <script src="../include/message/message.js"></script>
-    <script>
-        function toggleProfileMenu() {
-            document.querySelector(".driver-profile").classList.toggle("active");
-        }
-
-        document.addEventListener("click", function(e) {
-            const profile = document.querySelector(".driver-profile");
-            if (profile && !profile.contains(e.target)) {
-                profile.classList.remove("active");
-            }
-        });
-    </script>
 </body>
 
 </html>

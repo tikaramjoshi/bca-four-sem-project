@@ -214,13 +214,14 @@ $total_assignments = count($assignments);
 </head>
 
 <body>
+    <?php require_once "owner_header.php"; ?>
     <div class="page">
         <div class="header">
             <div>
                 <h1>Driver Assignment</h1>
                 <p><?= $role === 'owner' ? 'Assign verified drivers to your approved buses.' : 'Manage all driver and bus assignments.' ?></p>
             </div>
-            <a href="<?= $role === 'owner' ? 'dashboard.php' : 'dashboard.php' ?>" class="back">← Dashboard</a>
+            <a href="<?= $role === 'owner' ? 'dashboard.php' : 'dashboard.php' ?>" class="back">Dashboard</a>
         </div>
         <?php if ($message !== ""): ?>
             <div class="message <?= htmlspecialchars($message_type) ?>"><?= htmlspecialchars($message) ?></div>
@@ -306,7 +307,7 @@ $total_assignments = count($assignments);
                                     </td>
                                     <td><?= htmlspecialchars($assignment['bus_type']) ?></td>
                                     <td><?= !empty($assignment['assigned_at']) ? date("d M Y h:i A", strtotime($assignment['assigned_at'])) : "-" ?></td>
-                                    <td><span class="badge verified">✓ Assigned</span></td>
+                                    <td><span class="badge verifie">Assigned</span></td>
                                     <td>
                                         <div class="actions">
                                             <?php if ($role === 'admin'): ?>
@@ -365,6 +366,7 @@ $total_assignments = count($assignments);
             <?php endif; ?>
         </div>
     </div>
+    <?php require_once "owner_footer.php"; ?>
     <script>
         function openEdit(id, bus, driver) {
             document.querySelectorAll('[id^="edit-"]').forEach(function(e) {

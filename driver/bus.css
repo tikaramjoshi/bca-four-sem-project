@@ -1,0 +1,65 @@
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px
+        }
+
+        .top h2 {
+            margin: 0
+        }
+
+        .back {
+            text-decoration: none;
+            background: #444;
+            color: #fff;
+            padding: 9px 18px;
+            border-radius: 6px
+        }
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 13px
+        }
+
+
+        .empty {
+            text-align: center;
+            padding: 40px 10px;
+            color: #777;
+        }
+
+        th,
+        td {
+            padding: 13px 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #f7f7f7;
+        }
+
+        .table-box {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 20px
+        }

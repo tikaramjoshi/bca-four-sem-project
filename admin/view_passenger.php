@@ -31,6 +31,7 @@ $total_bookings = count($bookings);
 $profile_image = trim((string)($passenger['profile_image'] ?? ''));
 $image = $profile_image !== '' ? "../uploads/profile/" . basename($profile_image) : "";
 $verification = $passenger['verification_status'] ?? 'pending';
+include "admin_header.php"
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -43,13 +44,12 @@ $verification = $passenger['verification_status'] ?? 'pending';
 </head>
 
 <body>
-    <div class="page">
+    <div class="container">
         <div class="page-header">
             <div>
                 <h1>Passenger Details</h1>
                 <p>View passenger information and booking history.</p>
             </div>
-            <a href="passengers.php" class="back-btn">Back to Passengers</a>
         </div>
         <div class="profile-card">
             <div class="profile-top">

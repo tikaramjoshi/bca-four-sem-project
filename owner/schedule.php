@@ -162,13 +162,7 @@ $max_date = date('Y-m-d', strtotime('+7 days'));
 </head>
 
 <body>
-
-    <div class="main">
-        <a href="dashboard.php">
-            <i class="fa fa-home"></i>&nbsp; Home
-        </a>
-    </div>
-
+    <?php require_once "owner_header.php"; ?>
     <div class="container">
 
         <div class="title">
@@ -288,9 +282,9 @@ $max_date = date('Y-m-d', strtotime('+7 days'));
                                 <td><?= (int)$row['available_seats'] ?></td>
                                 <td>
                                     <?php if ($row['status'] === 'active'): ?>
-                                        <span class="status active">Active</span>
+                                        <span class="statu active">Active</span>
                                     <?php else: ?>
-                                        <span class="status inactive"> <?= htmlspecialchars(ucfirst($row['status'])) ?> </span>
+                                        <span class="statu inactive"> <?= htmlspecialchars(ucfirst($row['status'])) ?> </span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -309,9 +303,7 @@ $max_date = date('Y-m-d', strtotime('+7 days'));
             <?php endif; ?>
         </div>
     </div>
-    <footer class="footer">
-        <p>&copy;2026 Online Bus Ticket Booking System || All Rights Reserved.</p>
-    </footer>
+    <?php require_once "owner_footer.php"; ?>
 </body>
 
 </html>

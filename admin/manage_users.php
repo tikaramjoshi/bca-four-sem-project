@@ -70,6 +70,10 @@ require_once "../db.php";
                 <p>View all users and Change Roles</p>
                 <a href="change_role.php" class="manage-user-btn">Change Roles</a>
             </div>
+            <!-- <div class="manage-user-card">
+                <p>all users and Change Information</p>
+                <a href="edit_passenger.php" class="manage-user-btn">Edit Data</a>
+            </div> -->
         </div>
     </div>
     <script>

@@ -119,6 +119,7 @@ foreach ($buses as $bus) {
 </head>
 
 <body>
+    <?php require_once "owner_header.php"; ?>
     <div class="page">
         <div class="page-header">
             <div>
@@ -318,6 +319,7 @@ foreach ($buses as $bus) {
             <?php endif; ?>
         </div>
     </div>
+    <?php require_once "owner_footer.php"; ?>
 </body>
 
 </html>

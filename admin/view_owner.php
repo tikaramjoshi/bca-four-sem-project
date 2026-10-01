@@ -172,7 +172,7 @@ $owner = mysqli_fetch_assoc($result);
             <h2>Owner Details</h2>
             <div class="profile">
                 <?php if (!empty($owner['profile_image'])): ?>
-                    <img src="../uploads/<?= htmlspecialchars($owner['profile_image']) ?>" alt="Owner Profile">
+                    <img src="../uploads/profile/<?= (int)$owner['user_id'] ?>/profile/<?= htmlspecialchars($owner['profile_image']) ?>" alt="Owner Profile">
                 <?php elseif (!empty($owner['owner_photo'])): ?>
                     <img src="../uploads/<?= htmlspecialchars($owner['owner_photo']) ?>" alt="Owner Photo">
                 <?php else: ?>
@@ -236,8 +236,8 @@ $owner = mysqli_fetch_assoc($result);
                     <td>Owner Verification Photo</td>
                     <td>
                         <?php if (!empty($owner['owner_photo'])): ?>
-                            <img src="../uploads/<?= htmlspecialchars($owner['owner_photo']) ?>" class="document" alt="Owner Photo"><br>
-                            <a href="../uploads/<?= htmlspecialchars($owner['owner_photo']) ?>" target="_blank" class="view-document">View Full Image</a>
+                            <img src="../uploads/profile/<?= (int)$owner['user_id'] ?>/profile/<?= htmlspecialchars($owner['owner_photo']) ?>" class="document" alt="Owner Photo"><br>
+                            <a href="../uploads/profile/<?= (int)$owner['user_id'] ?>/profile/<?= htmlspecialchars($owner['owner_photo']) ?>" target="_blank" class="view-document">View Full Image</a><br>
                             <?php else: ?>-<?php endif; ?>
                     </td>
                 </tr>
@@ -245,8 +245,8 @@ $owner = mysqli_fetch_assoc($result);
                     <td>Company Certificate</td>
                     <td>
                         <?php if (!empty($owner['company_certificate'])): ?>
-                            <img src="../uploads/<?= htmlspecialchars($owner['company_certificate']) ?>" class="document" alt="Company Certificate"><br>
-                            <a href="../uploads/<?= htmlspecialchars($owner['company_certificate']) ?>" target="_blank" class="view-document">View Certificate</a>
+                            <img src="../uploads/profile/<?= (int)$owner['user_id'] ?>/profile/<?= htmlspecialchars($owner['company_certificate']) ?>" class="document" alt="Company Certificate"><br>
+                            <a href="../uploads/profile/<?= (int)$owner['user_id'] ?>/profile/<?= htmlspecialchars($owner['company_certificate']) ?>" target="_blank" class="view-document">View Certificate</a>
                             <?php else: ?>-<?php endif; ?>
                     </td>
                 </tr>

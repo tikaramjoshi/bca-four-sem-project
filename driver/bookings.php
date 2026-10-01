@@ -3,12 +3,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once "../db.php";
-
 if (!isset($_SESSION['user_id'], $_SESSION['role']) || $_SESSION['role'] !== 'driver') {
     header("Location: ../login.php");
     exit;
 }
-
 $driver_id = (int)$_SESSION['user_id'];
 $bookings = [];
 $stmt = $conn->prepare("
@@ -31,25 +29,20 @@ bk.scanned_by,
 u.name AS passenger_name,
 u.email AS passenger_email,
 u.phone AS passenger_phone
-FROM bookings bk
-INNER JOIN users u ON bk.user_id=u.user_id
-INNER JOIN bus_driver bd ON bk.bus_number=(
-    SELECT b.bus_number FROM bus b WHERE b.bus_id=bd.bus_id LIMIT 1
-)
-WHERE bd.driver_id=?
-AND bk.status='approved'
+FROM bus_driver bd
+INNER JOIN bus b ON bd.bus_id = b.bus_id
+INNER JOIN bookings bk ON bk.bus_number = b.bus_number
+INNER JOIN users u ON bk.user_id = u.user_id
+WHERE bd.driver_id = ?
 ORDER BY bk.travel_date DESC,bk.created_at DESC
 ");
 $stmt->bind_param("i", $driver_id);
 $stmt->execute();
 $result = $stmt->get_result();
-
-$bookings = [];
 while ($row = $result->fetch_assoc()) {
     $bookings[] = $row;
 }
 $stmt->close();
-
 $driver_bookings = count($bookings);
 ?>
 <!DOCTYPE html>
@@ -60,7 +53,6 @@ $driver_bookings = count($bookings);
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Passenger Bookings</title>
     <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="../include/message/mesage.css">
     <style>
         .booking-header {
             display: flex;
@@ -84,7 +76,6 @@ $driver_bookings = count($bookings);
         }
 
         .booking-table th {
-            background: #f5f5f5;
             padding: 14px;
             text-align: left;
             font-size: 14px;
@@ -107,10 +98,6 @@ $driver_bookings = count($bookings);
 
         .passenger-info {
             line-height: 1.6;
-        }
-
-        .route {
-            font-weight: 600;
         }
 
         .route span {
@@ -139,10 +126,6 @@ $driver_bookings = count($bookings);
             color: #555;
         }
 
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
         .back-btn {
             display: inline-block;
             padding: 9px 16px;
@@ -160,138 +143,69 @@ $driver_bookings = count($bookings);
 </head>
 
 <body>
+    <?php include "dri_header.php"; ?>
     <div class="container">
-
         <div class="booking-header">
             <div>
                 <h1>Passenger Bookings</h1>
                 <p>Approved tickets for passengers travelling on your assigned bus.</p>
             </div>
-            <div class="booking-count">
-                <?= $driver_bookings ?> Booking<?= $driver_bookings != 1 ? 's' : '' ?>
-            </div>
+            <div class="booking-count"><?= $driver_bookings ?> Booking<?= $driver_bookings != 1 ? 's' : '' ?></div>
         </div>
-
         <a href="dashboard.php" class="back-btn">Back</a>
-
         <div class="box">
-
             <?php if (!empty($bookings)): ?>
-
                 <div class="table-wrapper">
-
                     <table class="booking-table">
-
                         <thead>
                             <tr>
                                 <th>Booking ID</th>
                                 <th>Passenger</th>
                                 <th>Route</th>
                                 <th>Travel Date</th>
-                                <th>Departure</th>
+                                <th>Seat</th>
                                 <th>Bus</th>
                                 <th>Ticket Price</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
-
                         <tbody>
-
                             <?php foreach ($bookings as $booking): ?>
-
                                 <tr>
-
-                                    <td>
-                                        #<?= htmlspecialchars($booking['booking_id']) ?>
-                                    </td>
-
+                                    <td>#<?= htmlspecialchars($booking['booking_id']) ?></td>
                                     <td>
                                         <div class="passenger-info">
-                                            <div class="passenger-name">
-                                                <?= htmlspecialchars($booking['passenger_name']) ?>
-                                            </div>
-                                            <div>
-                                                <?= htmlspecialchars($booking['passenger_phone']) ?>
-                                            </div>
-                                            <div>
-                                                <?= htmlspecialchars($booking['passenger_email']) ?>
-                                            </div>
+                                            <div class="passenger-name"><?= htmlspecialchars($booking['passenger_name']) ?></div>
+                                            <div><?= htmlspecialchars($booking['passenger_phone']) ?></div>
+                                            <div><?= htmlspecialchars($booking['passenger_email']) ?></div>
                                         </div>
                                     </td>
-
                                     <td>
-                                        <div class="route">
-                                            <?= htmlspecialchars($booking['from_city']) ?>
-                                            <span>→</span>
-                                            <?= htmlspecialchars($booking['to_city']) ?>
-                                        </div>
+                                        <div class="route"><?= htmlspecialchars($booking['route']) ?></div>
                                     </td>
-
+                                    <td><?= date("d M Y", strtotime($booking['travel_date'])) ?></td>
+                                    <td><?= htmlspecialchars($booking['seat_number']) ?></td>
                                     <td>
-                                        <?= date("d M Y", strtotime($booking['departure_date'])) ?>
+                                        <div><strong><?= htmlspecialchars($booking['bus_number']) ?></strong></div>
+                                        <div><?= htmlspecialchars($booking['bus_name']) ?></div>
                                     </td>
-
+                                    <td>Rs. <?= number_format((float)$booking['amount'], 2) ?></td>
                                     <td>
-                                        <?= date("h:i A", strtotime($booking['departure_time'])) ?>
+                                        <span class="approved"><?= ucfirst(htmlspecialchars($booking['status'])) ?></span>
                                     </td>
-
-                                    <td>
-                                        <div>
-                                            <strong><?= htmlspecialchars($booking['bus_number']) ?></strong>
-                                        </div>
-                                        <div>
-                                            <?= htmlspecialchars($booking['bus_name']) ?>
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        Rs. <?= number_format((float)$booking['ticket_price'], 2) ?>
-                                    </td>
-
-                                    <td>
-                                        <span class="approved">
-                                            <?= ucfirst(htmlspecialchars($booking['status'])) ?>
-                                        </span>
-                                    </td>
-
                                 </tr>
-
                             <?php endforeach; ?>
-
                         </tbody>
-
                     </table>
-
                 </div>
-
             <?php else: ?>
-
                 <div class="empty-bookings">
-                    <h3>No Approved Bookings</h3>
-                    <p>No approved passenger ticket is available for your assigned bus.</p>
+                    <h3>No Bookings Found</h3>
+                    <p>No passenger booking is available for your assigned bus.</p>
                 </div>
-
             <?php endif; ?>
-
         </div>
-
     </div>
-
-    <?php include "../include/message/code.php"; ?>
-
-    <script>
-        function toggleProfileMenu() {
-            document.querySelector(".driver-profile").classList.toggle("active");
-        }
-
-        document.addEventListener("click", function(e) {
-            const profile = document.querySelector(".driver-profile");
-            if (profile && !profile.contains(e.target)) {
-                profile.classList.remove("active");
-            }
-        });
-    </script>
-
 </body>
 
 </html>

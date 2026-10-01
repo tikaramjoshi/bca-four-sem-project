@@ -1,10 +1,12 @@
 <?php
+
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "owner") {
     header("Location: ../login.php");
     exit();
 }
 require_once "../db.php";
+include "../post_popup.php";
 $owner_id = $_SESSION['user_id'];
 $message = "";
 $message_type = "";
@@ -180,7 +182,6 @@ $totalDriverStmt->execute();
 $totalDriverResult = $totalDriverStmt->get_result();
 $totalDrivers = (int)$totalDriverResult->fetch_row()[0];
 $totalDriverStmt->close();
-include "../include/message/sql.php"
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -189,12 +190,10 @@ include "../include/message/sql.php"
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Owner Dashboard</title>
-    <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-    <link rel="stylesheet" href="owner.css">
-    <link rel="stylesheet" href="../include/message/mesage.css">
 
+    <link rel="stylesheet" href="owner.css">
 </head>
 
 <body>
@@ -204,19 +203,13 @@ include "../include/message/sql.php"
             <a href="<?= $isVerified ? 'register_bus.php' : '#' ?>" <?= !$isVerified ? 'onclick="return false;" style="opacity:.5;cursor:not-allowed;"' : '' ?>> Add Bus </a>
             <a href="<?= $isVerified ? 'my_bus.php' : '#' ?>" <?= !$isVerified ? 'onclick="return false;" style="opacity:.5;cursor:not-allowed;"' : '' ?>> My Bus </a>
             <a href="<?= $isVerified ? 'driver.php' : '#' ?>" <?= !$isVerified ? 'onclick="return false;" style="opacity:.5;cursor:not-allowed;"' : '' ?>> Driver </a>
-            <a href="<?= $isVerified ? 'assign_driver.php' : '#' ?>"
-                <?= !$isVerified ? 'onclick="return false;" style="opacity:.5;cursor:not-allowed;"' : '' ?>>
-                Assign Driver
-            </a>
+            <a href="<?= $isVerified ? 'assign_driver.php' : '#' ?>" <?= !$isVerified ? 'onclick="return false;" style="opacity:.5;cursor:not-allowed;"' : '' ?>> Assign Driver </a>
             <a href="<?= $isVerified ? 'schedule.php' : '#' ?>" <?= !$isVerified ? 'onclick="return false;" style="opacity:.5;cursor:not-allowed;"' : '' ?>> Schedule </a>
             <a href="#aboutSection">About</a>
         </div>
         <div style="display: flex; gap:10px ; color:white;align-items:center">
 
-
-            <h3>Welcome, <span class="profile-name">
-                    <?= htmlspecialchars($owner_name) ?></span>
-            </h3>&nbsp;&nbsp;&nbsp;&nbsp;
+            <h3>Welcome, <span class="profile-name"> <?= htmlspecialchars($owner_name) ?></span> </h3>&nbsp;&nbsp;&nbsp;&nbsp;
             <span class="status <?= strtolower($verification_status) ?>">
                 <?= htmlspecialchars(ucfirst($verification_status)) ?>
             </span>
@@ -237,13 +230,10 @@ include "../include/message/sql.php"
                     <a href="../changepassword.php"><i class="fa fa-key"></i>Change Password</a>
                     <hr>
                     <a href="../logout.php"><i class="fa fa-sign-out-alt"></i>Logout</a>
-
                 </div>
             </div>
         </div>
     </nav>
-
-
     <?php if ($verification_status == "rejected") { ?>
         <div class="verify-banner" style="border-left:6px solid red;">
             <h2>Verification Rejected</h2>
@@ -368,43 +358,41 @@ include "../include/message/sql.php"
         <footer class="last">
             <div class="last-main">
                 <div class="last-link">
-                    <h3>Quick Links</h3>
-                    <a href="#">Home</a>
-
+                    <h3><i class="fa fa-link"></i> Quick Links</h3>
+                    <a href="#"><i class="fa fa-home"></i> Home</a>
                     <?php
                     function verifyLink($page, $isVerified)
                     {
                         return $isVerified ? "href='$page'" : "href='#' onclick=\"alert('Please complete account verification first.'); return false;\"";
                     }
                     ?>
-                    <a <?= verifyLink('register_bus.php', $isVerified) ?>>Add Bus</a>
-                    <a <?= verifyLink('my_bus.php', $isVerified) ?>>My Bus</a>
-                    <a <?= verifyLink('driver.php', $isVerified) ?>>Driver</a>
-                    <a <?= verifyLink('schedule.php', $isVerified) ?>>Schedule</a>
-                    <a href="logout.php">Logout</a>
+                    <a <?= verifyLink('register_bus.php', $isVerified) ?>><i class="fa fa-bus"></i> Add Bus</a>
+                    <a <?= verifyLink('my_bus.php', $isVerified) ?>><i class="fa fa-bus"></i> My Bus</a>
+                    <a <?= verifyLink('driver.php', $isVerified) ?>><i class="fa fa-user"></i> Driver</a>
+                    <a <?= verifyLink('schedule.php', $isVerified) ?>><i class="fa fa-calendar"></i> Schedule</a>
+                    <a href="../logout.php"><i class="fa fa-sign-out-alt"></i> Logout</a>
                 </div>
                 <div class="last-contact" id="contactSection">
-                    <h3>Contact</h3>
-                    <p> Email: <a href="mailto:tikaramj519@gmail.com"> tikaramj519@gmail.com </a> </p>
-                    <p> Phone: <a href="tel:+9779840792553"> +9779840792553 </a> </p>
-                    <p> WhatsApp: <a href="https://wa.me/9779840792553"> +9779840792553 </a> </p>
+                    <h3><i class="fa fa-address-book"></i> Contact</h3>
+                    <p><i class="fa fa-envelope"></i> Email: <a href="mailto:tikaramj519@gmail.com">tikaramj519@gmail.com</a></p>
+                    <p><i class="fa fa-phone"></i> Phone: <a href="tel:+9779840792553">+9779840792553</a></p>
+                    <p><i class="fab fa-whatsapp"></i> WhatsApp: <a href="https://wa.me/9779840792553">+9779840792553</a></p>
                 </div>
                 <div class="last-about" id="aboutSection">
-                    <h3>Follow Us</h3>
-                    <a href="#">Facebook</a>
-                    <a href="#">Instagram</a>
-                    <a href="#">TikTok</a>
-                    <a href="#">YouTube</a>
-                    <h3>Developed By</h3>
-                    <p>Tikaram Joshi</p>
+                    <h3><i class="fa fa-share-alt"></i> Follow Us</h3>
+                    <a href="#"><i class="fab fa-facebook"></i> Facebook</a>
+                    <a href="#"><i class="fab fa-instagram"></i> Instagram</a>
+                    <a href="#"><i class="fab fa-tiktok"></i> TikTok</a>
+                    <a href="#"><i class="fab fa-youtube"></i> YouTube</a>
+                    <h3><i class="fa fa-code"></i> Developed By</h3>
+                    <p><i class="fa fa-user"></i> Tikaram Joshi</p>
                 </div>
             </div>
             <hr>
             <div class="copy">
-                <p> &copy; 2026 Online Bus Ticket Booking System || All Rights Reserved. </p>
+                <p><i class="fa fa-copyright"></i> 2026 Online Bus Ticket Booking System || All Rights Reserved.</p>
             </div>
         </footer>
-        <?php include "../include/message/code.php" ?>
         <script>
             function toggleMenu() {
                 document.getElementById("dropdownMenu").classList.toggle("show");
@@ -433,44 +421,6 @@ include "../include/message/sql.php"
                     }, 5000);
                 }
             };
-
-            const posts = <?= json_encode($posts) ?>;
-            let postIndex = 0;
-
-            function showPost() {
-                if (postIndex >= posts.length) {
-                    document.getElementById("postModal").style.display = "none";
-                    return;
-                }
-
-                const post = posts[postIndex];
-
-                document.getElementById("postTitle").innerText = post.title;
-                document.getElementById("postMessage").innerText = post.message;
-
-                if (post.image) {
-                    document.getElementById("postImage").src = "../uploads/posts/" + post.image;
-                    document.getElementById("postImage").style.display = "block";
-                } else {
-                    document.getElementById("postImage").style.display = "none";
-                }
-
-                document.getElementById("nextPost").innerText = postIndex === posts.length - 1 ? "Close" : "Next";
-                document.getElementById("postModal").style.display = "flex";
-            }
-
-            document.getElementById("nextPost").addEventListener("click", function() {
-                postIndex++;
-                showPost();
-            });
-
-            document.getElementById("closePost").addEventListener("click", function() {
-                document.getElementById("postModal").style.display = "none";
-            });
-
-            if (posts.length > 0) {
-                showPost();
-            }
         </script>
 </body>
 

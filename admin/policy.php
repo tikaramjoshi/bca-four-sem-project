@@ -212,6 +212,7 @@ if (isset($_POST['update'])) {
 </head>
 
 <body>
+    <!-- <?php include "admin_header.php" ?> -->
     <div class="nav-links navbar">
         <a href="dashboard.php" class="active"> <i class="fa fa-home"></i>&nbsp;Home</a>
     </div>

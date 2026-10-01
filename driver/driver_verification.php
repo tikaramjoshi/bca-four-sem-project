@@ -20,6 +20,7 @@ $result = $stmt->get_result();
 $verification = $result->num_rows ? $result->fetch_assoc() : null;
 
 $error = $success = "";
+$edit = isset($_GET["edit"]) && $_GET["edit"] === "1";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $license_number = trim($_POST["license_number"] ?? "");
     $license_issue_date = trim($_POST["license_issue_date"] ?? "");
@@ -65,13 +66,38 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         else $license_photo_back = $name;
     }
 
+
+
     if (!$error) {
-        $insert = $conn->prepare("INSERT INTO driver_verification(driver_id,license_number,license_issue_date,license_expiry_date,profile_photo,license_photo_front,license_photo_back,status) VALUES(?,?,?,?,?,?,?,'pending')");
-        $insert->bind_param("issssss", $driver_id, $license_number, $license_issue_date, $license_expiry_date, $profile_photo, $license_photo_front, $license_photo_back);
-        if ($insert->execute()) {
-            $success = "Verification request submitted successfully. Please wait for admin approval.";
-            $verification = ["verification_id" => $insert->insert_id, "license_number" => $license_number, "license_issue_date" => $license_issue_date, "license_expiry_date" => $license_expiry_date, "profile_photo" => $profile_photo, "license_photo_front" => $license_photo_front, "license_photo_back" => $license_photo_back, "status" => "pending", "reject_reason" => null];
-        } else $error = "Database error: " . $insert->error;
+        if ($verification) {
+            $update = $conn->prepare("UPDATE driver_verification SET license_number=?,license_issue_date=?,license_expiry_date=?,profile_photo=?,license_photo_front=?,license_photo_back=?,status='pending',reject_reason=NULL WHERE verification_id=? AND driver_id=?");
+            $update->bind_param("ssssssii", $license_number, $license_issue_date, $license_expiry_date, $profile_photo, $license_photo_front, $license_photo_back, $verification["verification_id"], $driver_id);
+
+            if ($update->execute()) {
+                $success = "Your verification information has been updated and submitted again. Please wait for admin approval.";
+
+                $verification["license_number"] = $license_number;
+                $verification["license_issue_date"] = $license_issue_date;
+                $verification["license_expiry_date"] = $license_expiry_date;
+                $verification["profile_photo"] = $profile_photo;
+                $verification["license_photo_front"] = $license_photo_front;
+                $verification["license_photo_back"] = $license_photo_back;
+                $verification["status"] = "pending";
+                $verification["reject_reason"] = null;
+            } else {
+                $error = "Database error: " . $update->error;
+            }
+        } else {
+            $insert = $conn->prepare("INSERT INTO driver_verification(driver_id,license_number,license_issue_date,license_expiry_date,profile_photo,license_photo_front,license_photo_back,status) VALUES(?,?,?,?,?,?,?,'pending')");
+            $insert->bind_param("issssss", $driver_id, $license_number, $license_issue_date, $license_expiry_date, $profile_photo, $license_photo_front, $license_photo_back);
+
+            if ($insert->execute()) {
+                $success = "Verification request submitted successfully. Please wait for admin approval.";
+                $verification = ["verification_id" => $insert->insert_id, "license_number" => $license_number, "license_issue_date" => $license_issue_date, "license_expiry_date" => $license_expiry_date, "profile_photo" => $profile_photo, "license_photo_front" => $license_photo_front, "license_photo_back" => $license_photo_back, "status" => "pending", "reject_reason" => null];
+            } else {
+                $error = "Database error: " . $insert->error;
+            }
+        }
     }
 }
 $status = $verification["status"] ?? "unverified";
@@ -83,12 +109,14 @@ $status = $verification["status"] ?? "unverified";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Driver Verification</title>
+    <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="driver_verification.css">
 </head>
 
 <body>
+    <?php include "dri_header.php"; ?>
     <div class="container">
-        <div class="header">
+        <div class="head">
             <div>
                 <h1>Driver Verification</h1>
                 <p>Submit your profile and driving license information for verification.</p>
@@ -103,12 +131,22 @@ $status = $verification["status"] ?? "unverified";
                 <?php if ($status === "verified"): ?>
                     <h3>Driver Verified</h3>
                     <p>Your verification has been approved by the administrator.</p>
+                    <?php if (!$edit): ?>
+                        <a href="driver_verification.php?edit=1" class="edit-btn">Edit Information</a>
+                    <?php endif; ?>
                 <?php elseif ($status === "pending"): ?>
                     <h3>Verification Pending</h3>
                     <p>Your information is currently being reviewed by the administrator.</p>
                 <?php elseif ($status === "rejected"): ?>
-                    <h3>✗ Verification Rejected</h3>
+                    <h3>Verification Rejected</h3>
                     <p>Your verification request was rejected.</p>
+                    <?php if (!empty($verification["reject_reason"])): ?>
+                        <div class="reject-reason">
+                            <strong>Reason for Rejection:</strong>
+                            <p><?= nl2br(htmlspecialchars($verification["reject_reason"])) ?></p>
+                        </div>
+                    <?php endif; ?>
+                    <p>You can edit your information and submit it again.</p>
                 <?php else: ?>
                     <h3>! Not Verified</h3>
                     <p>Please submit your verification information.</p>
@@ -123,53 +161,53 @@ $status = $verification["status"] ?? "unverified";
                     <p>Phone: <?= htmlspecialchars($driver["phone"]) ?></p>
                 </div>
             </div>
-
-            <form method="POST" enctype="multipart/form-data">
-                <div class="section">
-                    <h2 class="section-title">Driving License Information</h2>
-                    <div class="grid">
-                        <div class="form-group"><label>License Number </label><input type="text" name="license_number" value="<?= htmlspecialchars($verification["license_number"] ?? "") ?>" placeholder="Enter license number" required></div>
-                        <div></div>
-                        <div class="form-group"><label>License Issue Date </label><input type="date" name="license_issue_date" value="<?= htmlspecialchars($verification["license_issue_date"] ?? "") ?>" required></div>
-                        <div class="form-group"><label>License Expiry Date </label><input type="date" name="license_expiry_date" value="<?= htmlspecialchars($verification["license_expiry_date"] ?? "") ?>" required></div>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <h2 class="section-title">Profile Photo</h2>
-                    <div class="form-group"><label>Driver Profile Photo</label>
-                        <div class="file-box">
-                            <input type="file" name="profile_photo" accept=".jpg,.jpeg,.png,.webp">
-                            <div class="note">JPG, JPEG, PNG or WEBP. Maximum 10MB.</div>
-                            <?php if (!empty($verification["profile_photo"])): ?><img src="../uploads/driver/profile/<?= htmlspecialchars($verification["profile_photo"]) ?>" class="preview" alt="Profile Photo"><?php endif; ?>
+            <?php if (!$verification || $status === "rejected" || ($status === "verified" && $edit)): ?>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="section">
+                        <h2 class="section-title">Driving License Information</h2>
+                        <div class="grid">
+                            <div class="form-group"><label>License Number</label><input type="text" name="license_number" value="<?= htmlspecialchars($verification['license_number'] ?? '') ?>" placeholder="Enter license number" required></div>
+                            <div class="form-group"><label>License Issue Date</label><input type="date" name="license_issue_date" value="<?= htmlspecialchars($verification['license_issue_date'] ?? '') ?>" required></div>
+                            <div class="form-group"><label>License Expiry Date</label><input type="date" name="license_expiry_date" value="<?= htmlspecialchars($verification['license_expiry_date'] ?? '') ?>" required></div>
                         </div>
                     </div>
-                </div>
 
-                <div class="section">
-                    <h2 class="section-title">Driving License Photos</h2>
-                    <div class="grid">
-                        <div class="form-group"><label>License Front Photo </label>
+                    <div class="section">
+                        <h2 class="section-title">Profile Photo</h2>
+                        <div class="form-group"><label>Driver Profile Photo</label>
                             <div class="file-box">
-                                <input type="file" name="license_photo_front" accept=".jpg,.jpeg,.png,.webp" <?= empty($verification["license_photo_front"]) ? "required" : "" ?>>
-                                <div class="note">Upload a clear front photo of your license.</div>
-                                <?php if (!empty($verification["license_photo_front"])): ?><img src="../uploads/driver/license/<?= htmlspecialchars($verification["license_photo_front"]) ?>" class="license-preview" alt="License Front"><?php endif; ?>
-                            </div>
-                        </div>
-
-                        <div class="form-group"><label>License Back Photo</label>
-                            <div class="file-box">
-                                <input type="file" name="license_photo_back" accept=".jpg,.jpeg,.png,.webp">
-                                <div class="note">Upload the back side of your license.</div>
-                                <?php if (!empty($verification["license_photo_back"])): ?><img src="../uploads/driver/license/<?= htmlspecialchars($verification["license_photo_back"]) ?>" class="license-preview" alt="License Back"><?php endif; ?>
+                                <input type="file" name="profile_photo" accept=".jpg,.jpeg,.png,.webp">
+                                <div class="note">JPG, JPEG, PNG or WEBP. Maximum 10MB.</div>
+                                <?php if (!empty($verification["profile_photo"])): ?><img src="../uploads/driver/profile/<?= htmlspecialchars($verification["profile_photo"]) ?>" class="preview" alt="Profile Photo"><?php endif; ?>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="info-box">Please make sure your license number, issue date, expiry date and uploaded license photos are correct and clearly visible. The administrator will review this information before approving your driver account.</div>
-                <div class="submit-area"><button type="submit" class="submit-btn">Submit Verification</button></div>
-            </form>
+                    <div class="section">
+                        <h2 class="section-title">Driving License Photos</h2>
+                        <div class="grid">
+                            <div class="form-group"><label>License Front Photo </label>
+                                <div class="file-box">
+                                    <input type="file" name="license_photo_front" accept=".jpg,.jpeg,.png,.webp" <?= empty($verification["license_photo_front"]) ? "required" : "" ?>>
+                                    <div class="note">Upload a clear front photo of your license.</div>
+                                    <?php if (!empty($verification["license_photo_front"])): ?><img src="../uploads/driver/license/<?= htmlspecialchars($verification["license_photo_front"]) ?>" class="license-preview" alt="License Front"><?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="form-group"><label>License Back Photo</label>
+                                <div class="file-box">
+                                    <input type="file" name="license_photo_back" accept=".jpg,.jpeg,.png,.webp">
+                                    <div class="note">Upload the back side of your license.</div>
+                                    <?php if (!empty($verification["license_photo_back"])): ?><img src="../uploads/driver/license/<?= htmlspecialchars($verification["license_photo_back"]) ?>" class="license-preview" alt="License Back"><?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">Please make sure your license number, issue date, expiry date and uploaded license photos are correct and clearly visible. The administrator will review this information before approving your driver account.</div>
+                    <div class="submit-area"><button type="submit" class="submit-btn">Submit Verification</button></div>
+                </form>
+            <?php endif; ?>
         </div>
     </div>
 </body>

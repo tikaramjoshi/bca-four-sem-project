@@ -79,6 +79,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             }
 
                             $profile_image = $new_name;
+                            $profile_image = $new_name;
+                            $update_photo = $conn->prepare("UPDATE owner_verification SET owner_photo=? WHERE owner_id=?");
+                            $update_photo->bind_param("si", $new_name, $owner_id);
+                            $update_photo->execute();
+                            $update_photo->close();
                         } else {
                             $message = "Failed to upload profile image.";
                             $message_type = "error";
@@ -240,10 +245,10 @@ $profile_image = !empty($owner['profile_image']) ? $owner['profile_image'] : "de
             <?php endif; ?>
             <form method="POST" enctype="multipart/form-data">
                 <div class="profile-preview">
-                    <?php if (!empty($profile_image) && $profile_image !== "default.png"): ?>
-                        <img src="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($profile_image) ?>" alt="Profile">
+                    <?php if (!empty($owner['profile_image']) && $owner['profile_image'] !== 'default.png'): ?>
+                        <img src="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($owner['profile_image']) ?>" alt="Profile" class="profile-image">
                     <?php else: ?>
-                        <img src="../uploads/default.png" alt="Profile">
+                        <img src="../uploads/default.png" class="profile-image" alt="Profile">
                     <?php endif; ?>
                 </div>
 

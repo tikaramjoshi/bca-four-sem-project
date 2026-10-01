@@ -153,22 +153,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Edit Passenger</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f7fb;
-            min-height: 100vh
-        }
-
-        .page {
-            max-width: 900px;
-            margin: 35px auto;
-            padding: 20px
+        .container {
+            justify-content: center;
+            display: flexbox;
+            margin: 5px 15px 20px 120px;
         }
 
         .header {
@@ -203,7 +191,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             background: #fff;
             padding: 30px;
             border-radius: 0 0 14px 14px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, .08)
         }
 
         .message {
@@ -328,15 +315,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 
 <body>
-    <div class="page">
-        <div class="header">
+    <?php include "admin_header.php" ?>
+    <div class="container">
+        <div class="form-box">
             <div>
                 <h1>Edit Passenger</h1>
                 <p>Update complete passenger account information</p>
             </div>
-            <a href="passengers.php" class="back-btn">Back</a>
-        </div>
-        <div class="form-box">
             <?php if ($message): ?>
                 <div class="message <?= htmlspecialchars($message_type) ?>"><?= htmlspecialchars($message) ?></div>
             <?php endif; ?>
@@ -383,11 +368,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <option value="verified" <?= $user['verification_status'] === 'verified' ? 'selected' : '' ?>>Verified</option>
                             <option value="rejected" <?= $user['verification_status'] === 'rejected' ? 'selected' : '' ?>>Rejected</option>
                         </select>
-                    </div>
-                    <div class="form-group full">
-                        <label>New Password</label>
-                        <input type="password" name="password" placeholder="Leave blank to keep current password">
-                        <div class="password-note">Leave blank if you do not want to change the password.</div>
                     </div>
                 </div>
                 <div class="buttons">

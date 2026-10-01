@@ -45,7 +45,7 @@ $bus = mysqli_fetch_assoc($result);
             box-shadow: 0 4px 15px rgba(0, 0, 0, .12);
         }
 
-        h2 {
+        .box h2 {
             text-align: center;
             margin-bottom: 25px;
             color: #333;
@@ -113,9 +113,8 @@ $bus = mysqli_fetch_assoc($result);
 </head>
 
 <body>
-
+    <?php include "admin_header.php" ?>
     <div class="box">
-        <a class="back" href="dashboard.php">Back to Home</a>
         <h2>Bus Details</h2>
         <div class="image-box">
             <?php if (!empty($bus['bus_image'])): ?>
@@ -179,6 +178,8 @@ $bus = mysqli_fetch_assoc($result);
             </tr>
         </table>
         <a class="back" href="all_bus.php">Back</a>
+        <a class="back" href="dashboard.php">Home</a>
+
     </div>
 </body>
 

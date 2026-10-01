@@ -1,80 +1,51 @@
 <?php
-
 session_start();
-
 require_once "../db.php";
 
-/* ---------------------------------------
-   DRIVER LOGIN CHECK
---------------------------------------- */
-
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'driver') {
-
     header("Location: ../login.php");
     exit;
 }
 
-$driver_id = (int) $_SESSION['user_id'];
-
-
-/* ---------------------------------------
-   GET GROUP ID
---------------------------------------- */
-
+$driver_id = (int)$_SESSION['user_id'];
 $group_id = trim($_GET['group_id'] ?? '');
+$action = $_GET['action'] ?? '';
+$first_scanned_at = null;
 
 if ($group_id === '') {
-
     die("Invalid ticket. Booking Group ID is missing.");
 }
 
-
-/* ---------------------------------------
-   GET BOOKINGS
---------------------------------------- */
-
-$sql = "SELECT 
-            booking_id,
-            booking_group_id,
-            user_id,
-            bus_name,
-            bus_number,
-            route,
-            travel_date,
-            seat_number,
-            amount,
-            status,
-            ticket_status,
-            scanned_at,
-            scanned_by,
-            created_at
-        FROM bookings
-        WHERE booking_group_id = ?
-        ORDER BY booking_id ASC";
+$sql = "SELECT
+            bk.booking_id,
+            bk.booking_group_id,
+            bk.user_id,
+            bk.bus_name,
+            bk.bus_number,
+            bk.route,
+            bk.travel_date,
+            bk.seat_number,
+            bk.amount,
+            bk.status,
+            bk.ticket_status,
+            bk.scanned_at,
+            bk.scanned_by,
+            bk.created_at,
+            u.name AS passenger_name,
+            u.email AS passenger_email,
+            u.phone AS passenger_phone
+        FROM bookings bk
+        INNER JOIN users u ON bk.user_id=u.user_id
+        INNER JOIN bus b ON bk.bus_number=b.bus_number
+        INNER JOIN bus_driver bd ON bd.bus_id=b.bus_id
+        WHERE bk.booking_group_id=?
+        AND bd.driver_id=?
+        ORDER BY bk.booking_id ASC";
 
 $stmt = mysqli_prepare($conn, $sql);
-
-if (!$stmt) {
-    die("Database error: " . mysqli_error($conn));
-}
-
-mysqli_stmt_bind_param($stmt, "s", $group_id);
-
+mysqli_stmt_bind_param($stmt, "si", $group_id, $driver_id);
 mysqli_stmt_execute($stmt);
-
 $result = mysqli_stmt_get_result($stmt);
-
-if (mysqli_num_rows($result) == 0) {
-
-    mysqli_stmt_close($stmt);
-
-    die("Ticket not found.");
-}
-
-
-/* ---------------------------------------
-   STORE BOOKINGS
---------------------------------------- */
 
 $bookings = [];
 
@@ -84,403 +55,92 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 mysqli_stmt_close($stmt);
 
-
-/* ---------------------------------------
-   CHECK VALID BOOKING
---------------------------------------- */
-
-$valid_booking = false;
-$all_cancelled = true;
-
-foreach ($bookings as $booking) {
-
-    $status = strtolower(trim($booking['status'] ?? ''));
-
-    if ($status === 'confirmed' || $status === 'paid') {
-
-        $valid_booking = true;
-        $all_cancelled = false;
-    }
-}
-
-
-/* ---------------------------------------
-   CANCELLED CHECK
---------------------------------------- */
-
-if (!$valid_booking) {
-
+if (empty($bookings)) {
+    $message = "This ticket does not belong to your assigned bus.";
+    $message_type = "error";
+} else {
+    $valid_booking = false;
     $all_cancelled = true;
+    $all_checked_in = true;
 
     foreach ($bookings as $booking) {
-
         $status = strtolower(trim($booking['status'] ?? ''));
+        $ticket_status = strtolower(trim($booking['ticket_status'] ?? ''));
+
+        if ($status === 'confirmed' || $status === 'paid') {
+            $valid_booking = true;
+        }
 
         if ($status !== 'cancelled') {
             $all_cancelled = false;
-            break;
+        }
+
+        if ($ticket_status !== 'checked_in') {
+            $all_checked_in = false;
         }
     }
 
     if ($all_cancelled) {
-?>
-        <!DOCTYPE html>
-        <html>
+        $message = "This passenger ticket has been cancelled.";
+        $message_type = "error";
+    } elseif ($all_checked_in) {
+        $message = "Passenger has already checked in.";
+        $message_type = "warning";
+        $first_scanned_at = $bookings[0]['scanned_at'] ?? null;
+    } elseif ($valid_booking) {
+        $status = strtolower(trim($bookings[0]['status'] ?? ''));
+        $ticket_status = strtolower(trim($bookings[0]['ticket_status'] ?? ''));
 
-        <head>
-            <title>Ticket Cancelled</title>
+        if ($status === 'cancelled') {
+            $message = "This ticket has been cancelled.";
+            $message_type = "error";
+        } elseif ($status !== 'confirmed' && $status !== 'paid') {
+            $message = "This ticket is not paid or confirmed.";
+            $message_type = "warning";
+        } elseif ($ticket_status === 'checked_in') {
+            $message = "This passenger has already checked in.";
+            $message_type = "warning";
+            $first_scanned_at = $bookings[0]['scanned_at'] ?? null;
+        } elseif ($action === 'checkin') {
+            $update_sql = "UPDATE bookings
+                           SET ticket_status='checked_in',
+                               scanned_at=NOW(),
+                               scanned_by=?
+                           WHERE booking_group_id=?
+                           AND (status='confirmed' OR status='paid')
+                           AND (ticket_status='active' OR ticket_status='booked' OR ticket_status IS NULL)";
 
-            <style>
-                body {
-                    font-family: Arial;
-                    background: #f4f6f9;
-                    text-align: center;
-                    padding-top: 80px;
-                }
+            $update_stmt = mysqli_prepare($conn, $update_sql);
+            mysqli_stmt_bind_param($update_stmt, "is", $driver_id, $group_id);
+            mysqli_stmt_execute($update_stmt);
+            mysqli_stmt_close($update_stmt);
 
-                .box {
-                    max-width: 500px;
-                    margin: auto;
-                    background: white;
-                    padding: 35px;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, .1);
-                }
-
-                h2 {
-                    color: #dc2626;
-                }
-
-                a {
-                    display: inline-block;
-                    margin-top: 20px;
-                    padding: 12px 20px;
-                    background: #4413e5;
-                    color: white;
-                    text-decoration: none;
-                    border-radius: 6px;
-                }
-            </style>
-        </head>
-
-        <body>
-
-            <div class="box">
-
-                <h2>Ticket Cancelled</h2>
-
-                <p>
-                    This passenger ticket has been cancelled.
-                </p>
-
-                <a href="scan_ticket.php">
-                    Scan Another Ticket
-                </a>
-
-            </div>
-
-        </body>
-
-        </html>
-    <?php
-
-        exit;
-    }
-
-
-    /* ---------------------------------------
-       PENDING / INVALID
-    --------------------------------------- */
-
-    ?>
-    <!DOCTYPE html>
-    <html>
-
-    <head>
-
-        <title>Ticket Not Valid</title>
-
-        <style>
-            body {
-                font-family: Arial;
-                background: #f4f6f9;
-                text-align: center;
-                padding-top: 80px;
-            }
-
-            .box {
-                max-width: 500px;
-                margin: auto;
-                background: white;
-                padding: 35px;
-                border-radius: 12px;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, .1);
-            }
-
-            h2 {
-                color: #d97706;
-            }
-
-            a {
-                display: inline-block;
-                margin-top: 20px;
-                padding: 12px 20px;
-                background: #4413e5;
-                color: white;
-                text-decoration: none;
-                border-radius: 6px;
-            }
-        </style>
-
-    </head>
-
-    <body>
-
-        <div class="box">
-
-            <h2>Ticket Not Valid</h2>
-
-            <p>
-                This ticket is not confirmed or paid.
-            </p>
-
-            <a href="scan_ticket.php">
-                Scan Another Ticket
-            </a>
-
-        </div>
-
-    </body>
-
-    </html>
-
-<?php
-
-    exit;
-}
-
-
-/* ---------------------------------------
-   CHECK ALREADY USED
---------------------------------------- */
-
-$already_used = false;
-$first_scanned_at = null;
-
-foreach ($bookings as $booking) {
-
-    if (($booking['ticket_status'] ?? '') === 'used') {
-
-        $already_used = true;
-
-        if (!empty($booking['scanned_at'])) {
-
-            $time = $booking['scanned_at'];
-
-            if (
-                $first_scanned_at === null ||
-                strtotime($time) < strtotime($first_scanned_at)
-            ) {
-                $first_scanned_at = $time;
-            }
+            $message = "Passenger successfully checked in.";
+            $message_type = "success";
+            $first_scanned_at = date("Y-m-d H:i:s");
+        } else {
+            $message = "Ticket is valid. Please verify the passenger.";
+            $message_type = "success";
         }
+    } else {
+        $message = "This ticket is not paid or confirmed.";
+        $message_type = "warning";
     }
 }
-
-
-/* ---------------------------------------
-   ALREADY USED
---------------------------------------- */
-
-if ($already_used) {
-
 ?>
-    <!DOCTYPE html>
-    <html>
-
-    <head>
-
-        <title>Already Used</title>
-
-        <style>
-            body {
-                font-family: Arial;
-                background: #f4f6f9;
-                text-align: center;
-                padding-top: 60px;
-            }
-
-            .box {
-                max-width: 550px;
-                margin: auto;
-                background: white;
-                padding: 35px;
-                border-radius: 12px;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, .1);
-            }
-
-            h2 {
-                color: #dc2626;
-            }
-
-            .used {
-                background: #fee2e2;
-                padding: 15px;
-                border-radius: 8px;
-                margin-top: 20px;
-            }
-
-            .time {
-                font-size: 18px;
-                font-weight: bold;
-                margin-top: 10px;
-            }
-
-            a {
-                display: inline-block;
-                margin-top: 25px;
-                padding: 12px 20px;
-                background: #4413e5;
-                color: white;
-                text-decoration: none;
-                border-radius: 6px;
-            }
-        </style>
-
-    </head>
-
-    <body>
-
-        <div class="box">
-
-            <h2>Already Used</h2>
-
-            <div class="used">
-
-                <p>
-                    This ticket has already been scanned.
-                </p>
-
-                <?php if ($first_scanned_at): ?>
-
-                    <div class="time">
-                        First Scanned:
-                        <?= htmlspecialchars(date("d M Y, h:i A", strtotime($first_scanned_at))) ?>
-                    </div>
-
-                <?php else: ?>
-
-                    <div class="time">
-                        First scan time not available
-                    </div>
-
-                <?php endif; ?>
-
-            </div>
-
-            <a href="scan_ticket.php">
-                Scan Another Ticket
-            </a>
-
-        </div>
-
-    </body>
-
-    </html>
-
-<?php
-
-    exit;
-}
-
-
-/* ---------------------------------------
-   MARK TICKET AS USED
---------------------------------------- */
-
-$update_sql = "UPDATE bookings
-               SET ticket_status = 'used',
-                   scanned_at = NOW(),
-                   scanned_by = ?
-               WHERE booking_group_id = ?
-               AND ticket_status = 'active'
-               AND (status = 'confirmed' OR status = 'paid')";
-
-$update_stmt = mysqli_prepare($conn, $update_sql);
-
-if (!$update_stmt) {
-    die("Database error: " . mysqli_error($conn));
-}
-
-mysqli_stmt_bind_param(
-    $update_stmt,
-    "is",
-    $driver_id,
-    $group_id
-);
-
-if (!mysqli_stmt_execute($update_stmt)) {
-
-    mysqli_stmt_close($update_stmt);
-
-    die("Unable to verify ticket: " . mysqli_error($conn));
-}
-
-mysqli_stmt_close($update_stmt);
-
-
-/* ---------------------------------------
-   GET FIRST SCAN TIME
---------------------------------------- */
-
-$time_sql = "SELECT MIN(scanned_at) AS first_scan
-             FROM bookings
-             WHERE booking_group_id = ?
-             AND ticket_status = 'used'
-             AND scanned_at IS NOT NULL";
-
-$time_stmt = mysqli_prepare($conn, $time_sql);
-
-if (!$time_stmt) {
-    die("Database error: " . mysqli_error($conn));
-}
-
-mysqli_stmt_bind_param(
-    $time_stmt,
-    "s",
-    $group_id
-);
-
-mysqli_stmt_execute($time_stmt);
-
-$time_result = mysqli_stmt_get_result($time_stmt);
-
-$time_row = mysqli_fetch_assoc($time_result);
-
-$first_scan = $time_row['first_scan'] ?? null;
-
-mysqli_stmt_close($time_stmt);
-
-
-/* ---------------------------------------
-   DISPLAY SUCCESS
---------------------------------------- */
-
-?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-
-    <title>Ticket Verified</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Verify Ticket</title>
     <style>
         body {
             font-family: Arial;
             background: #f4f6f9;
             text-align: center;
-            padding-top: 60px;
+            padding-top: 60px
         }
 
         .box {
@@ -489,111 +149,101 @@ mysqli_stmt_close($time_stmt);
             background: white;
             padding: 35px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, .1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .1)
         }
 
         h2 {
-            color: #16a34a;
+            margin-bottom: 15px
         }
 
         .success {
             background: #dcfce7;
-            padding: 18px;
-            border-radius: 8px;
-            margin: 20px 0;
+            color: #166534;
+            padding: 15px;
+            border-radius: 8px
+        }
+
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 15px;
+            border-radius: 8px
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 8px
         }
 
         .info {
             text-align: left;
-            margin-top: 20px;
+            margin-top: 20px
         }
 
         .info p {
             padding: 8px;
             border-bottom: 1px solid #eee;
+            margin: 0
         }
 
         .time {
-            font-size: 20px;
             font-weight: bold;
-            color: #166534;
+            margin-top: 10px
         }
 
-        a {
+        a,
+        button {
             display: inline-block;
             margin-top: 25px;
             padding: 12px 20px;
             background: #4413e5;
             color: white;
             text-decoration: none;
+            border: 0;
             border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer
+        }
+
+        .back {
+            background: #666
         }
     </style>
-
 </head>
 
 <body>
-
     <div class="box">
+        <h2><?= $message_type === 'success' ? 'Ticket Verification' : ($message_type === 'warning' ? 'Ticket Information' : 'Ticket Cancelled') ?></h2>
 
-        <h2>✓ Ticket Verified</h2>
+        <div class="<?= $message_type ?>">
+            <strong><?= htmlspecialchars($message) ?></strong>
 
-        <div class="success">
-
-            <strong>Ticket successfully verified.</strong>
-
-            <p>
-                This ticket is now marked as USED.
-            </p>
-
-            <?php if ($first_scan): ?>
-
-                <div class="time">
-                    Scanned:
-                    <?= htmlspecialchars(date("d M Y, h:i A", strtotime($first_scan))) ?>
-                </div>
-
+            <?php if ($first_scanned_at): ?>
+                <div class="time">Check In: <?= htmlspecialchars(date("d M Y, h:i A", strtotime($first_scanned_at))) ?></div>
             <?php endif; ?>
-
         </div>
 
+        <?php if (!empty($bookings)): ?>
+            <div class="info">
+                <p><strong>Passenger:</strong> <?= htmlspecialchars($bookings[0]['passenger_name'] ?? '') ?></p>
+                <p><strong>Booking Group:</strong> <?= htmlspecialchars($group_id) ?></p>
+                <p><strong>Bus:</strong> <?= htmlspecialchars($bookings[0]['bus_name'] ?? '') ?></p>
+                <p><strong>Bus Number:</strong> <?= htmlspecialchars($bookings[0]['bus_number'] ?? '') ?></p>
+                <p><strong>Route:</strong> <?= htmlspecialchars($bookings[0]['route'] ?? '') ?></p>
+                <p><strong>Travel Date:</strong> <?= htmlspecialchars($bookings[0]['travel_date'] ?? '') ?></p>
+                <p><strong>Seat:</strong> <?= htmlspecialchars($bookings[0]['seat_number'] ?? '') ?></p>
+                <p><strong>Payment Status:</strong> <?= htmlspecialchars($bookings[0]['status'] ?? '') ?></p>
+            </div>
+        <?php endif; ?>
 
-        <div class="info">
+        <?php if ($message === "Ticket is valid. Please verify the passenger."): ?>
+            <a href="verify_ticket.php?group_id=<?= urlencode($group_id) ?>&action=checkin">Verify / Check In</a>
+        <?php endif; ?>
 
-            <p>
-                <strong>Booking Group:</strong>
-                <?= htmlspecialchars($group_id) ?>
-            </p>
-
-            <p>
-                <strong>Bus:</strong>
-                <?= htmlspecialchars($bookings[0]['bus_name'] ?? '') ?>
-            </p>
-
-            <p>
-                <strong>Bus Number:</strong>
-                <?= htmlspecialchars($bookings[0]['bus_number'] ?? '') ?>
-            </p>
-
-            <p>
-                <strong>Route:</strong>
-                <?= htmlspecialchars($bookings[0]['route'] ?? '') ?>
-            </p>
-
-            <p>
-                <strong>Travel Date:</strong>
-                <?= htmlspecialchars($bookings[0]['travel_date'] ?? '') ?>
-            </p>
-
-        </div>
-
-
-        <a href="scan_ticket.php">
-            Scan Another Ticket
-        </a>
-
+        <a href="scan_ticket.php" class="back">Back</a>
     </div>
-
 </body>
 
 </html>

@@ -26,38 +26,10 @@ if (!$user) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Profile</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: #f4f7f6;
-        }
-
-        .header {
-            background: #1560BD;
-            color: #fff;
-            padding: 18px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header a {
-            text-decoration: none;
-            color: #fff;
-            background: #bd8815;
-            padding: 10px 18px;
-            border-radius: 5px;
-        }
-
         .container {
             width: 550px;
             max-width: 95%;
-            margin: 40px auto;
+            margin: 5px auto;
         }
 
         .profile-box {
