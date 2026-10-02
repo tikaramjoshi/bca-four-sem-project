@@ -250,7 +250,7 @@ $total_assignments = count($assignments);
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <button type="submit" name="assign_driver" class="assign">✓ Assign Driver</button>
+                        <button type="submit" name="assign_driver" class="assign">Assign Driver</button>
                     </form>
                 <?php elseif (empty($buses)): ?>
                     <div class="empty">

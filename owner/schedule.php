@@ -149,6 +149,13 @@ $scheduleResult = $scheduleStmt->get_result();
 
 $today = date('Y-m-d');
 $max_date = date('Y-m-d', strtotime('+7 days'));
+$routes = [];
+$routeResult = mysqli_query($conn, "SELECT city_name FROM routes ORDER BY city_name ASC");
+if ($routeResult) {
+    while ($route = mysqli_fetch_assoc($routeResult)) {
+        $routes[] = $route['city_name'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -219,12 +226,26 @@ $max_date = date('Y-m-d', strtotime('+7 days'));
 
                         <div class="form-group">
                             <label>From City</label>
-                            <input type="text" name="from_city" placeholder="Enter departure city" required>
+                            <select name="from_city" id="from_city" required>
+                                <option value="">Select From City</option>
+                                <?php foreach ($routes as $city): ?>
+                                    <option value="<?= htmlspecialchars($city) ?>">
+                                        <?= htmlspecialchars(ucwords(strtolower($city))) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
 
                         <div class="form-group">
                             <label>To City</label>
-                            <input type="text" name="to_city" placeholder="Enter destination city" required>
+                            <select name="to_city" id="to_city" required>
+                                <option value="">Select To City</option>
+                                <?php foreach ($routes as $city): ?>
+                                    <option value="<?= htmlspecialchars($city) ?>">
+                                        <?= htmlspecialchars(ucwords(strtolower($city))) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
 
                         <div class="form-group">
@@ -237,7 +258,7 @@ $max_date = date('Y-m-d', strtotime('+7 days'));
                         </div>
                         <div class="form-group">
                             <label>Ticket Price</label>
-                            <input type="number" name="ticket_price" min="1" step="0.01" placeholder="Enter ticket price" required>
+                            <input type="number" name="ticket_price" min="500" step="100" placeholder="Enter ticket price" required>
                         </div>
                         <div class="full">
                             <button type="submit" name="add_schedule" class="add-btn"> <i class="fa fa-plus"></i> Add Schedule </button>

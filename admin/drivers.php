@@ -130,7 +130,8 @@ $message = match ($_GET['msg'] ?? '') {
                                 <?php foreach ($drivers as $driver): $image = $driver['profile_image'] ?: 'default.png'; ?>
                                     <tr>
                                         <td>
-                                            <div class="driver-info"><img src="../uploads/profile/<?= htmlspecialchars($image) ?>" class="driver-image" alt="Driver" onerror="this.onerror=null;this.src='../uploads/default.png'">
+                                            <div class="driver-info"><img src="../uploads/driver/profile/<?= htmlspecialchars($image) ?>" class="driver-image" alt="Driver" onerror="this.onerror=null;this.src='../uploads/default.png'">
+
                                                 <div>
                                                     <div class="driver-name"><?= htmlspecialchars($driver['name']) ?></div>
                                                     <div class="driver-email"><?= htmlspecialchars($driver['email']) ?></div>

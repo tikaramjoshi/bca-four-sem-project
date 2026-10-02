@@ -86,182 +86,151 @@ $verified = $driver['verification_status'] === 'verified';
 </head>
 
 <body>
-    <div class="header">
-        <h2>Welcome Admin</h2>
-        <div class="setting">
-            <strong><?= htmlspecialchars($admin_name) ?></strong>
-            <img src="../uploads/profile/admin/<?= htmlspecialchars($admin_name) ?>/<?= htmlspecialchars($profile_image) ?>" alt="Profile" class="setting-profile" onclick="toggleMenu()" onerror="this.onerror=null;this.src='../uploads/profile/default.png';">
+    <div class="page">
+        <div class="top">
+            <div>
+                <h1>Driver Details</h1>
+                <p>Complete information about the selected driver.</p>
+            </div>
+            <a href="drivers.php" class="back">Back</a>
+        </div>
 
-            <div class="setting-menu" id="settingMenu">
-                <a href="profile.php"><i class="fa fa-user"></i> My Profile</a>
-                <a href="edit_profile.php"><i class="fa fa-edit"></i> Edit Profile</a>
-                <a href="policy.php"><i class="fa fa-file"></i> Manage Policy</a>
-                <a href="../changepassword.php"><i class="fa fa-key"></i> Change Password</a>
-                <hr>
-                <a href="../logout.php"><i class="fa fa-sign-out-alt"></i> Logout</a>
+        <div class="profile">
+            <img src="../uploads/driver/profile/<?= htmlspecialchars($driver_image) ?>" alt="Driver Profile" onerror="this.onerror=null;this.src='../uploads/default.png';">
+
+            <div class="info">
+                <h2><?= htmlspecialchars($driver['name']) ?></h2>
+                <p><?= htmlspecialchars($driver['email']) ?></p>
+
+                <span class="badge <?= $verified ? 'verified' : 'unverified' ?>">
+                    <?= $verified ? 'Verified' : 'Unverified' ?>
+                </span>
+
+                <span class="badge <?= $status === 'On Trip' ? 'trip' : 'available' ?>">
+                    <?= $status ?>
+                </span>
+
+                <div class="actions">
+                    <?php if (!$verified): ?>
+                        <a href="drivers.php?action=verify&id=<?= $id ?>" class="verify" onclick="return confirm('Verify this driver?')">Verify Driver</a>
+                    <?php else: ?>
+                        <a href="drivers.php?action=reject&id=<?= $id ?>" class="reject" onclick="return confirm('Reject this driver verification?')">Reject Verification</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div><small>Driver ID</small><strong><?= $driver['user_id'] ?></strong></div>
+            <div><small>Today's Trips</small><strong><?= count($today_trips) ?></strong></div>
+            <div><small>Today's Passengers</small><strong><?= $today_bookings ?></strong></div>
+            <div><small>Total Bookings</small><strong><?= $total_bookings ?></strong></div>
+        </div>
+
+        <div class="grid">
+            <div>
+                <div class="box">
+                    <h2>Driver Information</h2>
+
+                    <div class="details">
+                        <div><small>Driver ID </small>: <strong><?= $driver['user_id'] ?></strong></div>
+                        <div><small>Full Name </small>: <strong><?= htmlspecialchars($driver['name']) ?></strong></div>
+                        <div><small>Email </small>: <strong><?= htmlspecialchars($driver['email']) ?></strong></div>
+                        <div><small>Phone </small>: <strong><?= htmlspecialchars($driver['phone']) ?></strong></div>
+                        <div><small>Verification </small>: <strong><?= $verified ? 'Verified' : 'Unverified' ?></strong></div>
+                        <div><small>Driver Status </small>: <strong><?= $status ?></strong></div>
+                        <div><small>Registered Date </small>: <strong><?= date("d M Y", strtotime($driver['created_at'])) ?></strong></div>
+
+                        <div><small>License Number </small>: <strong><?= htmlspecialchars($verification['license_number'] ?? 'Not Provided') ?></strong></div>
+                        <div><small>License Issue Date </small>: <strong><?= !empty($verification['license_issue_date']) ? date("d M Y", strtotime($verification['license_issue_date'])) : 'Not Provided' ?></strong></div>
+                        <div><small>License Expiry Date </small>: <strong><?= !empty($verification['license_expiry_date']) ? date("d M Y", strtotime($verification['license_expiry_date'])) : 'Not Provided' ?></strong></div>
+                        <div class="license">
+                            <small>Driving License</small>
+                            <?php if (!empty($verification['license_image'])): ?>
+                                <img src="../uploads/driver/license/<?= htmlspecialchars($verification['license_image']) ?>" alt="Driving License">
+
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="license-images">
+                    <div>
+                        <small>License Front</small>
+                        <?php if (!empty($verification['license_photo_front'])): ?>
+                            <img src="../uploads/driver/license/<?= htmlspecialchars($verification['license_photo_front']) ?>" alt="License Front">
+                        <?php else: ?>
+                            <strong>Not Provided</strong>
+                        <?php endif; ?>
+                    </div>
+                    <div>
+                        <small>License Back</small>
+                        <?php if (!empty($verification['license_photo_back'])): ?>
+                            <img src="../uploads/driver/license/<?= htmlspecialchars($verification['license_photo_back']) ?>" alt="License Back">
+                        <?php else: ?>
+                            <strong>Not Provided</strong>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="box">
+                    <h2>Today's Trips</h2>
+
+                    <?php if ($today_trips): ?>
+                        <table>
+                            <tr>
+                                <th>Route</th>
+                                <th>Departure</th>
+                                <th>Arrival</th>
+                                <th>Date</th>
+                            </tr>
+
+                            <?php foreach ($today_trips as $trip): ?>
+                                <tr>
+                                    <td class="route">
+                                        <?= htmlspecialchars($trip['from_city']) ?> → <?= htmlspecialchars($trip['to_city']) ?>
+                                    </td>
+                                    <td><?= date("h:i A", strtotime($trip['departure_time'])) ?></td>
+                                    <td><?= date("h:i A", strtotime($trip['arrival_time'])) ?></td>
+                                    <td><?= date("d M Y", strtotime($trip['departure_date'])) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </table>
+                    <?php else: ?>
+                        <div class="empty">No trips scheduled for today.</div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div>
+                <div class="box">
+                    <h2>Assigned Bus</h2>
+
+                    <?php if ($driver['bus_id']): ?>
+                        <div class="details">
+                            <div><small>Bus Number</small><strong><?= htmlspecialchars($driver['bus_number']) ?></strong></div>
+                            <div><small>Bus Name</small><strong><?= htmlspecialchars($driver['bus_name']) ?></strong></div>
+                            <div><small>Bus Type</small><strong><?= htmlspecialchars($driver['bus_type']) ?></strong></div>
+                            <div><small>Total Seats</small><strong><?= $driver['seats'] ?></strong></div>
+                            <div><small>Bus Status</small><strong><?= ucfirst(htmlspecialchars($driver['bus_status'])) ?></strong></div>
+                            <div><small>Total Trips</small><strong><?= $total_trips ?></strong></div>
+                        </div>
+                    <?php else: ?>
+                        <div class="no-bus">No bus has been assigned to this driver.</div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="box">
+                    <h2>Passenger and Booking Summary</h2>
+
+                    <div class="details">
+                        <div><small>Today's Passengers </small>: <strong><?= $today_bookings ?></strong></div>
+                        <div><small>Total Bookings </small>: <strong><?= $total_bookings ?></strong></div>
+                        <div><small>Total Scheduled Trips </small>: <strong><?= $total_trips ?></strong></div>
+                        <div><small>Current Status </small>: <strong><?= $status ?></strong></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="container">
-        <div class="sidebar">
-            <a href="dashboard.php">Dashboard</a>
-            <a href="view_owners.php">Owners</a>
-            <a href="drivers.php">Drivers</a>
-            <a href="passengers.php">Passengers</a>
-            <a href="all_bus.php">Buses</a>
-            <a href="assign_driver.php">Assign Driver</a>
-            <a href="routes.php">Routes</a>
-            <a href="schedule.php">Schedule</a>
-            <a href="bookings.php">Bookings</a>
-            <a href="popular_routes.php">Popular Route</a>
-        </div>
-
-        <div class="page">
-            <div class="top">
-                <div>
-                    <h1>Driver Details</h1>
-                    <p>Complete information about the selected driver.</p>
-                </div>
-                <a href="drivers.php" class="back">Back</a>
-            </div>
-
-            <div class="profile">
-                <img src="../uploads/driver/profile/<?= htmlspecialchars($driver_image) ?>" alt="Driver Profile" onerror="this.onerror=null;this.src='../uploads/default.png';">
-
-                <div class="info">
-                    <h2><?= htmlspecialchars($driver['name']) ?></h2>
-                    <p><?= htmlspecialchars($driver['email']) ?></p>
-
-                    <span class="badge <?= $verified ? 'verified' : 'unverified' ?>">
-                        <?= $verified ? 'Verified' : 'Unverified' ?>
-                    </span>
-
-                    <span class="badge <?= $status === 'On Trip' ? 'trip' : 'available' ?>">
-                        <?= $status ?>
-                    </span>
-
-                    <div class="actions">
-                        <?php if (!$verified): ?>
-                            <a href="drivers.php?action=verify&id=<?= $id ?>" class="verify" onclick="return confirm('Verify this driver?')">Verify Driver</a>
-                        <?php else: ?>
-                            <a href="drivers.php?action=reject&id=<?= $id ?>" class="reject" onclick="return confirm('Reject this driver verification?')">Reject Verification</a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stats">
-                <div><small>Driver ID</small><strong><?= $driver['user_id'] ?></strong></div>
-                <div><small>Today's Trips</small><strong><?= count($today_trips) ?></strong></div>
-                <div><small>Today's Passengers</small><strong><?= $today_bookings ?></strong></div>
-                <div><small>Total Bookings</small><strong><?= $total_bookings ?></strong></div>
-            </div>
-
-            <div class="grid">
-                <div>
-                    <div class="box">
-                        <h2>Driver Information</h2>
-
-                        <div class="details">
-                            <div><small>Driver ID </small>: <strong><?= $driver['user_id'] ?></strong></div>
-                            <div><small>Full Name </small>: <strong><?= htmlspecialchars($driver['name']) ?></strong></div>
-                            <div><small>Email </small>: <strong><?= htmlspecialchars($driver['email']) ?></strong></div>
-                            <div><small>Phone </small>: <strong><?= htmlspecialchars($driver['phone']) ?></strong></div>
-                            <div><small>Verification </small>: <strong><?= $verified ? 'Verified' : 'Unverified' ?></strong></div>
-                            <div><small>Driver Status </small>: <strong><?= $status ?></strong></div>
-                            <div><small>Registered Date </small>: <strong><?= date("d M Y", strtotime($driver['created_at'])) ?></strong></div>
-
-                            <div><small>License Number </small>: <strong><?= htmlspecialchars($verification['license_number'] ?? 'Not Provided') ?></strong></div>
-                            <div><small>License Issue Date </small>: <strong><?= !empty($verification['license_issue_date']) ? date("d M Y", strtotime($verification['license_issue_date'])) : 'Not Provided' ?></strong></div>
-                            <div><small>License Expiry Date </small>: <strong><?= !empty($verification['license_expiry_date']) ? date("d M Y", strtotime($verification['license_expiry_date'])) : 'Not Provided' ?></strong></div>
-                            <div class="license">
-                                <small>Driving License</small>
-                                <?php if (!empty($verification['license_image'])): ?>
-                                    <img src="../uploads/driver/license/<?= htmlspecialchars($verification['license_image']) ?>" alt="Driving License">
-
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="license-images">
-                        <div>
-                            <small>License Front</small>
-                            <?php if (!empty($verification['license_photo_front'])): ?>
-                                <img src="../uploads/driver/license/<?= htmlspecialchars($verification['license_photo_front']) ?>" alt="License Front">
-                            <?php else: ?>
-                                <strong>Not Provided</strong>
-                            <?php endif; ?>
-                        </div>
-                        <div>
-                            <small>License Back</small>
-                            <?php if (!empty($verification['license_photo_back'])): ?>
-                                <img src="../uploads/driver/license/<?= htmlspecialchars($verification['license_photo_back']) ?>" alt="License Back">
-                            <?php else: ?>
-                                <strong>Not Provided</strong>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <div class="box">
-                        <h2>Today's Trips</h2>
-
-                        <?php if ($today_trips): ?>
-                            <table>
-                                <tr>
-                                    <th>Route</th>
-                                    <th>Departure</th>
-                                    <th>Arrival</th>
-                                    <th>Date</th>
-                                </tr>
-
-                                <?php foreach ($today_trips as $trip): ?>
-                                    <tr>
-                                        <td class="route">
-                                            <?= htmlspecialchars($trip['from_city']) ?> → <?= htmlspecialchars($trip['to_city']) ?>
-                                        </td>
-                                        <td><?= date("h:i A", strtotime($trip['departure_time'])) ?></td>
-                                        <td><?= date("h:i A", strtotime($trip['arrival_time'])) ?></td>
-                                        <td><?= date("d M Y", strtotime($trip['departure_date'])) ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </table>
-                        <?php else: ?>
-                            <div class="empty">No trips scheduled for today.</div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="box">
-                        <h2>Assigned Bus</h2>
-
-                        <?php if ($driver['bus_id']): ?>
-                            <div class="details">
-                                <div><small>Bus Number</small><strong><?= htmlspecialchars($driver['bus_number']) ?></strong></div>
-                                <div><small>Bus Name</small><strong><?= htmlspecialchars($driver['bus_name']) ?></strong></div>
-                                <div><small>Bus Type</small><strong><?= htmlspecialchars($driver['bus_type']) ?></strong></div>
-                                <div><small>Total Seats</small><strong><?= $driver['seats'] ?></strong></div>
-                                <div><small>Bus Status</small><strong><?= ucfirst(htmlspecialchars($driver['bus_status'])) ?></strong></div>
-                                <div><small>Total Trips</small><strong><?= $total_trips ?></strong></div>
-                            </div>
-                        <?php else: ?>
-                            <div class="no-bus">No bus has been assigned to this driver.</div>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="box">
-                        <h2>Passenger and Booking Summary</h2>
-
-                        <div class="details">
-                            <div><small>Today's Passengers </small>: <strong><?= $today_bookings ?></strong></div>
-                            <div><small>Total Bookings </small>: <strong><?= $total_bookings ?></strong></div>
-                            <div><small>Total Scheduled Trips </small>: <strong><?= $total_trips ?></strong></div>
-                            <div><small>Current Status </small>: <strong><?= $status ?></strong></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
