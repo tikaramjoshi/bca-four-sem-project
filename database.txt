@@ -286,3 +286,21 @@ CREATE TABLE role_change_requests (
     reviewed_at TIMESTAMP NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
+
+
+
+
+USE project_bus;
+
+CREATE TABLE  notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    type ENUM('booking', 'approval', 'system', 'ticket') NOT NULL,
+    title VARCHAR(150) NOT NULL,
+    message VARCHAR(500) NOT NULL,
+    link VARCHAR(255) DEFAULT NULL,
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_read (user_id, is_read),
+    INDEX idx_user_created (user_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

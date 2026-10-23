@@ -4,6 +4,8 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'passenger') {
     header("Location: ../login.php");
     exit;
 }
+include "pass_header.php";
+
 if (empty($_SESSION['booking_success'])) {
     header("Location: dashboard.php");
     exit;
@@ -24,21 +26,6 @@ unset($_SESSION['booking_success']);
     <title>Booking Successful</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f7fb;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         .box {
             width: 450px;
             max-width: 92%;
@@ -47,6 +34,7 @@ unset($_SESSION['booking_success']);
             border-radius: 12px;
             box-shadow: 0 5px 20px #0002;
             text-align: center;
+            margin: 5px auto;
         }
 
         .success {

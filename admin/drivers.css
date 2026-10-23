@@ -150,7 +150,7 @@ body {
 }
 
 .table-header h2 {
-    font-size: 19px;
+    font-size: 19px;text-decoration: none;
 }
 
 .driver-count {
@@ -252,11 +252,12 @@ tr:hover td {
     margin-top: 3px;
 }
 
-.actions {
+.actions {      
     display: flex;
     align-items: center;
     gap: 6px;
     flex-wrap: wrap;
+    margin: 10px auto;
 }
 
 .action-btn {

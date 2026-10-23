@@ -5,6 +5,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "passenger") {
     exit();
 }
 require_once "../db.php";
+
+include "pass_header.php";
 $user_id = $_SESSION['user_id'];
 $message = "";
 $stmt = $conn->prepare("SELECT * FROM users WHERE user_id=? AND role='passenger'");
@@ -44,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $message = "<div class='error'>Invalid image format.</div>";
                 } else {
                     $image_name = $user_id . "_" . time() . "." . $extension;
-                    $folder = "../uploads/profile/passenger/" . $name . "/";
+                    $folder = "../uploads/profile/passenger/" . $user['name'] . "/";
                     if (!is_dir($folder)) {
                         mkdir($folder, 0777, true);
                     }
@@ -78,7 +80,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
-$profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -226,7 +227,8 @@ $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'defa
         }
 
         .verified {
-            color: #28a745;
+            color: #fff;
+            /* color: #28a745; */
         }
 
         .rejected {
@@ -236,10 +238,7 @@ $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'defa
 </head>
 
 <body>
-    <div class="header">
-        <h2>Edit Profile</h2>
-        <a href="dashboard.php">Dashboard</a>
-    </div>
+
     <div class="container">
         <div class="box">
             <h2>Update Profile</h2>
@@ -258,9 +257,18 @@ $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'defa
                 <div class="profile-preview">
                     <?php
                     $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png';
-                    ?>
 
-                    <img src="../uploads/profile/passenger/<?= htmlspecialchars($user['name']) ?>/<?= htmlspecialchars($image) ?>" alt="Profile" onerror="this.onerror=null;this.src='../uploads/default.png';">
+                    $image_path = "../uploads/profile/passenger/" . $user['name'] . "/" . $image;
+                    if (!file_exists($image_path)) {
+                        $folders = glob("../uploads/profile/passenger/*/" . basename($image));
+                        if (!empty($folders)) {
+                            $image_path = $folders[0];
+                        } else {
+                            $image_path = "../uploads/default.png";
+                        }
+                    }
+                    ?>
+                    <img src="<?= htmlspecialchars($image_path) ?>" alt="Profile">
                 </div>
                 <input type="file" name="profile_image" accept=".jpg,.jpeg,.png,.webp,image/*">
                 <button type="submit">Update Profile</button>

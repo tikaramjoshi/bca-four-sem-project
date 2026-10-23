@@ -237,3 +237,22 @@
         .download {
             background: #218838
         }
+
+        @media print {
+    body * {
+        visibility: hidden;
+    }
+    .ticket, .ticket * {
+        visibility: visible;
+    }
+    .ticket {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        box-shadow: none !important;
+    }
+    .actions, .pending-box, .cancelled-box {
+        display: none !important;
+    }
+}

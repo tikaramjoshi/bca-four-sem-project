@@ -86,6 +86,7 @@ $verified = $driver['verification_status'] === 'verified';
 </head>
 
 <body>
+    <?php include "admin_header.php" ?>
     <div class="page">
         <div class="top">
             <div>

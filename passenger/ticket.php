@@ -66,7 +66,7 @@ if (count($cancelled) === $total) {
                     <div class="group-status <?= $group_status ?>"><?= ucfirst($group_status) ?></div>
                 </div>
             </header>
-            <div class="content">
+            <div class="content" id="ticketContent">
                 <h2 class="title">Journey Details</h2>
                 <div class="summary qr-top">
                     <h3>Ticket QR Code</h3>
@@ -121,7 +121,8 @@ if (count($cancelled) === $total) {
                     <div class="row"><span>Active Booking Amount</span><strong>Rs. <?= number_format($active_amount, 2) ?></strong></div>
                 </div>
                 <div class="actions">
-                    <button class="btn" onclick="window.print()"><i class="fa fa-print"></i> Print Ticket</button>
+                    <!-- <button class="btn" onclick="window.print()"><i class="fa fa-print"></i> Print Ticket</button> -->
+                    <button class="btn" onclick="printConfirmedTicket()"><i class="fa fa-print"></i> Print Ticket</button>
                     <button class="btn download" onclick="downloadTicket()"><i class="fa fa-download"></i> Download Ticket</button>
                     <a class="btn secondary" href="booking_history.php"><i class="fa fa-ticket"></i> My Bookings</a>
                 </div>
@@ -142,24 +143,70 @@ if (count($cancelled) === $total) {
             }
         });
 
-        function downloadTicket() {
-            const qr = document.querySelector("#ticketQR canvas");
-            if (qr) {
-                const img = document.createElement("img");
-                img.src = qr.toDataURL("image/png");
-                img.style.width = "100px";
-                img.style.height = "100px";
-                document.querySelector("#ticketQR").innerHTML = "";
-                document.querySelector("#ticketQR").appendChild(img);
+        function printConfirmedTicket() {
+            const confirmedSeats = <?= json_encode($confirmed) ?>;
+
+            if (confirmedSeats.length === 0) {
+                alert("No confirmed tickets available to print.");
+                return;
             }
-            html2canvas(document.querySelector(".ticket"), {
+
+            window.print();
+        }
+
+
+        function printConfirmedTicket() {
+            const confirmedSeats = <?= json_encode($confirmed) ?>;
+
+            if (confirmedSeats.length === 0) {
+                alert("No confirmed tickets available to print.");
+                return;
+            }
+
+            const content = document.getElementById("ticketContent");
+            const pendingBox = content.querySelector(".pending-box");
+            const cancelledBox = content.querySelector(".cancelled-box");
+
+            if (pendingBox) pendingBox.style.display = "none";
+            if (cancelledBox) cancelledBox.style.display = "none";
+
+            window.print();
+
+            setTimeout(() => {
+                if (pendingBox) pendingBox.style.display = "";
+                if (cancelledBox) cancelledBox.style.display = "";
+            }, 500);
+        }
+
+        function downloadTicket() {
+            const confirmedSeats = <?= json_encode($confirmed) ?>;
+
+            if (confirmedSeats.length === 0) {
+                alert("No confirmed tickets available to download.");
+                return;
+            }
+
+            const ticket = document.querySelector(".ticket");
+            const actions = ticket.querySelector(".actions");
+            const pendingBox = ticket.querySelector(".pending-box");
+            const cancelledBox = ticket.querySelector(".cancelled-box");
+
+            if (actions) actions.style.display = "none";
+            if (pendingBox) pendingBox.style.display = "none";
+            if (cancelledBox) cancelledBox.style.display = "none";
+
+            html2canvas(ticket, {
                 scale: 2,
                 useCORS: true
             }).then(canvas => {
                 const link = document.createElement("a");
-                link.download = "Ticket-<?= htmlspecialchars($group_id) ?>.png";
+                link.download = "Ticket-<?= htmlspecialchars($group_id, ENT_QUOTES) ?>.png";
                 link.href = canvas.toDataURL("image/png");
                 link.click();
+            }).finally(() => {
+                if (actions) actions.style.display = "";
+                if (pendingBox) pendingBox.style.display = "";
+                if (cancelledBox) cancelledBox.style.display = "";
             });
         }
     </script>

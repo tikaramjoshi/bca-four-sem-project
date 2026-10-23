@@ -373,9 +373,18 @@ include "./include/message/sql.php";
         let today = document.getElementById("today");
 
         function clock() {
-            let now = new Date();
-            time.innerHTML = now.toLocaleTimeString();
-            today.innerHTML = now.toDateString();
+            const now = new Date();
+            document.getElementById("time").innerHTML = now.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true
+            });
+            document.getElementById("today").innerHTML = now.toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            });
         }
         clock();
         setInterval(clock, 1000);

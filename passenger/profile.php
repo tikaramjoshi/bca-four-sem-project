@@ -5,6 +5,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "passenger") {
     exit();
 }
 require_once "../db.php";
+
+include "pass_header.php";
 $user_id = $_SESSION['user_id'];
 $stmt = $conn->prepare("SELECT name, email, phone, profile_image, role, verification_status, created_at FROM users WHERE user_id=? AND role='passenger'");
 $stmt->bind_param("i", $user_id);
@@ -108,15 +110,15 @@ $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png'
             font-weight: bold;
         }
 
-        .status.verified {
+        .verification.verified {
             color: #28a745;
         }
 
-        .status.pending {
+        .verification.pending {
             color: #f39c12;
         }
 
-        .status.rejected {
+        .verification.rejected {
             color: #dc3545;
         }
 
@@ -151,14 +153,9 @@ $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png'
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
 </head>
 
 <body>
-    <div class="header">
-        <h2>My Profile</h2>
-        <a href="dashboard.php">Dashboard</a>
-    </div>
     <div class="container">
         <div class="profile-box">
             <h2>Welcome</h2>
@@ -188,7 +185,7 @@ $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png'
                 </tr>
                 <tr>
                     <td>Verification</td>
-                    <td class="status <?= strtolower($user['verification_status']) ?>">
+                    <td class="verification <?= strtolower($user['verification_status']) ?>">
                         <?= htmlspecialchars(ucfirst($user['verification_status'])) ?>
                     </td>
                 </tr>
@@ -203,7 +200,8 @@ $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png'
                 <a class="btn role" href="../role_request.php"><i class="fa fa-user"></i> Change Role</a>
             </div>
         </div>
-    </div>
+    </div><?php
+            include "pass_footer.php"; ?>
 </body>
 
 </html>

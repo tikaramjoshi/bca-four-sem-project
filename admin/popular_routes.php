@@ -184,7 +184,7 @@ while ($result && $row = $result->fetch_assoc()) $routes[] = $row;
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Manage Popular Routes</title>
     <link rel="stylesheet" href="popular_routes.css">
-    <link rel="stylesheet" href="side.css">
+    <!-- <link rel="stylesheet" href="side.css"> -->
 </head>
 
 <body>

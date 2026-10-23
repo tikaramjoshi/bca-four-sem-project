@@ -67,7 +67,7 @@ unset($route);
             <?php endforeach; ?>
         </select>
         <input type="date" id="date" min="<?= $today ?>" max="<?= $max_date ?>" required>
-        <button type="button" id="search">Search Bus</button>
+        <button type="button" id="search"><i class="fa fa-search"></i> Search Bus</button>
     </div>
     <br><br><br>
     <?php if ($popular_routes): ?>
@@ -155,8 +155,17 @@ unset($route);
 
         function clock() {
             const now = new Date();
-            document.getElementById("time").innerHTML = now.toLocaleTimeString();
-            document.getElementById("today").innerHTML = now.toDateString();
+            document.getElementById("time").innerHTML = now.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true
+            });
+            document.getElementById("today").innerHTML = now.toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            });
         }
         clock();
         setInterval(clock, 1000);
