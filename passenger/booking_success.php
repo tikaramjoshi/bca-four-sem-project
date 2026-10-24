@@ -152,8 +152,8 @@ unset($_SESSION['booking_success']);
             </div>
         </div>
         <div class="buttons">
-            <a href="dashboard.php" class="btn home">Home</a>
-            <a href="booking_history.php" class="btn history">My Bookings</a>
+            <a href="dashboard.php" class="btn home"><i class="fa fa-home"></i> Home</a>
+            <a href="booking_history.php" class="btn history"><i class="fa fa-ticket"></i> My Bookings</a>
         </div>
     </div>
 </body>

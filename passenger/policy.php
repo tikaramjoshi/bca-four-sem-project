@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy</title>
+    <style>
+        .last-policy {
+            flex: 1;
+            padding: 20px 40px;
+            margin-top: 10px;
+        }
+
+        .back {
+            background-color: #534444;
+            color: #fff;
+            font-size: 20px;
+            padding: 10px;
+            text-decoration: none;
+            margin: 10px;
+            border-radius: 10px;
+        }
+
+        .back:hover {
+            background-color: #eb3131;
+        }
+
+        @media(max-width:600px) {
+            .last-policy {
+                padding: 20px;
+            }
+
+            .last-policy p {
+                font-size: 15px;
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffffe9;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: left;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        th {
+            background: #1560BD;
+            color: white;
+        }
+
+        th:first-child,
+        td:first-child {
+            width: 80px;
+            text-align: center;
+        }
+
+        @media(max-width:600px) {
+
+            th,
+            td {
+                padding: 8px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <?php include "pass_header.php" ?>
+    <div class="last-policy">
+        <div class="button">
+            <a href="javascript:history.back()" id="home" class="back">Back</a>
+        </div><br>
+        <table>
+            <thead>
+                <tr>
+                    <th>S.N.</th>
+                    <th>Policy</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                require_once "../db.php";
+                $result = $conn->query("SELECT * FROM policy ORDER BY id ASC");
+                $i = 1;
+
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr>";
+                    echo "<td>" . $i++ . "</td>";
+                    echo "<td>" . htmlspecialchars($row['policy_text']) . "</td>";
+                    echo "</tr>";
+                }
+                ?>
+            </tbody>
+        </table>
+    </div>
+    <?php include "pass_footer.php" ?>
+</body>
+
+</html>

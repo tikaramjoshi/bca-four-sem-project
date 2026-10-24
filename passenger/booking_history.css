@@ -1,0 +1,187 @@
+   body {
+            background: #eef4fb;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 94%;
+            margin: 40px auto;
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .title h1 {
+            color: #583a3a;
+            margin-bottom: 8px;
+        }
+
+        .title p {
+            color: #583a3a;
+        }
+
+        .card {
+            background: #fff;
+            border-left: 5px solid #1560bd;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 12px #0001;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 18px;
+        }
+
+        .id {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1560bd;
+        }
+
+        .badge {
+            padding: 6px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .confirmed {
+            background: #d4edda;
+            color: #218838;
+        }
+
+        .pending-b {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .cancelled {
+            background: #f8d7da;
+            color: #c82333;
+        }
+
+        .completed {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px 30px;
+        }
+
+        .item label {
+            display: block;
+            color: #777;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .item strong {
+            font-size: 15px;
+        }
+
+        .green {
+            color: #218838 !important;
+        }
+
+        .orange {
+            color: #d68910 !important;
+        }
+
+        .red {
+            color: #dc3545 !important;
+        }
+
+        .blue {
+            color: #1d4ed8 !important;
+        }
+
+        .counts {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+            padding-top: 18px;
+        }
+
+        .count {
+            padding: 8px 13px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .cg {
+            background: #d4edda;
+            color: #218838;
+        }
+
+        .co {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .cr {
+            background: #f8d7da;
+            color: #c82333;
+        }
+
+        .actions {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .ticket {
+            background: #1560bd;
+            color: #fff;
+            text-decoration: none;
+            padding: 9px 17px;
+            border-radius: 6px;
+        }
+
+        .empty {
+            text-align: center;
+            background: #fff;
+            padding: 50px;
+            border-radius: 12px;
+        }
+
+        .book {
+            display: inline-block;
+            background: #1560bd;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+
+        @media(max-width:700px) {
+            nav {
+                padding: 0 15px;
+            }
+
+            .profile span:first-child {
+                display: none;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }

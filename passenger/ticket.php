@@ -1,7 +1,12 @@
 <?php
 include "pass_header.php";
 $group_id = trim($_GET['group_id'] ?? '');
-if ($group_id === '') exit("Invalid booking group.");
+
+if ($group_id === '') {
+    header("Location: dashboard.php");
+    exit;
+}
+
 $user_id = (int)$_SESSION['user_id'];
 $stmt = $conn->prepare("SELECT booking_id,booking_group_id,bus_name,bus_number,route,travel_date,seat_number,amount,status,created_at FROM bookings WHERE booking_group_id=? AND user_id=? ORDER BY CAST(seat_number AS UNSIGNED)");
 $stmt->bind_param("si", $group_id, $user_id);
@@ -51,6 +56,17 @@ if (count($cancelled) === $total) {
     <link rel="stylesheet" href="dashboard.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @media print {
+
+            .actions,
+            .pending-box,
+            .cancelled-box,
+            .summary:not(.qr-top) .row:not(:nth-child(2)) {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -66,13 +82,13 @@ if (count($cancelled) === $total) {
                     <div class="group-status <?= $group_status ?>"><?= ucfirst($group_status) ?></div>
                 </div>
             </header>
-            <div class="content" id="ticketContent">
+            <div class="content">
                 <h2 class="title">Journey Details</h2>
                 <div class="summary qr-top">
                     <h3>Ticket QR Code</h3>
-                    <p style="margin-top:12px;color:#64748b;">Show this QR code to the driver for verification.</p>
+                    <p style="margin-top:5px;color:#64748b;">Show this QR code to the driver for verification.</p>
                     <div style="text-align:right;">
-                        <div id="ticketQR" style="display:inline-block;padding:15px;background:#fff;border:1px solid #ddd;border-radius:10px;margin-top:-102px;"></div>
+                        <div id="ticketQR" style="display:inline-block;padding:15px;background:#fff;border:1px solid #ddd;border-radius:10px;margin-top:-122px;"></div>
                     </div>
                 </div>
                 <hr><br>
@@ -121,8 +137,7 @@ if (count($cancelled) === $total) {
                     <div class="row"><span>Active Booking Amount</span><strong>Rs. <?= number_format($active_amount, 2) ?></strong></div>
                 </div>
                 <div class="actions">
-                    <!-- <button class="btn" onclick="window.print()"><i class="fa fa-print"></i> Print Ticket</button> -->
-                    <button class="btn" onclick="printConfirmedTicket()"><i class="fa fa-print"></i> Print Ticket</button>
+                    <button class="btn" onclick="window.print()"><i class="fa fa-print"></i> Print Ticket</button>
                     <button class="btn download" onclick="downloadTicket()"><i class="fa fa-download"></i> Download Ticket</button>
                     <a class="btn secondary" href="booking_history.php"><i class="fa fa-ticket"></i> My Bookings</a>
                 </div>
@@ -143,70 +158,35 @@ if (count($cancelled) === $total) {
             }
         });
 
-        function printConfirmedTicket() {
-            const confirmedSeats = <?= json_encode($confirmed) ?>;
-
-            if (confirmedSeats.length === 0) {
-                alert("No confirmed tickets available to print.");
-                return;
-            }
-
-            window.print();
-        }
-
-
-        function printConfirmedTicket() {
-            const confirmedSeats = <?= json_encode($confirmed) ?>;
-
-            if (confirmedSeats.length === 0) {
-                alert("No confirmed tickets available to print.");
-                return;
-            }
-
-            const content = document.getElementById("ticketContent");
-            const pendingBox = content.querySelector(".pending-box");
-            const cancelledBox = content.querySelector(".cancelled-box");
-
-            if (pendingBox) pendingBox.style.display = "none";
-            if (cancelledBox) cancelledBox.style.display = "none";
-
-            window.print();
-
-            setTimeout(() => {
-                if (pendingBox) pendingBox.style.display = "";
-                if (cancelledBox) cancelledBox.style.display = "";
-            }, 500);
-        }
-
         function downloadTicket() {
-            const confirmedSeats = <?= json_encode($confirmed) ?>;
-
-            if (confirmedSeats.length === 0) {
-                alert("No confirmed tickets available to download.");
-                return;
+            const qr = document.querySelector("#ticketQR canvas");
+            if (qr) {
+                const img = document.createElement("img");
+                img.src = qr.toDataURL("image/png");
+                img.style.width = "100px";
+                img.style.height = "100px";
+                document.querySelector("#ticketQR").innerHTML = "";
+                document.querySelector("#ticketQR").appendChild(img);
             }
-
-            const ticket = document.querySelector(".ticket");
-            const actions = ticket.querySelector(".actions");
-            const pendingBox = ticket.querySelector(".pending-box");
-            const cancelledBox = ticket.querySelector(".cancelled-box");
-
-            if (actions) actions.style.display = "none";
-            if (pendingBox) pendingBox.style.display = "none";
-            if (cancelledBox) cancelledBox.style.display = "none";
-
-            html2canvas(ticket, {
+            document.querySelector(".actions").style.display = "none";
+            document.querySelector(".pending-box").style.display = "none";
+            document.querySelector(".cancelled-box").style.display = "none";
+            const summaryRows = document.querySelectorAll(".summary:not(.qr-top) .row");
+            summaryRows.forEach((row, i) => {
+                if (i !== 1) row.style.display = "none";
+            });
+            html2canvas(document.querySelector(".ticket"), {
                 scale: 2,
                 useCORS: true
             }).then(canvas => {
                 const link = document.createElement("a");
-                link.download = "Ticket-<?= htmlspecialchars($group_id, ENT_QUOTES) ?>.png";
+                link.download = "Ticket-<?= htmlspecialchars($group_id) ?>.png";
                 link.href = canvas.toDataURL("image/png");
                 link.click();
-            }).finally(() => {
-                if (actions) actions.style.display = "";
-                if (pendingBox) pendingBox.style.display = "";
-                if (cancelledBox) cancelledBox.style.display = "";
+                document.querySelector(".actions").style.display = "";
+                document.querySelector(".pending-box").style.display = "";
+                document.querySelector(".cancelled-box").style.display = "";
+                summaryRows.forEach(row => row.style.display = "");
             });
         }
     </script>

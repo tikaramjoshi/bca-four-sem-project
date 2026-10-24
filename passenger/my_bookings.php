@@ -11,6 +11,9 @@ $stmt = $conn->prepare('SELECT booking_id, bus_name, bus_number, route, travel_d
 $stmt->bind_param('i', $userId);
 $stmt->execute();
 $bookings = $stmt->get_result();
+
+include "pass_header.php";
+$i = 0;
 ?>
 <!doctype html>
 <html lang="en">
@@ -116,12 +119,13 @@ $bookings = $stmt->get_result();
     <main class="wrap">
         <section class="card">
             <div class="top">
-                <h2>My Bookings</h2><a class="button" href="dashboard.php">Book a Bus</a>
+                <h2>My Bookings</h2><a class="button" href="dashboard.php">Back</a>
             </div>
             <?php if ($bookings->num_rows): ?><div class="table-wrap">
                     <table>
                         <thead>
                             <tr>
+                                <th>S.No</th>
                                 <th>Booking ID</th>
                                 <th>Bus</th>
                                 <th>Route</th>
@@ -133,6 +137,7 @@ $bookings = $stmt->get_result();
                         </thead>
                         <tbody>
                             <?php while ($booking = $bookings->fetch_assoc()): ?><tr>
+                                    <td><?= $bookings->num_rows - ($i++ ?? 0) ?></td>
                                     <td>#<?= (int)$booking['booking_id'] ?></td>
                                     <td><?= htmlspecialchars($booking['bus_name'] . ' (' . $booking['bus_number'] . ')') ?></td>
                                     <td><?= htmlspecialchars($booking['route']) ?></td>
@@ -146,6 +151,7 @@ $bookings = $stmt->get_result();
                 </div><?php else: ?><p class="empty">You have not made any bookings yet.</p><?php endif; ?>
         </section>
     </main>
+    <?php include "pass_footer.php" ?>
 </body>
 
 </html>

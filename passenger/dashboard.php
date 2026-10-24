@@ -1,6 +1,7 @@
 <?php
 include "pass_header.php";
 include "../post_popup.php";
+$verification_status = $conn->query("SELECT verification_status FROM users WHERE user_id=" . (int)$_SESSION['user_id'])->fetch_assoc()['verification_status'] ?? '';
 $today = date('Y-m-d');
 $max_date = date('Y-m-d', strtotime('+7 days'));
 $routes = [];

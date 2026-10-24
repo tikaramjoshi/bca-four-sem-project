@@ -160,10 +160,7 @@ $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png'
         <div class="profile-box">
             <h2>Welcome</h2>
             <div class="profile-img">
-                <?php
-                $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png';
-                ?>
-
+                <?php $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png'; ?>
                 <img src="../uploads/profile/passenger/<?= htmlspecialchars($user['name']) ?>/<?= htmlspecialchars($image) ?>" alt="Profile" onerror="this.onerror=null;this.src='../uploads/default.png';">
             </div>
             <table>
@@ -200,8 +197,7 @@ $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png'
                 <a class="btn role" href="../role_request.php"><i class="fa fa-user"></i> Change Role</a>
             </div>
         </div>
-    </div><?php
-            include "pass_footer.php"; ?>
+    </div><?php include "pass_footer.php"; ?>
 </body>
 
 </html>

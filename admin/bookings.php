@@ -13,16 +13,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     if ($bookingId > 0 && $action === 'status') {
         $status = strtolower(trim($_POST['status'] ?? ''));
+
+        $stmt = $conn->prepare("SELECT user_id FROM bookings WHERE booking_id=?");
+        $stmt->bind_param("i", $bookingId);
+        $stmt->execute();
+        $bookingData = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $passenger_id = (int)($bookingData['user_id'] ?? 0);
+
+
         if (in_array($status, ['confirmed', 'cancelled'], true)) {
             $stmt = $conn->prepare("UPDATE bookings SET status=? WHERE booking_id=?");
             if ($stmt) {
                 $stmt->bind_param('si', $status, $bookingId);
                 if ($stmt->execute()) {
                     $message = $status === 'confirmed' ? 'Seat approved successfully.' : 'Seat rejected successfully.';
+                    $stmt->close();
+
+                    $title = $status === 'confirmed' ? 'Booking Confirmed' : 'Booking Rejected';
+                    $msg = $status === 'confirmed'
+                        ? 'Your booking has been confirmed.'
+                        : 'Your booking has been rejected.';
+
+                    $stmt = $conn->prepare("INSERT INTO notifications (user_id,type,title,message,link,is_read,created_at) VALUES (?,'booking',?,?, 'booking_history.php',0,NOW())");
+
+                    if ($stmt) {
+                        $stmt->bind_param("iss", $passenger_id, $title, $msg);
+                        $stmt->execute();
+                        $stmt->close();
+                    }
                 } else {
                     $error = 'Unable to update booking status.';
+                    $stmt->close();
                 }
-                $stmt->close();
             } else {
                 $error = 'Unable to prepare status update.';
             }

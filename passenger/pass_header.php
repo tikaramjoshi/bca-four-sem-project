@@ -27,7 +27,7 @@ $profile_image = !empty($user['profile_image']) ? basename($user['profile_image'
         <?php $current_page = basename($_SERVER['PHP_SELF']); ?>
         <div>
             <a href="dashboard.php" class="<?= $current_page === 'dashboard.php' ? 'active' : '' ?>"><i class="fa fa-home"></i>&nbsp; Home</a>
-            <a href="booking_history.php" class="<?= $current_page === 'booking_history.php' ? 'active' : '' ?>"><i class="fa fa-ticket"></i>&nbsp; My Bookings</a>
+            <a href="booking_history.php" class="<?= $current_page === 'booking_history.php' ? 'active' : '' ?>"><i class="fa fa-ticket"></i>&nbsp; Bookings</a>
             <a href="notification.php" class="<?= $current_page === 'notification.php' ? 'active' : '' ?>"><i class="fa fa-bell"></i>&nbsp; Notification</a>
             <a href="#contactSection"><i class="fa fa-phone"></i>&nbsp;Contact</a>
             <a href="#aboutSection"><i class="fa fa-info-circle"></i>&nbsp;About</a>
@@ -43,7 +43,7 @@ $profile_image = !empty($user['profile_image']) ? basename($user['profile_image'
             <div class="profile-menu" id="profileMenu">
                 <a href="profile.php"><i class="fa fa-user-circle"></i>&nbsp; My Profile</a>
                 <a href="notification.php"><i class="fa fa-bell"></i>&nbsp; Notification</a>
-                <a href="booking_history.php"><i class="fa fa-ticket"></i>&nbsp; My Bookings</a>
+                <a href="my_bookings.php"><i class="fa fa-ticket"></i>&nbsp; My Bookings</a>
                 <a href="booking_history.php"><i class="fa fa-history"></i>&nbsp; Booking History</a>
                 <a href="../changepassword.php"><i class="fa fa-key"></i>&nbsp; Change Password</a>
                 <hr>

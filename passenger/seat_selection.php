@@ -16,9 +16,12 @@ $verification_status = $user['verification_status'] ?? '';
 
 $scheduleId = filter_input(INPUT_GET, 'schedule_id', FILTER_VALIDATE_INT);
 $busId = filter_input(INPUT_GET, 'bus_id', FILTER_VALIDATE_INT);
+
 if (!$scheduleId || !$busId) {
-    exit('Invalid schedule or bus.');
+    header("Location: dashboard.php");
+    exit;
 }
+
 $stmt = $conn->prepare(" SELECT  s.schedule_id, s.bus_id, s.from_city, s.to_city, s.departure_date, s.departure_time, s.ticket_price, s.available_seats, s.status, b.bus_number, b.bus_name, b.bus_type, b.seats FROM schedules s INNER JOIN bus b ON s.bus_id = b.bus_id WHERE s.schedule_id = ? AND s.bus_id = ?   AND s.status = 'active' AND b.status = 'approved' LIMIT 1 ");
 $stmt->bind_param("ii", $scheduleId, $busId);
 $stmt->execute();
@@ -55,41 +58,70 @@ $stmt->close();
 $bookedCount = count($bookedSeats);
 $availableSeats = max(0, $totalSeats - $bookedCount);
 
-function generateSeats($totalSeats)
+
+function generateSeats(int $totalSeats): array
+
 {
-    $rows = [];
-    $seat = 1;
-    while ($seat <= $totalSeats - 5) {
+    $sideSeats = $totalSeats - 5;
+    $remainder = $sideSeats % 4;
+
+    $aTotal = floor($sideSeats / 4) * 2;
+    $bTotal = $aTotal;
+
+    if ($remainder === 1) {
+        $aTotal += 1;
+    } elseif ($remainder === 2) {
+        $bTotal += 2;
+    } elseif ($remainder === 3) {
+        $aTotal += 1;
+        $bTotal += 2;
+    }
+
+    $rows = max(
+        ceil($aTotal / 2),
+        ceil($bTotal / 2)
+    );
+
+    $seatRows = [];
+    $aNumber = 1;
+    $bNumber = 1;
+
+    for ($i = 0; $i < $rows; $i++) {
         $row = [];
-        if ($seat <= $totalSeats - 5) {
-            $row[] = $seat++;
+
+        if ($remainder === 2 && $i === 0) {
+            $row[] = null;
+            $row[] = null;
+        } elseif (($remainder === 1 || $remainder === 3) && $i === 0) {
+            $row[] = $aNumber <= $aTotal ? 'A' . $aNumber++ : null;
+            $row[] = null;
+        } else {
+            $row[] = $aNumber <= $aTotal ? 'A' . $aNumber++ : null;
+            $row[] = $aNumber <= $aTotal ? 'A' . $aNumber++ : null;
         }
-        if ($seat <= $totalSeats - 5) {
-            $row[] = $seat++;
-        }
+
         $row[] = null;
-        if ($seat <= $totalSeats - 5) {
-            $row[] = $seat++;
+
+        if ($remainder === 1 && $i === 0) {
+            $row[] = null;
+            $row[] = null;
+        } else {
+            $row[] = $bNumber <= $bTotal ? 'B' . $bNumber++ : null;
+            $row[] = $bNumber <= $bTotal ? 'B' . $bNumber++ : null;
         }
-        if ($seat <= $totalSeats - 5) {
-            $row[] = $seat++;
-        }
-        $rows[] = $row;
+
+        $seatRows[] = $row;
     }
-    $remaining = $totalSeats - $seat + 1;
-    if ($remaining > 0) {
-        $lastRow = [];
-        while ($seat <= $totalSeats) {
-            $lastRow[] = $seat++;
-        }
-        while (count($lastRow) < 5) {
-            $lastRow[] = null;
-        }
-        $rows[] = $lastRow;
-    }
-    return $rows;
+
+    $cRow = ['C1', 'C2', 'C3', 'C4', 'C5'];
+
+    $seatRows[] = $cRow;
+
+    return $seatRows;
 }
+
 $seatRows = generateSeats($totalSeats);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -100,6 +132,7 @@ $seatRows = generateSeats($totalSeats);
     <title>Select Seat</title>
     <link rel="stylesheet" href="seat_selection.css">
     <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
@@ -162,13 +195,17 @@ $seatRows = generateSeats($totalSeats);
                                 <?php if ($seat === null): ?>
                                     <span class="gap"></span>
                                 <?php else: ?>
-                                    <?php $isBooked = in_array((string)$seat, $bookedSeats, true); ?>
+
+                                    <?php
+                                    $seatNumber = (string)$seat;
+                                    $isBooked = in_array($seatNumber, $bookedSeats, true);
+                                    ?>
                                     <button
                                         type="button"
                                         class="seat <?= $isBooked ? 'booked' : '' ?>"
-                                        data-seat="<?= $seat ?>"
+                                        data-seat="<?= htmlspecialchars($seatNumber) ?>"
                                         <?= $isBooked ? 'disabled' : '' ?>>
-                                        <?= $seat ?>
+                                        <?= htmlspecialchars($seatNumber) ?>
                                     </button>
                                 <?php endif; ?>
                             <?php endforeach; ?>
@@ -181,8 +218,8 @@ $seatRows = generateSeats($totalSeats);
                     <span><i class="dot unavailable"></i>Booked</span>
                 </div>
                 <div class="actions">
-                    <a href="search_bus.php?from=<?= urlencode($from) ?>&to=<?= urlencode($to) ?>&date=<?= urlencode($date) ?>" class="back"> Back </a> &nbsp; &nbsp;
-                    <button type="submit" id="continueButton" disabled> Continue </button>
+                    <a href="search_bus.php?from=<?= urlencode($from) ?>&to=<?= urlencode($to) ?>&date=<?= urlencode($date) ?>" class="back"><i class="fa fa-arrow-left"></i> Back </a> &nbsp; &nbsp;
+                    <button type="submit" id="continueButton" disabled><i class="fa fa-arrow-right"></i> Continue </button>
                 </div>
                 <p class="notice" id="selectedText">
                     Choose minimum 1 and maximum 4 seats.

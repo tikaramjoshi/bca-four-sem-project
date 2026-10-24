@@ -6,26 +6,8 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'passenger') {
     exit;
 }
 $user_id = (int)$_SESSION['user_id'];
-$sql = "SELECT
-booking_group_id,
-MIN(booking_id) AS booking_id,
-bus_name,
-bus_number,
-route,
-travel_date,
-GROUP_CONCAT(CASE WHEN status IN('confirmed','paid') THEN seat_number END ORDER BY CAST(seat_number AS UNSIGNED) SEPARATOR ', ') AS confirmed_seats,
-GROUP_CONCAT(CASE WHEN status='pending' THEN seat_number END ORDER BY CAST(seat_number AS UNSIGNED) SEPARATOR ', ') AS pending_seats,
-GROUP_CONCAT(CASE WHEN status='cancelled' THEN seat_number END ORDER BY CAST(seat_number AS UNSIGNED) SEPARATOR ', ') AS cancelled_seats,
-COUNT(*) AS total_seats,
-SUM(CASE WHEN status!='cancelled' THEN amount ELSE 0 END) AS total_amount,
-MIN(created_at) AS booking_date,
-SUM(status IN('confirmed','paid')) AS confirmed_count,
-SUM(status='pending') AS pending_count,
-SUM(status='cancelled') AS cancelled_count
-FROM bookings
-WHERE user_id=?
-GROUP BY booking_group_id,bus_name,bus_number,route,travel_date
-ORDER BY MIN(booking_id) DESC";
+$passenger_name = $conn->query("SELECT name FROM users WHERE user_id=$user_id")->fetch_assoc()['name'] ?? 'Passenger';
+$sql = "SELECT booking_group_id, MIN(booking_id) AS booking_id, bus_name, bus_number, route, travel_date, GROUP_CONCAT(CASE WHEN status IN('confirmed','paid') THEN seat_number END ORDER BY CAST(seat_number AS UNSIGNED) SEPARATOR ', ') AS confirmed_seats, GROUP_CONCAT(CASE WHEN status='pending' THEN seat_number END ORDER BY CAST(seat_number AS UNSIGNED) SEPARATOR ', ') AS pending_seats, GROUP_CONCAT(CASE WHEN status='cancelled' THEN seat_number END ORDER BY CAST(seat_number AS UNSIGNED) SEPARATOR ', ') AS cancelled_seats, COUNT(*) AS total_seats, SUM(CASE WHEN status!='cancelled' THEN amount ELSE 0 END) AS total_amount, MIN(created_at) AS booking_date, SUM(status IN('confirmed','paid')) AS confirmed_count, SUM(status='pending') AS pending_count, SUM(status='cancelled') AS cancelled_count FROM bookings WHERE user_id=? GROUP BY booking_group_id,bus_name,bus_number,route,travel_date ORDER BY MIN(booking_id) DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -38,195 +20,7 @@ $result = $stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Booking History</title>
-    <style>
-        body {
-            background: #eef4fb;
-            color: #222
-        }
-
-        .container {
-            max-width: 1000px;
-            width: 94%;
-            margin: 40px auto
-        }
-
-        .title {
-            text-align: center;
-            margin-bottom: 25px
-        }
-
-        .title h1 {
-            color: #583a3a;
-            margin-bottom: 8px
-        }
-
-        .title p {
-            color: #583a3a;
-        }
-
-        .card {
-            background: #fff;
-            border-left: 5px solid #1560bd;
-            border-radius: 12px;
-            padding: 22px;
-            margin-bottom: 20px;
-            box-shadow: 0 3px 12px #0001
-        }
-
-        .top {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 18px
-        }
-
-        .id {
-            font-size: 18px;
-            font-weight: bold;
-            color: #1560bd
-        }
-
-        .badge {
-            padding: 6px 13px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold
-        }
-
-        .confirmed {
-            background: #d4edda;
-            color: #218838
-        }
-
-        .pending-b {
-            background: #fff3cd;
-            color: #856404
-        }
-
-        .cancelled {
-            background: #f8d7da;
-            color: #c82333
-        }
-
-        .completed {
-            background: #dbeafe;
-            color: #1d4ed8
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px 30px
-        }
-
-        .item label {
-            display: block;
-            color: #777;
-            font-size: 13px;
-            margin-bottom: 5px
-        }
-
-        .item strong {
-            font-size: 15px
-        }
-
-        .green {
-            color: #218838 !important
-        }
-
-        .orange {
-            color: #d68910 !important
-        }
-
-        .red {
-            color: #dc3545 !important
-        }
-
-        .blue {
-            color: #1d4ed8 !important
-        }
-
-        .counts {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            border-top: 1px solid #eee;
-            margin-top: 20px;
-            padding-top: 18px
-        }
-
-        .count {
-            padding: 8px 13px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold
-        }
-
-        .cg {
-            background: #d4edda;
-            color: #218838
-        }
-
-        .co {
-            background: #fff3cd;
-            color: #856404
-        }
-
-        .cr {
-            background: #f8d7da;
-            color: #c82333
-        }
-
-        .actions {
-            text-align: right;
-            margin-top: 20px
-        }
-
-        .ticket {
-            background: #1560bd;
-            color: #fff;
-            text-decoration: none;
-            padding: 9px 17px;
-            border-radius: 6px
-        }
-
-        .empty {
-            text-align: center;
-            background: #fff;
-            padding: 50px;
-            border-radius: 12px
-        }
-
-        .book {
-            display: inline-block;
-            background: #1560bd;
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            margin-top: 15px
-        }
-
-        @media(max-width:700px) {
-            nav {
-                padding: 0 15px
-            }
-
-            .profile span:first-child {
-                display: none
-            }
-
-            .grid {
-                grid-template-columns: 1fr
-            }
-
-            .top {
-                flex-direction: column;
-                gap: 10px
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="booking_history.css">
     <link rel="stylesheet" href="dashboard.css">
 </head>
 
@@ -269,12 +63,12 @@ $result = $stmt->get_result();
             ?>
             <div class="card">
                 <div class="top">
-                    <div class="id">Booking #<?= htmlspecialchars($b['booking_id']) ?></div>
+                    <div class="id">Booking No:# <?= htmlspecialchars($b['booking_id']) ?></div>
                     <div class="badge <?= $statusClass ?>"><?= htmlspecialchars($status) ?></div>
                 </div>
                 <div class="grid">
                     <div class="item">
-                        <label>Group ID</label>
+                        <label>Booking ID</label>
                         <strong><?= htmlspecialchars($b['booking_group_id']) ?></strong>
                     </div>
                     <div class="item">
@@ -294,6 +88,10 @@ $result = $stmt->get_result();
                         <strong><?= date('d M Y', strtotime($b['travel_date'])) ?></strong>
                     </div>
                     <div class="item">
+                        <label>Total Seats</label>
+                        <strong><?= $total ?> Seats</strong>
+                    </div>
+                    <div class="item">
                         <label>Confirmed Seats</label>
                         <strong class="green"><?= htmlspecialchars($b['confirmed_seats'] ?: 'None') ?></strong>
                     </div>
@@ -304,10 +102,6 @@ $result = $stmt->get_result();
                     <div class="item">
                         <label>Cancelled Seats</label>
                         <strong class="red"><?= htmlspecialchars($b['cancelled_seats'] ?: 'None') ?></strong>
-                    </div>
-                    <div class="item">
-                        <label>Total Seats</label>
-                        <strong><?= $total ?> Seats</strong>
                     </div>
                     <div class="item">
                         <label>Total Amount</label>

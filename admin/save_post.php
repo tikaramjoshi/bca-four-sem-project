@@ -26,5 +26,28 @@ $stmt = $conn->prepare("INSERT INTO posts (title,message,image,status) VALUES (?
 $stmt->bind_param("sss", $title, $message, $image);
 $stmt->execute();
 
+if ($stmt->execute()) {
+    $stmt->close();
+
+    $notificationTitle = "New Post: " . $title;
+    $notificationMessage = $message;
+    $link = "dashboard.php";
+
+    $notifyStmt = $conn->prepare("
+        INSERT INTO notifications
+        (user_id, type, title, message, link, is_read, created_at)
+        SELECT user_id, 'system', ?, ?, ?, 0, NOW()
+        FROM users
+        WHERE role = 'passenger'
+    ");
+
+    if ($notifyStmt) {
+        $notifyStmt->bind_param("sss", $notificationTitle, $notificationMessage, $link);
+        $notifyStmt->execute();
+        $notifyStmt->close();
+    }
+} else {
+    $stmt->close();
+}
 header("Location: dashboard.php");
 exit();

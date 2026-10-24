@@ -88,153 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: #eef4fb;
-        }
-
-        .header {
-            background: #1560BD;
-            color: white;
-            padding: 18px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header h2 {
-            font-size: 20px;
-        }
-
-        .header a {
-            text-decoration: none;
-            background: white;
-            color: #1560BD;
-            padding: 10px 18px;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-
-        .container {
-            width: 500px;
-            max-width: 95%;
-            margin: 40px auto;
-        }
-
-        .box {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-        }
-
-        .box h2 {
-            text-align: center;
-            color: #1560BD;
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-top: 15px;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 15px;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #1560BD;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 20px;
-            border: none;
-            border-radius: 5px;
-            background: #1560BD;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #0d47a1;
-        }
-
-        .success {
-            background: #d4edda;
-            color: green;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .error {
-            background: #f8d7da;
-            color: red;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .back {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
-            text-decoration: none;
-            color: #1560BD;
-            font-weight: bold;
-        }
-
-        .profile-preview {
-            text-align: center;
-            margin: 10px 0;
-        }
-
-        .profile-preview img {
-            width: 100px;
-            height: 100px;
-            border-radius: 20px;
-            object-fit: cover;
-            border: 3px solid #1560BD;
-        }
-
-        .status {
-            text-align: center;
-            margin: 15px 0;
-            font-weight: bold;
-        }
-
-        .pending {
-            color: #f39c12;
-        }
-
-        .verified {
-            color: #fff;
-            /* color: #28a745; */
-        }
-
-        .rejected {
-            color: #dc3545;
-        }
-    </style>
+    <link rel="stylesheet" href="edit_profile.css">
 </head>
 
 <body>
@@ -271,11 +125,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <img src="<?= htmlspecialchars($image_path) ?>" alt="Profile">
                 </div>
                 <input type="file" name="profile_image" accept=".jpg,.jpeg,.png,.webp,image/*">
-                <button type="submit">Update Profile</button>
+                <button type="submit"><i class="fa fa-upload"></i> Update Profile</button>
             </form>
-            <a class="back" href="profile.php">Back to Profile</a>
+            <a class="back" href="profile.php"> <i class="fa fa-arrow-left"></i> Back to Profile</a>
         </div>
     </div>
+    <?php include "pass_footer.php" ?>
 </body>
 
 </html>

@@ -83,27 +83,73 @@
                 font-size: 15px;
             }
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: left;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        th {
+            background: #1560BD;
+            color: white;
+        }
+
+        th:first-child,
+        td:first-child {
+            width: 80px;
+            text-align: center;
+        }
+
+        @media(max-width:600px) {
+
+            th,
+            td {
+                padding: 8px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="main">
         <nav>
-            <a href="index.php" id="home">Home</a>
+            <a href="javascript:history.back()" id="home">Back</a>
         </nav>
     </div>
     <div class="last-policy">
-        <?php
-        require_once "db.php";
-        $result = $conn->query("SELECT * FROM policy ORDER BY id ASC");
-        $i = 1;
-        while ($row = $result->fetch_assoc()) {
-            echo "<p>";
-            echo $i++ . ". ";
-            echo htmlspecialchars($row['policy_text']);
-            echo "</p>";
-        }
-        ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>S.N.</th>
+                    <th>Policy</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                require_once "db.php";
+                $result = $conn->query("SELECT * FROM policy ORDER BY id ASC");
+                $i = 1;
+
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr>";
+                    echo "<td>" . $i++ . "</td>";
+                    echo "<td>" . htmlspecialchars($row['policy_text']) . "</td>";
+                    echo "</tr>";
+                }
+                ?>
+            </tbody>
+        </table>
     </div>
     <footer class="last">
         <p>&copy;2026 Online Bus Ticket Booking System | All rights reserved.</p>

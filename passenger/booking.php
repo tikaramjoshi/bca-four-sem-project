@@ -125,8 +125,24 @@ if (isset($_POST['confirm_booking'])) {
             throw new Exception('Unable to update available seats.');
         }
         $updateStmt->close();
+
         $conn->commit();
+
+        $title = "Booking Request Submitted";
+        $message = "Your booking request for $busName ($busNumber), route $route, seat(s) " . implode(', ', $seats) . " has been submitted and is pending approval.";
+        $link = "my_bookings.php";
+
+        $notificationStmt = $conn->prepare("INSERT INTO notifications (user_id, type, title, message, link, is_read, created_at) VALUES (?, 'booking', ?, ?, ?, 0, NOW())");
+
+        if ($notificationStmt) {
+            $notificationStmt->bind_param('isss', $userId, $title, $message, $link);
+            $notificationStmt->execute();
+            $notificationStmt->close();
+        }
+
         unset($_SESSION['pending_booking']);
+
+
         $_SESSION['booking_success'] = [
             'booking_group_id' => $bookingGroupId,
             'bus_name' => $busName,
@@ -154,13 +170,24 @@ if (!$busId) {
     $busId = filter_input(INPUT_GET, 'bus_id', FILTER_VALIDATE_INT);
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['confirm_booking'])) {
+
     $seats = $_POST['seat_numbers'] ?? [];
+
+    if (!is_array($seats)) {
+        $seats = [];
+    }
+
     $seats = array_values(array_unique(array_filter($seats, function ($seat) {
-        return preg_match('/^[1-9][0-9]*$/', (string)$seat);
+        return is_scalar($seat) &&
+            preg_match('/^[ABC][1-9][0-9]*$/', (string)$seat);
     })));
-    if (!$scheduleId || !$busId || !$seats || count($seats) > 4) {
+
+    if (!$scheduleId || !$busId || count($seats) < 1 || count($seats) > 4) {
         exit('Please select 1 to 4 seats.');
     }
+    // if (!$scheduleId || !$busId || !$seats || count($seats) > 4) {
+    //     exit('Please select 1 to 4 seats.');
+    // }
     $stmt = $conn->prepare("SELECT s.schedule_id,s.bus_id,s.from_city,s.to_city,s.departure_date,s.departure_time,s.ticket_price,s.available_seats,s.status,b.bus_name,b.bus_number,b.bus_type,b.seats FROM schedules s INNER JOIN bus b ON s.bus_id=b.bus_id WHERE s.schedule_id=? AND s.bus_id=? AND s.status='active' AND b.status='approved' LIMIT 1");
     $stmt->bind_param('ii', $scheduleId, $busId);
     $stmt->execute();
@@ -225,6 +252,7 @@ $busNumber = $booking['bus_number'];
 $route = $booking['route'];
 $travelDate = $booking['travel_date'];
 $amount = (float)$booking['amount'];
+include "pass_header.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -234,96 +262,11 @@ $amount = (float)$booking['amount'];
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Confirm Booking</title>
     <link rel="stylesheet" href="dashboard.css">
-    <style>
-        .box {
-            width: 420px;
-            padding: 30px;
-            border-radius: 12px;
-            text-align: center;
-            background: #f4f6f8;
-            color: #263238;
-            margin: 50px auto;
-        }
-
-        h2 {
-            margin-bottom: 22px;
-            color: #1560bd
-        }
-
-        .info {
-            text-align: left;
-            background: #f7f9fc;
-            padding: 15px;
-            border-radius: 8px
-        }
-
-        .info p {
-            margin: 9px 0;
-            color: #475569
-        }
-
-        .info strong {
-            color: #263238
-        }
-
-        .total {
-            margin-top: 15px;
-            padding: 13px;
-            background: #e8f5e9;
-            color: #198754;
-            border-radius: 7px;
-            font-size: 18px;
-            font-weight: bold
-        }
-
-        .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 25px
-        }
-
-        button,
-        a {
-            border: 0;
-            padding: 11px 20px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            cursor: pointer
-        }
-
-        .confirm {
-            background: #0f766e;
-            color: #fff
-        }
-
-        .confirm:hover {
-            background: #0b5f59
-        }
-
-        .cancel {
-            background: #64748b;
-            color: #fff
-        }
-
-        .cancel:hover {
-            background: #475569
-        }
-
-        .message {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 14px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: 600
-        }
-    </style>
+    <link rel="stylesheet" href="booking.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
-    <?php include "pass_header.php" ?>
     <div class="box">
         <?php if (!empty($_SESSION['booking_error'])): ?>
             <div class="message"><?= htmlspecialchars($_SESSION['booking_error']) ?></div>
@@ -342,9 +285,9 @@ $amount = (float)$booking['amount'];
         <div class="buttons">
             <form method="post">
                 <input type="hidden" name="confirm_booking" value="1">
-                <button type="submit" class="confirm">Confirm Booking</button>
+                <button type="submit" class="confirm"><i class="fa fa-check"></i> Confirm Booking</button>
             </form>
-            <a href="seat_selection.php?schedule_id=<?= $scheduleId ?>&bus_id=<?= $busId ?>" class="cancel">Cancel</a>
+            <a href="seat_selection.php?schedule_id=<?= $scheduleId ?>&bus_id=<?= $busId ?>" class="cancel"><i class="fa fa-times"></i> Cancel</a>
         </div>
     </div>
     <?php include "pass_footer.php" ?>

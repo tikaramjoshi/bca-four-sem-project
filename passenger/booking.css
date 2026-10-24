@@ -1,0 +1,86 @@
+        .box {
+            width: 420px;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            background: #f4f6f8;
+            color: #263238;
+            margin: 50px auto;
+        }
+
+        h2 {
+            margin-bottom: 22px;
+            color: #1560bd
+        }
+
+        .info {
+            text-align: left;
+            background: #f7f9fc;
+            padding: 15px;
+            border-radius: 8px
+        }
+
+        .info p {
+            margin: 9px 0;
+            color: #475569;
+            margin-top: 5px;
+        }
+
+        .info strong {
+            color: #263238
+        }
+
+        .total {
+            margin-top: 15px;
+            padding: 13px;
+            background: #e8f5e9;
+            color: #198754;
+            border-radius: 7px;
+            font-size: 18px;
+            font-weight: bold
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 25px
+        }
+
+        button,
+        a {
+            border: 0;
+            padding: 11px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer
+        }
+
+        .confirm {
+            background: #0f766e;
+            color: #fff
+        }
+
+        .confirm:hover {
+            background: #0b5f59
+        }
+
+        .cancel {
+            background: #64748b;
+            color: #fff
+        }
+
+        .cancel:hover {
+            background: #475569
+        }
+
+        .message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600
+        }
+    
