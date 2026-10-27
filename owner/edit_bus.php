@@ -118,6 +118,7 @@ if (isset($_POST['update_bus'])) {
         }
     }
 }
+include "owner_header.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">

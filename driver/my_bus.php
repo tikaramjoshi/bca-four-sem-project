@@ -7,14 +7,9 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'driver') {
 }
 $driver_id = (int)$_SESSION['user_id'];
 $stmt = $conn->prepare("
-    SELECT bd.bus_driver_id,bd.assigned_at,b.bus_id,b.bus_number,b.bus_name,b.bus_type,b.seats,b.bus_image,b.status,
-    u.name AS owner_name,u.phone AS owner_phone,u.email AS owner_email
-    FROM bus_driver bd
-    INNER JOIN bus b ON bd.bus_id=b.bus_id
-    LEFT JOIN users u ON b.owner_id=u.user_id
-    WHERE bd.driver_id=?
-    ORDER BY bd.assigned_at DESC
+    SELECT bd.bus_driver_id, bd.assigned_at, b.bus_id, b.bus_number, b.bus_name, b.bus_type, b.seats, b.bus_image, b.status, u.name AS owner_name, u.phone AS owner_phone, u.email AS owner_email, (     SELECT COUNT(*)     FROM bookings bk     INNER JOIN schedules s2 ON bk.schedule_id = s2.schedule_id     WHERE s2.bus_id = b.bus_id       AND bk.status IN ('approved', 'confirmed', 'paid') ) AS total_passengers, (     SELECT s.departure_date     FROM schedules s     WHERE s.bus_id = b.bus_id ORDER BY CASE WHEN s.departure_date >= CURDATE() THEN 0 ELSE 1 END, CASE WHEN s.departure_date >= CURDATE() THEN s.departure_date END ASC, s.departure_date DESC LIMIT 1 ) AS trip_date FROM bus_driver bd INNER JOIN bus b ON bd.bus_id = b.bus_id LEFT JOIN users u ON b.owner_id = u.user_id WHERE bd.driver_id = ? ORDER BY bd.assigned_at DESC
 ");
+
 $stmt->bind_param("i", $driver_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -33,89 +28,16 @@ $current_bus = $total_buses > 0 ? $buses[0] : null;
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>My Bus</title>
     <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="bus.css">
-    <style>
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
-            margin-bottom: 20px;
-        }
+    <link rel="stylesheet" href="../driver/bus.css">
 
-
-        .bus-box {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 25px;
-        }
-
-        .bus-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .no-image {
-            width: 100%;
-            height: 200px;
-            background: #eee;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            color: #777;
-        }
-
-        .info {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
-        }
-
-        .value {
-            margin-top: 5px;
-            font-weight: bold;
-        }
-
-        .history {
-            margin-top: 20px;
-        }
-
-        .current {
-            background: #d9f5e5;
-            color: #08763d;
-        }
-
-        .previous {
-            background: #eee;
-            color: #555;
-        }
-
-
-
-        @media(max-width:700px) {
-            .cards {
-                grid-template-columns: 1fr;
-            }
-
-            .bus-box {
-                grid-template-columns: 1fr;
-            }
-
-            .info {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
 
 <body>
-    <?php include "dri_header.php" ?>
+    <?php include "driver_header.php" ?>
     <div class="container">
         <div class="top">
             <h2>My Bus</h2>
-            <a href="dashboard.php" class="back">Back</a>
+            <a href="dashboard.php" class="back"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
         </div>
         <div class="cards">
             <div class="card">
@@ -182,9 +104,7 @@ $current_bus = $total_buses > 0 ? $buses[0] : null;
                     </div>
                 </div>
             <?php else: ?>
-                <div class="empty">
-                    No bus is currently assigned to you.
-                </div>
+                <div class="empty"> No bus is currently assigned to you. </div>
             <?php endif; ?>
         </div>
         <div class="card history">
@@ -194,18 +114,37 @@ $current_bus = $total_buses > 0 ? $buses[0] : null;
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>S.No</th>
                                 <th>Bus Number</th>
                                 <th>Bus Name</th>
                                 <th>Type</th>
                                 <th>Seats</th>
                                 <th>Owner</th>
                                 <th>Assigned Date</th>
+                                <th>Trip Date</th>
+                                <th>Total Passengers</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($buses as $i => $bus): ?>
+                                <?php
+                                $trip_date = $bus['trip_date'] ?? '';
+                                $today = date('Y-m-d');
+
+                                if (empty($trip_date)) {
+                                    $trip_status = 'No Trip';
+                                } elseif ($trip_date > $today) {
+                                    $trip_status = 'Upcoming';
+                                } elseif ($trip_date == $today) {
+                                    $trip_status = 'Current';
+                                } else {
+                                    $trip_status = 'Previous';
+                                }
+
+                                $status_class = strtolower(str_replace(' ', '-', $trip_status));
+                                ?>
+
                                 <tr>
                                     <td><?= $i + 1 ?></td>
                                     <td><?= htmlspecialchars($bus['bus_number']) ?></td>
@@ -213,13 +152,13 @@ $current_bus = $total_buses > 0 ? $buses[0] : null;
                                     <td><?= htmlspecialchars($bus['bus_type']) ?></td>
                                     <td><?= htmlspecialchars($bus['seats']) ?></td>
                                     <td><?= htmlspecialchars($bus['owner_name'] ?? '-') ?></td>
-                                    <td><?= date("d M Y", strtotime($bus['assigned_at'])) ?></td>
+                                    <td><?= !empty($bus['assigned_at']) ? date("d M Y", strtotime($bus['assigned_at'])) : '-' ?></td>
+                                    <td><?= $trip_date !== '' ? date("d M Y", strtotime($trip_date)) : '-' ?></td>
+                                    <td><?= (int)($bus['total_passengers'] ?? 0) ?></td>
                                     <td>
-                                        <?php if ($i === 0): ?>
-                                            <span class="status current">Current</span>
-                                        <?php else: ?>
-                                            <span class="status previous">Previous</span>
-                                        <?php endif; ?>
+                                        <span class="status <?= htmlspecialchars($status_class) ?>">
+                                            <?= htmlspecialchars($trip_status) ?>
+                                        </span>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

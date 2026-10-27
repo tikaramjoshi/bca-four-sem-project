@@ -2,25 +2,19 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
 require_once "../db.php";
-
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'driver') {
     header("Location: ../login.php");
     exit;
 }
-
 $driver_id = (int)$_SESSION['user_id'];
-
 $stmt = $conn->prepare("SELECT name,profile_image FROM users WHERE user_id=? AND role='driver' LIMIT 1");
 $stmt->bind_param("i", $driver_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $driver = $result->fetch_assoc();
-
 $driver_photo = !empty($driver['profile_image']) ? "../uploads/" . $driver['profile_image'] : "../uploads/default.png";
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -31,9 +25,8 @@ $driver_photo = !empty($driver['profile_image']) ? "../uploads/" . $driver['prof
     <link rel="stylesheet" href="dashboard.css">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
-        .container {
+        .container-box {
             width: 500px;
-            height: 100vh;
             margin: 100px auto;
             background: white;
             padding: 25px;
@@ -43,11 +36,11 @@ $driver_photo = !empty($driver['profile_image']) ? "../uploads/" . $driver['prof
         .back {
             display: inline-block;
             padding: 9px 15px;
-            background: #4413e5;
+            background: #59595c;
             color: #fff;
             text-decoration: none;
             border-radius: 6px;
-            margin-bottom: 15px;
+            margin-top: 15px;
         }
 
         h2 {
@@ -100,9 +93,8 @@ $driver_photo = !empty($driver['profile_image']) ? "../uploads/" . $driver['prof
 </head>
 
 <body>
-    <?php include "dri_header.php" ?>
-    <div class="container">
-        <a href="dashboard.php" class="back">Back</a>
+    <?php include "driver_header.php" ?>
+    <div class="container-box">
         <h2>Scan Passenger Ticket</h2>
         <p class="info">Scan QR code or enter Booking Group ID manually.</p>
         <div id="reader"></div>
@@ -114,12 +106,8 @@ $driver_photo = !empty($driver['profile_image']) ? "../uploads/" . $driver['prof
                 <button type="submit">Verify Ticket</button>
             </form>
         </div>
+        <a href="dashboard.php" class="back"> <i class="fa fa-arrow-left"></i> &nbsp;Back</a>
     </div>
-    <form action="verify_ticket.php" method="GET">
-        <label>Booking Group ID</label>
-        <input type="text" name="group_id" placeholder="Enter Booking Group ID" required>
-        <button type="submit">Verify Ticket</button>
-    </form>
     <script>
         let alreadyScanned = false;
 
@@ -144,22 +132,9 @@ $driver_photo = !empty($driver['profile_image']) ? "../uploads/" . $driver['prof
                     height: 250
                 },
                 rememberLastUsedCamera: true
-            },
-            false
+            }, false
         );
         scanner.render(onScanSuccess, onScanFailure);
-
-        function onScanSuccess(decodedText, decodedResult) {
-            if (alreadyScanned) {
-                return;
-            }
-            let groupId = decodedText.trim();
-            if (groupId === "") {
-                return;
-            }
-            alreadyScanned = true;
-            window.location.href = "verify_ticket.php?group_id=" + encodeURIComponent(groupId);
-        }
     </script>
 </body>
 

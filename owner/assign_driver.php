@@ -182,7 +182,10 @@ $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
     $drivers[] = $row;
 }
-$sql = "SELECT bd.bus_driver_id,bd.bus_id,bd.driver_id,bd.assigned_at,b.bus_number,b.bus_name,b.bus_type,u.name AS driver_name,u.email AS driver_email,u.phone AS driver_phone,u.profile_image FROM bus_driver bd INNER JOIN bus b ON bd.bus_id=b.bus_id INNER JOIN users u ON bd.driver_id=u.user_id";
+
+
+$sql = "SELECT bd.bus_driver_id,bd.bus_id,bd.driver_id,bd.assigned_at,b.bus_number,b.bus_name,b.bus_type,u.name AS driver_name,u.email AS driver_email,u.phone AS driver_phone,u.profile_image,(SELECT dv.profile_photo FROM driver_verification dv WHERE dv.driver_id=u.user_id ORDER BY dv.verification_id DESC LIMIT 1) AS profile_photo FROM bus_driver bd INNER JOIN bus b ON bd.bus_id=b.bus_id INNER JOIN users u ON bd.driver_id=u.user_id";
+
 $params = [];
 $types = "";
 if ($role === 'owner') {
@@ -287,8 +290,15 @@ $total_assignments = count($assignments);
                         <tbody>
                             <?php foreach ($assignments as $assignment): ?>
                                 <?php
-                                $image = !empty($assignment['profile_image']) ? basename($assignment['profile_image']) : 'default.png';
-                                $image_url = "../uploads/profile/" . $image;
+                                if (!empty($assignment['profile_photo'])) {
+                                    $image = $assignment['profile_photo'];
+                                    $image_url = "../uploads/driver/profile/" . rawurlencode($image);
+                                } elseif (!empty($assignment['profile_image'])) {
+                                    $image = basename($assignment['profile_image']);
+                                    $image_url = "../uploads/profile/" . rawurlencode($image);
+                                } else {
+                                    $image_url = "../uploads/profile/default.png";
+                                }
                                 ?>
                                 <tr>
                                     <td>

@@ -21,15 +21,6 @@ nav {
     gap: 10px;
 }
 
-nav a {
-    text-decoration: none;
-    color: #000;
-    background: #a59aef;
-    padding: 9px 16px;
-    border-radius: 5px;
-    font-weight: bold;
-}
-
 nav a:hover {
     background: #0fa070;
     color: #fff;
@@ -57,11 +48,6 @@ nav a:hover {
     font-size: 14px;
 }
 
-.profile-container {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 25px;
-}
 
 .profile-card,
 .details-card,
@@ -106,7 +92,7 @@ nav a:hover {
     align-items: center;
     justify-content: center;
     gap: 7px;
-    width: 100%;
+    width: 200px;
     padding: 11px;
     background: #1560BD;
     color: #fff;
@@ -134,7 +120,7 @@ nav a:hover {
 
 .info-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 18px;
 }
 

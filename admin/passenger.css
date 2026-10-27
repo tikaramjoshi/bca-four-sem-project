@@ -95,7 +95,7 @@ body {
 
 .filter-form {
     display: grid;
-    grid-template-columns: 1fr 220px auto auto;
+    grid-template-columns: 1.8fr 0.5fr 0.8fr 0.5fr 0.5fr;
     gap: 12px;
 }
 

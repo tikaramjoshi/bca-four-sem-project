@@ -6,8 +6,19 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "owner") {
     exit();
 }
 require_once "../db.php";
-include "../post_popup.php";
-$owner_id = $_SESSION['user_id'];
+include "owner_header.php";
+$owner_id = (int)$_SESSION['user_id'];
+
+$stmt = $conn->prepare("SELECT status, reject_reason FROM owner_verification WHERE owner_id=? ORDER BY verification_id DESC LIMIT 1");
+$stmt->bind_param("i", $owner_id);
+$stmt->execute();
+$verify = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+$verification_status = $verify['status'] ?? 'unverified';
+$isVerified = ($verification_status === 'verified');
+
+
 $message = "";
 $message_type = "";
 if (isset($_SESSION['success'])) {
@@ -20,23 +31,6 @@ if (isset($_SESSION['error'])) {
     $message_type = "error";
     unset($_SESSION['error']);
 }
-$ownerQuery = $conn->prepare(" SELECT users.name, users.email, users.verification_status, owner_verification.owner_photo FROM users LEFT JOIN owner_verification ON users.user_id = owner_verification.owner_id WHERE users.user_id = ? ORDER BY owner_verification.verification_id DESC LIMIT 1 ");
-$ownerQuery->bind_param("i", $owner_id);
-$ownerQuery->execute();
-$result = $ownerQuery->get_result();
-$owner = $result->fetch_assoc();
-$ownerQuery->close();
-$owner_name = $owner['name'];
-$owner_email = $owner['email'];
-$verification_status = $owner['verification_status'];
-$isVerified = ($verification_status === "verified");
-$profile_image = $owner['owner_photo'];
-$verifyStmt = $conn->prepare(" SELECT status, reject_reason FROM owner_verification WHERE owner_id=? ORDER BY verification_id DESC LIMIT 1 ");
-$verifyStmt->bind_param("i", $owner_id);
-$verifyStmt->execute();
-$result = $verifyStmt->get_result();
-$verify = $result->fetch_assoc();
-$verifyStmt->close();
 
 if (isset($_POST['register_bus'])) {
     if (!$isVerified) {
@@ -142,6 +136,8 @@ if (!empty($search)) {
 }
 $stmt->execute();
 $busResult = $stmt->get_result();
+
+
 $totalBusStmt = $conn->prepare("SELECT COUNT(*) FROM bus WHERE owner_id=?");
 $totalBusStmt->bind_param("i", $owner_id);
 $totalBusStmt->execute();
@@ -166,9 +162,28 @@ $rejectedResult = $rejectedStmt->get_result();
 $rejected = $rejectedResult->fetch_row()[0];
 $rejectedStmt->close();
 
-$sql = " SELECT COUNT(*) FROM users WHERE role = 'driver' AND verification_status = 'verified' ";
-$driverResult = $conn->query($sql);
-$drivers = $driverResult->fetch_row()[0];
+$driverStmt = $conn->prepare("SELECT COUNT(DISTINCT bd.driver_id) FROM bus_driver bd INNER JOIN bus b ON bd.bus_id=b.bus_id INNER JOIN users u ON bd.driver_id=u.user_id WHERE b.owner_id=? AND u.role='driver' AND u.verification_status='verified'");
+$driverStmt->bind_param("i", $owner_id);
+$driverStmt->execute();
+$drivers = (int)$driverStmt->get_result()->fetch_row()[0];
+$driverStmt->close();
+
+$totalDriverStmt = $conn->prepare("
+    SELECT COUNT(*) 
+    FROM users u
+    WHERE u.role = 'driver'
+    AND u.verification_status = 'verified'
+    AND u.user_id NOT IN (
+        SELECT bd.driver_id
+        FROM bus_driver bd
+        INNER JOIN bus b ON bd.bus_id = b.bus_id
+        WHERE b.owner_id = ?
+    )
+");
+$totalDriverStmt->bind_param("i", $owner_id);
+$totalDriverStmt->execute();
+$totalDrivers = (int)$totalDriverStmt->get_result()->fetch_row()[0];
+$totalDriverStmt->close();
 
 $assignStmt = $conn->prepare(" SELECT COUNT(*) FROM bus_driver bd INNER JOIN bus b     ON bd.bus_id = b.bus_id INNER JOIN users u     ON bd.driver_id = u.user_id WHERE b.owner_id = ? AND u.role = 'driver' AND u.verification_status = 'verified' ");
 $assignStmt->bind_param("i", $owner_id);
@@ -183,6 +198,7 @@ $totalDriverResult = $totalDriverStmt->get_result();
 $totalDrivers = (int)$totalDriverResult->fetch_row()[0];
 $totalDriverStmt->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -191,237 +207,147 @@ $totalDriverStmt->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Owner Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-
     <link rel="stylesheet" href="owner.css">
 </head>
 
 <body>
-    <nav class="main">
-        <div class="nav-left">
-            <a href="dashboard.php" class="active">Home</a>
-            <a href="<?= $isVerified ? 'register_bus.php' : '#' ?>" <?= !$isVerified ? 'onclick="return false;" style="opacity:.5;cursor:not-allowed;"' : '' ?>> Add Bus </a>
-            <a href="<?= $isVerified ? 'my_bus.php' : '#' ?>" <?= !$isVerified ? 'onclick="return false;" style="opacity:.5;cursor:not-allowed;"' : '' ?>> My Bus </a>
-            <a href="<?= $isVerified ? 'driver.php' : '#' ?>" <?= !$isVerified ? 'onclick="return false;" style="opacity:.5;cursor:not-allowed;"' : '' ?>> Driver </a>
-            <a href="<?= $isVerified ? 'assign_driver.php' : '#' ?>" <?= !$isVerified ? 'onclick="return false;" style="opacity:.5;cursor:not-allowed;"' : '' ?>> Assign Driver </a>
-            <a href="<?= $isVerified ? 'schedule.php' : '#' ?>" <?= !$isVerified ? 'onclick="return false;" style="opacity:.5;cursor:not-allowed;"' : '' ?>> Schedule </a>
-            <a href="#aboutSection">About</a>
-        </div>
-        <div style="display: flex; gap:10px ; color:white;align-items:center">
-
-            <h3>Welcome, <span class="profile-name"> <?= htmlspecialchars($owner_name) ?></span> </h3>&nbsp;&nbsp;&nbsp;&nbsp;
-            <span class="status <?= strtolower($verification_status) ?>">
-                <?= htmlspecialchars(ucfirst($verification_status)) ?>
-            </span>
-
-            <div class="settings-menu">
-                <div class="image" onclick="toggleMenu()">
-                    <?php if (!empty($profile_image)) { ?>
-                        <img src="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($profile_image) ?>" class="nav-profile-img" alt="Profile">
-                    <?php } else { ?>
-                        <img src="../uploads/default.png" class="nav-profile-img" alt="Default Profile">
-                    <?php } ?>
-                </div>
-                <div class="dropdown" id="dropdownMenu">
-                    <a href="profile.php"><i class="fa fa-user"></i>Profile</a>
-                    <a href="edit_profile.php"><i class="fa fa-edit"></i> Edit Profile</a>
-                    <!-- <a href="edit_profile.php"><i class="fa fa-edit"></i> Edit Profile</a> -->
-                    <a href="verification.php"><i class="fa fa-file"></i>Verified Account </a>
-                    <a href="../changepassword.php"><i class="fa fa-key"></i>Change Password</a>
-                    <hr>
-                    <a href="../logout.php"><i class="fa fa-sign-out-alt"></i>Logout</a>
-                </div>
-            </div>
-        </div>
-    </nav>
     <?php if ($verification_status == "rejected") { ?>
         <div class="verify-banner" style="border-left:6px solid red;">
             <h2>Verification Rejected</h2>
-            <p><b>Reason:</b><br><?= htmlspecialchars($verify['reject_reason']) ?> </p>
-            <a href="verification.php" class="verify-btn"> Submit Again </a>
+            <p><b>Reason:</b><br><?= htmlspecialchars($verify['reject_reason'] ?? '') ?></p>
+            <a href="verification.php" class="verify-btn">Submit Again</a>
         </div>
     <?php } elseif (!$isVerified) { ?>
         <div class="verify-banner">
-            <a href="verification.php" class="verify-btn">Complete Verification </a>
+            <h2>Account Verification Required</h2>
+            <p>Please complete your account verification to access owner features.</p>
+            <a href="verification.php" class="verify-btn">Complete Verification</a>
         </div>
-    <?php } else { ?>
-        <div class="verify-success"> <?php } ?> </div>
-        <?php if ($message != ""): ?>
-            <div class="alert <?= $message_type ?>"> <?= htmlspecialchars($message) ?> </div>
-        <?php endif; ?>
-        <section class="stats">
-            <div class="box">
-                <h2><?= $totalBus ?></h2>
-                <p>Total Bus</p>
-            </div>
-            <div class="box">
-                <h2><?= $drivers ?></h2>
-                <p>Drivers</p>
-            </div>
-            <div class="box">
-                <h2><?= $pending ?></h2>
-                <p>Pending</p>
-            </div>
-            <div class="box">
-                <h2><?= $approved ?></h2>
-                <p>Approved</p>
-            </div>
-            <div class="box">
-                <h2><?= $rejected ?></h2>
-                <p>Rejected</p>
-            </div>
-            <div class="box">
-                <h2><?= $totalDrivers ?></h2>
-                <p>Assign Driver</p>
-            </div>
-        </section>
+    <?php } ?>
+    <?php if ($message != ""): ?>
+        <div id="alertBox" class="alert <?= $message_type ?>"> <?= htmlspecialchars($message) ?> </div>
+    <?php endif; ?>
+    <section class="stats">
+        <div class="box">
+            <h2><?= $totalBus ?></h2>
+            <p>Total Bus</p>
+        </div>
+        <div class="box">
+            <h2><?= $drivers ?></h2>
+            <p>Drivers</p>
+        </div>
+        <div class="box">
+            <h2><?= $pending ?></h2>
+            <p>Pending</p>
+        </div>
+        <div class="box">
+            <h2><?= $approved ?></h2>
+            <p>Approved</p>
+        </div>
+        <div class="box">
+            <h2><?= $rejected ?></h2>
+            <p>Rejected</p>
+        </div>
+        <div class="box">
+            <h2><?= $totalDrivers ?></h2>
+            <p>Unassigned Drivers</p>
+        </div>
+    </section>
 
-        <section class="search-area">
-            <h2>My Bus List</h2>
-            <form method="GET" class="search-box">
-                <input type="text" name="search" placeholder="Search Bus Number or Bus Name" value="<?= htmlspecialchars($search) ?>">
-                <button type="submit"> Search </button>
-            </form>
-        </section>
-        <section class="table-area">
-            <table class="bus-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Image</th>
-                        <th>Bus Number</th>
-                        <th>Bus Name</th>
-                        <th>Bus Type</th>
-                        <th>Seats</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                        <th>Reject</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($busResult->num_rows > 0): ?>
-                        <?php while ($row = $busResult->fetch_assoc()): ?>
-                            <tr>
-                                <td><?= $row['bus_id'] ?></td>
-                                <td>
-                                    <?php if (!empty($row['bus_image'])) { ?>
-                                        <img src="../uploads/bus/<?= htmlspecialchars($row['bus_image']) ?>" width="90" height="60" style="object-fit:cover;border-radius:6px;">
-                                    <?php } else { ?>
-                                        <img src="../images/no-image.png" width="90" height="60">
-                                    <?php } ?>
-                                </td>
-                                <td><?= htmlspecialchars($row['bus_number']) ?></td>
-                                <td><?= htmlspecialchars($row['bus_name']) ?></td>
-                                <td><?= htmlspecialchars($row['bus_type']) ?></td>
-                                <td><?= $row['seats'] ?></td>
-                                <td>
-                                    <?php
-                                    $status = $row['status'];
-                                    if ($status == "approved") {
-                                        echo "<span class='approved'>Approved</span>";
-                                    } elseif ($status == "pending") {
-                                        echo "<span class='pending'>Pending</span>";
-                                    } else {
-                                        echo "<span class='rejected'>Rejected</span>";
-                                    }
-                                    ?>
-                                </td>
-                                <td>
-                                    <?php if ($isVerified) { ?>
-                                        <a href="edit_bus.php?id=<?= $row['bus_id'] ?>" class="edit-btn"> Edit </a>
-                                        <a href="delete_bus.php?id=<?= $row['bus_id'] ?>" class="delete-btn" onclick="return confirm('Delete this bus?')"> Delete </a>
-                                    <?php } else { ?>
-                                        <button class="edit-btn" disabled> Locked </button>
-                                        <button class="delete-btn" disabled> Locked </button>
-                                    <?php } ?>
-                                </td>
-                                <td>
-                                    <?php if ($row['status'] == "rejected") { ?>
-                                        <a href="reject_discription.php?id=<?= $row['bus_id'] ?>"
-                                            class="view-btn">
-                                            View Reason
-                                        </a>
-                                    <?php } else { ?>
-                                        -
-                                    <?php } ?>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
+    <section class="search-area">
+        <h2>My Bus List</h2>
+        <form method="GET" class="search-box">
+            <input type="text" name="search" placeholder="Search Bus Number or Bus Name" value="<?= htmlspecialchars($search) ?>">
+            <button type="submit"> Search </button>
+        </form>
+    </section>
+    <section class="table-area">
+        <table class="bus-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Bus Number</th>
+                    <th>Bus Name</th>
+                    <th>Bus Type</th>
+                    <th>Seats</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                    <th>Reject</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ($busResult->num_rows > 0): ?>
+                    <?php while ($row = $busResult->fetch_assoc()): ?>
                         <tr>
-                            <td colspan="8"> No Bus Found. </td>
+                            <td><?= $row['bus_id'] ?></td>
+                            <td>
+                                <?php if (!empty($row['bus_image'])) { ?>
+                                    <img src="../uploads/bus/<?= htmlspecialchars($row['bus_image']) ?>" width="90" height="60" style="object-fit:cover;border-radius:6px;">
+                                <?php } else { ?>
+                                    <img src="../images/no-image.png" width="90" height="60">
+                                <?php } ?>
+                            </td>
+                            <td><?= htmlspecialchars($row['bus_number']) ?></td>
+                            <td><?= htmlspecialchars($row['bus_name']) ?></td>
+                            <td><?= htmlspecialchars($row['bus_type']) ?></td>
+                            <td><?= $row['seats'] ?></td>
+                            <td>
+                                <?php
+                                $status = $row['status'];
+                                if ($status == "approved") {
+                                    echo "<span class='approved'>Approved</span>";
+                                } elseif ($status == "pending") {
+                                    echo "<span class='pending'>Pending</span>";
+                                } else {
+                                    echo "<span class='rejected'>Rejected</span>";
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php if ($isVerified) { ?>
+                                    <a href="edit_bus.php?id=<?= $row['bus_id'] ?>" class="edit-btn"> Edit </a>
+                                    <a href="delete_bus.php?id=<?= $row['bus_id'] ?>" class="delete-btn" onclick="return confirm('Delete this bus?')"> Delete </a>
+                                <?php } else { ?>
+                                    <button class="edit-btn" disabled> Locked </button>
+                                    <button class="delete-btn" disabled> Locked </button>
+                                <?php } ?>
+                            </td>
+                            <td>
+                                <?php if ($row['status'] == "rejected") { ?>
+                                    <a href="reject_discription.php?id=<?= $row['bus_id'] ?>"
+                                        class="view-btn">
+                                        View Reason
+                                    </a>
+                                <?php } else { ?>
+                                    -
+                                <?php } ?>
+                            </td>
                         </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </section>
-        <footer class="last">
-            <div class="last-main">
-                <div class="last-link">
-                    <h3><i class="fa fa-link"></i> Quick Links</h3>
-                    <a href="#"><i class="fa fa-home"></i> Home</a>
-                    <?php
-                    function verifyLink($page, $isVerified)
-                    {
-                        return $isVerified ? "href='$page'" : "href='#' onclick=\"alert('Please complete account verification first.'); return false;\"";
-                    }
-                    ?>
-                    <a <?= verifyLink('register_bus.php', $isVerified) ?>><i class="fa fa-bus"></i> Add Bus</a>
-                    <a <?= verifyLink('my_bus.php', $isVerified) ?>><i class="fa fa-bus"></i> My Bus</a>
-                    <a <?= verifyLink('driver.php', $isVerified) ?>><i class="fa fa-user"></i> Driver</a>
-                    <a <?= verifyLink('schedule.php', $isVerified) ?>><i class="fa fa-calendar"></i> Schedule</a>
-                    <a href="../logout.php"><i class="fa fa-sign-out-alt"></i> Logout</a>
-                </div>
-                <div class="last-contact" id="contactSection">
-                    <h3><i class="fa fa-address-book"></i> Contact</h3>
-                    <p><i class="fa fa-envelope"></i> Email: <a href="mailto:tikaramj519@gmail.com">tikaramj519@gmail.com</a></p>
-                    <p><i class="fa fa-phone"></i> Phone: <a href="tel:+9779840792553">+9779840792553</a></p>
-                    <p><i class="fab fa-whatsapp"></i> WhatsApp: <a href="https://wa.me/9779840792553">+9779840792553</a></p>
-                </div>
-                <div class="last-about" id="aboutSection">
-                    <h3><i class="fa fa-share-alt"></i> Follow Us</h3>
-                    <a href="#"><i class="fab fa-facebook"></i> Facebook</a>
-                    <a href="#"><i class="fab fa-instagram"></i> Instagram</a>
-                    <a href="#"><i class="fab fa-tiktok"></i> TikTok</a>
-                    <a href="#"><i class="fab fa-youtube"></i> YouTube</a>
-                    <h3><i class="fa fa-code"></i> Developed By</h3>
-                    <p><i class="fa fa-user"></i> Tikaram Joshi</p>
-                </div>
-            </div>
-            <hr>
-            <div class="copy">
-                <p><i class="fa fa-copyright"></i> 2026 Online Bus Ticket Booking System || All Rights Reserved.</p>
-            </div>
-        </footer>
-        <script>
-            function toggleMenu() {
-                document.getElementById("dropdownMenu").classList.toggle("show");
-            }
-            window.onclick = function(e) {
-                if (!e.target.closest(".settings-menu")) {
-                    document.getElementById("dropdownMenu").classList.remove("show");
-                }
-            };
-            const links = document.querySelectorAll(".nav-left a");
-            links.forEach(link => {
-                link.onclick = function() {
-                    links.forEach(item => item.classList.remove("active"));
-                    this.classList.add("active");
-                };
-            });
-            window.onload = function() {
-                const alertBox = document.getElementById("alertBox");
-                if (alertBox) {
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="8"> No Bus Found. </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </section>
+    <?php include "owner_footer.php" ?>
+    <script>
+        window.onload = function() {
+            const alertBox = document.getElementById("alertBox");
+            if (alertBox) {
+                setTimeout(function() {
+                    alertBox.style.transition = "opacity .5s";
+                    alertBox.style.opacity = "0";
                     setTimeout(function() {
-                        alertBox.style.transition = "opacity .5s";
-                        alertBox.style.opacity = "0";
-                        setTimeout(function() {
-                            alertBox.remove();
-                        }, 500);
-                    }, 5000);
-                }
-            };
-        </script>
+                        alertBox.remove();
+                    }, 500);
+                }, 5000);
+            }
+        };
+    </script>
 </body>
 
 </html>

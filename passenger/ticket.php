@@ -62,7 +62,7 @@ if (count($cancelled) === $total) {
             .actions,
             .pending-box,
             .cancelled-box,
-            .summary:not(.qr-top) .row:not(:nth-child(2)) {
+            .summary:not(.qr-top) .row:not(:nth-child(3)) {
                 display: none !important;
             }
         }
@@ -131,7 +131,7 @@ if (count($cancelled) === $total) {
                 <div class="summary">
                     <h3>Booking Summary</h3>
                     <div class="row"><span>Total Selected Seats</span><strong><?= $total ?></strong></div>
-                    <div class="row"><span>Confirmed Seats</span><strong class="green"><?= count($confirmed) ?></strong></div>
+                    <div class="row"><span>Total Confirmed Seats</span><strong><?= count($confirmed) ?></strong></div>
                     <div class="row"><span>Waiting Seats</span><strong class="orange"><?= count($pending) ?></strong></div>
                     <div class="row"><span>Cancelled Seats</span><strong class="red"><?= count($cancelled) ?></strong></div>
                     <div class="row"><span>Active Booking Amount</span><strong>Rs. <?= number_format($active_amount, 2) ?></strong></div>

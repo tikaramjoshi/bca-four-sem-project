@@ -5,6 +5,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "owner") {
     exit();
 }
 require_once "../db.php";
+include "owner_header.php";
 $owner_id = (int)$_SESSION['user_id'];
 $message = "";
 $message_type = "";
@@ -134,15 +135,6 @@ if (isset($_POST['submit'])) {
         nav {
             display: flex;
             align-items: center
-        }
-
-        nav a {
-            text-decoration: none;
-            color: #000;
-            background: #a59aef;
-            padding: 8px 15px;
-            font-weight: bold;
-            border-radius: 4px
         }
 
         nav a:hover {
@@ -292,9 +284,6 @@ if (isset($_POST['submit'])) {
 </head>
 
 <body>
-    <div class="main">
-        <nav><a href="dashboard.php">Home</a></nav>
-    </div>
     <div class="last-policy">
         <div class="verification-box">
             <h2>Company Verification</h2>

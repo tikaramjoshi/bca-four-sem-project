@@ -47,90 +47,16 @@ if ($current_bus) {
     <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="bus.css">
     <style>
-        .label {
-            color: #777;
-            font-size: 14px
-        }
 
-        .card h3 {
-            margin: 8px 0 0
-        }
-
-        .bus-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px
-        }
-
-        .bus-title h3 {
-            margin: 0
-        }
-
-        .bus-number {
-            background: #eef0ff;
-            color: #4413e5;
-            padding: 7px 12px;
-            border-radius: 6px;
-            font-weight: bold
-        }
-
-        .table-box {
-            overflow-x: auto
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse
-        }
-
-        .completed {
-            background: #d9f5e5;
-            color: #08763d
-        }
-
-        .upcoming {
-            background: #fff0c2;
-            color: #856404
-        }
-
-        .cancelled {
-            background: #f8d7da;
-            color: #842029
-        }
-
-        .route {
-            font-weight: bold
-        }
-
-        .booking {
-            font-weight: bold
-        }
-
-        @media(max-width:900px) {
-            .cards {
-                grid-template-columns: repeat(2, 1fr)
-            }
-        }
-
-        @media(max-width:600px) {
-            .cards {
-                grid-template-columns: 1fr
-            }
-
-            .container {
-                width: 95%
-            }
-        }
     </style>
 </head>
 
 <body>
-    <?php include "dri_header.php" ?>
+    <?php include "driver_header.php" ?>
     <div class="container">
         <div class="top">
             <h2>My Trips</h2>
-            <a href="dashboard.php" class="back">Back</a>
+            <a href="dashboard.php" class="back"><i class="fa fa-arrow-left"></i> &nbsp; Back</a>
         </div>
         <div class="cards">
             <div class="card">
@@ -154,19 +80,17 @@ if ($current_bus) {
             <?php if ($current_bus): ?>
                 <div class="bus-title">
                     <h3>Current Bus Trips</h3>
-                    <span class="bus-number"><?= htmlspecialchars($current_bus['bus_number']) ?></span>
+                    <span class="bus-number"><strong>Bus number:</strong> &nbsp;<?= htmlspecialchars($current_bus['bus_number']) ?></span>
                 </div>
                 <div class="table-box">
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>From → To</th>
+                                <th>S.No</th>
+                                <th>From <i class="fa fa-arrow-right"></i>&nbsp; To</th>
                                 <th>Date</th>
                                 <th>Departure</th>
-                                <th>Arrival</th>
                                 <th>Bus Number</th>
-                                <th>Booking</th>
                                 <th>Passengers</th>
                                 <th>Status</th>
                             </tr>
@@ -180,12 +104,11 @@ if ($current_bus) {
                                     ?>
                                     <tr>
                                         <td><?= $i + 1 ?></td>
-                                        <td class="route"><?= htmlspecialchars($trip['from_city']) ?> → <?= htmlspecialchars($trip['to_city']) ?></td>
+                                        <td class="route"><?= htmlspecialchars($trip['from_city']) ?> <i class="fa fa-arrow-right"></i>&nbsp; <?= htmlspecialchars($trip['to_city']) ?></td>
                                         <td><?= date("d M Y", strtotime($trip['departure_date'])) ?></td>
                                         <td><?= date("h:i A", strtotime($trip['departure_time'])) ?></td>
-                                        <td>-</td>
                                         <td><?= htmlspecialchars($trip['bus_number']) ?></td>
-                                        <td class="booking"><?= (int)$trip['total_bookings'] ?></td>
+                                        <!-- <td class="booking"><?= (int)$trip['total_bookings'] ?></td> -->
                                         <td class="booking"><?= (int)$trip['passenger_count'] ?></td>
                                         <td>
                                             <?php if ($trip['status'] === 'cancelled'): ?>
@@ -207,9 +130,7 @@ if ($current_bus) {
                     </table>
                 </div>
             <?php else: ?>
-                <div class="empty">
-                    No bus is currently assigned to you.
-                </div>
+                <div class="empty"> No bus is currently assigned to you. </div>
             <?php endif; ?>
         </div>
     </div>

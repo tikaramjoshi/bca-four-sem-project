@@ -151,13 +151,8 @@ while ($row = $result->fetch_assoc()) {
 $available_drivers = [];
 
 $stmt = $conn->prepare("
-    SELECT
-        u.user_id,
-        u.name,
-        u.email,
-        u.phone,
-        u.profile_image,
-        u.verification_status
+    SELECT u.user_id, u.name, u.email, u.phone,
+           u.profile_image, u.verification_status
     FROM users u
     WHERE u.role = 'driver'
     AND u.verification_status = 'verified'
@@ -168,6 +163,7 @@ $stmt = $conn->prepare("
     )
     ORDER BY u.name ASC
 ");
+
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -322,69 +318,73 @@ $total_assignments = count($assignments);
 
                         <tbody>
                             <?php foreach ($available_drivers as $driver): ?>
-
                                 <?php
-                                $driver_image = !empty($driver['profile_image'])
-                                    ? $driver['profile_image']
-                                    : 'default.png';
+                                $driver_id = (int)$driver['user_id'];
+
+                                $stmt_photo = $conn->prepare("
+    SELECT profile_photo
+    FROM driver_verification
+    WHERE driver_id = ?
+    ORDER BY verification_id DESC
+    LIMIT 1
+");
+                                $stmt_photo->bind_param("i", $driver_id);
+                                $stmt_photo->execute();
+                                $photo_result = $stmt_photo->get_result()->fetch_assoc();
+                                $stmt_photo->close();
+
+                                if (!empty($photo_result['profile_photo'])) {
+                                    $driver_image = "../uploads/driver/profile/" . $photo_result['profile_photo'];
+                                } elseif (!empty($driver['profile_image'])) {
+                                    $driver_image = "../uploads/profile/" . $driver['profile_image'];
+                                } else {
+                                    $driver_image = "../uploads/profile/default.png";
+                                }
                                 ?>
 
                                 <tr>
                                     <td>
                                         <div class="driver-info">
-                                            <img src="../uploads/profile/<?= htm($driver_image) ?>" class="driver-image" alt="Driver" onerror="this. this.src='../images/default.png';">
-
-                                            <div>
-                                                <div class="driver-name">
-                                                    <?= htmlspecialchars($driver['name']) ?>
-                                                </div>
+                                            <img
+                                                src="<?= htmlspecialchars($driver_image) ?>"
+                                                class="driver-image"
+                                                alt="Driver"
+                                                onerror="this.onerror=null;this.src='../uploads/profile/default.png';">
+                                            <div class="driver-name">
+                                                <?= htmlspecialchars($driver['name'] ?? '') ?>
                                             </div>
                                         </div>
                                     </td>
 
-                                    <td>
-                                        <?= htmlspecialchars($driver['email']) ?>
-                                    </td>
+                                    <td><?= htmlspecialchars($driver['email'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($driver['phone'] ?? '') ?></td>
 
                                     <td>
-                                        <?= htmlspecialchars($driver['phone']) ?>
-                                    </td>
-
-                                    <td>
-                                        <span class="badge verifie">
-                                            Approved
-                                        </span>
+                                        <span class="badge verified">Approved</span>
                                     </td>
 
                                     <td>
                                         <form method="POST">
-                                            <input
-                                                type="hidden"
-                                                name="driver_id"
+                                            <input type="hidden" name="driver_id"
                                                 value="<?= (int)$driver['user_id'] ?>">
 
                                             <select name="bus_id" required>
                                                 <option value="">Select Bus</option>
-
                                                 <?php foreach ($buses as $bus): ?>
                                                     <option value="<?= (int)$bus['bus_id'] ?>">
-                                                        <?= htmlspecialchars($bus['bus_number']) ?>
-                                                        -
+                                                        <?= htmlspecialchars($bus['bus_number']) ?> -
                                                         <?= htmlspecialchars($bus['bus_name']) ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>
 
-                                            <button
-                                                type="submit"
-                                                name="assign_driver"
+                                            <button type="submit" name="assign_driver"
                                                 class="assign-btn">
                                                 Assign
                                             </button>
                                         </form>
                                     </td>
                                 </tr>
-
                             <?php endforeach; ?>
                         </tbody>
                     </table>

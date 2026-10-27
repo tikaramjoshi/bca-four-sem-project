@@ -20,6 +20,7 @@ $passenger_name = $user['name'] ?? 'Passenger';
 $verification_status = $user['verification_status'] ?? 'pending';
 $profile_image = !empty($user['profile_image']) ? basename($user['profile_image']) : 'default.png';
 ?>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="dashboard.css">
 <div class="main">

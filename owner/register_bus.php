@@ -313,7 +313,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </form>
         </div>
     </div>
-
+    <?php include "owner_footer.php" ?>
     <script>
         function previewImage(event) {
             const file = event.target.files[0];

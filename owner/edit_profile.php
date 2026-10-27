@@ -5,6 +5,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'owner') {
     exit();
 }
 require_once "../db.php";
+include "owner_header.php";
 
 $owner_id = (int)$_SESSION['user_id'];
 $message = "";
@@ -230,9 +231,6 @@ $profile_image = !empty($owner['profile_image']) ? $owner['profile_image'] : "de
 </head>
 
 <body>
-    <div class="main">
-        <nav><a href="profile.php"> <i class="fa fa-home"> &nbsp;</i>Home</a></nav>
-    </div>
     <div class="edit-page">
         <div class="edit-container">
             <div class="edit-title">

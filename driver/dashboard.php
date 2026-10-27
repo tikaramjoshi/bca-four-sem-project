@@ -46,15 +46,13 @@ if ($bus) {
 $total_bookings = 0;
 $today_bookings = 0;
 if ($bus) {
-    $stmt = $conn->prepare(" SELECT COUNT(*) AS total FROM bookings bk INNER JOIN schedules s ON bk.schedule_id=s.schedule_id WHERE s.bus_id=?
-    ");
+    $stmt = $conn->prepare(" SELECT COUNT(*) AS total FROM bookings bk INNER JOIN schedules s ON bk.schedule_id=s.schedule_id WHERE s.bus_id=? ");
     $stmt->bind_param("i", $bus['bus_id']);
     $stmt->execute();
     $booking_result = $stmt->get_result()->fetch_assoc();
     $total_bookings = (int)($booking_result['total'] ?? 0);
     $stmt->close();
-    $stmt = $conn->prepare(" SELECT COUNT(*) AS total FROM bookings bk INNER JOIN schedules s ON bk.schedule_id=s.schedule_id WHERE s.bus_id=? AND s.departure_date=?
-    ");
+    $stmt = $conn->prepare(" SELECT COUNT(*) AS total FROM bookings bk INNER JOIN schedules s ON bk.schedule_id=s.schedule_id WHERE s.bus_id=? AND s.departure_date=?  ");
     $stmt->bind_param("is", $bus['bus_id'], $today);
     $stmt->execute();
     $today_result = $stmt->get_result()->fetch_assoc();
@@ -81,15 +79,11 @@ if ($bus) {
 }
 $notifications[] = [
     "title" => !empty($today_schedule) ? "Today's Trip" : "No Trip",
-    "message" => !empty($today_schedule)
-        ? "You have " . count($today_schedule) . " scheduled trip(s) today."
-        : "You have no scheduled trip for today.",
+    "message" => !empty($today_schedule) ? "You have " . count($today_schedule) . " scheduled trip(s) today." : "You have no scheduled trip for today.",
     "time" => "Today"
 ];
 $driver_photo = !empty($verification['profile_photo'])
-    ? "../uploads/driver/profile/" . $verification['profile_photo']
-    : "../uploads/profile/" . $profile_image;
-
+    ? "../uploads/driver/profile/" . $verification['profile_photo'] : "../uploads/profile/" . $profile_image;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -98,86 +92,80 @@ $driver_photo = !empty($verification['profile_photo'])
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Driver Dashboard</title>
-    <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 
 <body>
-    <?php include "dri_header.php"; ?>
+    <?php include "driver_header.php"; ?>
     <div class="container">
-        <div class="welcome">
-            <h1>Welcome, <?= htmlspecialchars($driver['name']) ?> </h1>
-            <p>Manage your assigned bus, trips and passenger information.</p>
-            <div class="status-row"><span class="status-dot"></span><span class="status-text"><?= htmlspecialchars($driver_status) ?></span></div>
-        </div>
         <div class="cards">
             <div class="card">
                 <div class="card-title">Assigned Bus</div>
-                <div class="card-value">
-                    <?= $bus ? htmlspecialchars($bus['bus_number']) : 'None' ?>
-                </div>
+                <div class="card-value"> <?= $bus ? htmlspecialchars($bus['bus_number']) : 'None' ?> </div>
             </div>
             <div class="card">
                 <div class="card-title">Today's Trips</div>
-                <div class="card-value">
-                    <?= count($today_schedule) ?>
-                </div>
+                <div class="card-value"> <?= count($today_schedule) ?> </div>
             </div>
             <div class="card">
                 <div class="card-title">Today's Passengers</div>
-                <div class="card-value">
-                    <?= $today_bookings ?>
-                </div>
+                <div class="card-value"> <?= $today_bookings ?> </div>
             </div>
             <div class="card">
                 <div class="card-title">Total Bookings</div>
-                <div class="card-value">
-                    <?= $total_bookings ?>
-                </div>
+                <div class="card-value"> <?= $total_bookings ?> </div>
             </div>
         </div>
         <div class="content-grid">
-            <div>
-                <div class="box">
-                    <h2>Assigned Bus</h2>
-                    <?php if ($bus): ?>
-                        <div class="bus-details">
-                            <div class="bus-item">
-                                <small>Bus Number</small>
-                                <strong>
-                                    <?= htmlspecialchars($bus['bus_number']) ?>
-                                </strong>
-                            </div>
-                            <div class="bus-item">
-                                <small>Bus Name</small>
-                                <strong>
-                                    <?= htmlspecialchars($bus['bus_name']) ?>
-                                </strong>
-                            </div>
-                            <div class="bus-item">
-                                <small>Bus Type</small>
-                                <strong>
-                                    <?= htmlspecialchars($bus['bus_type']) ?>
-                                </strong>
-                            </div>
-                            <div class="bus-item">
-                                <small>Total Seats</small>
-                                <strong>
-                                    <?= htmlspecialchars($bus['seats']) ?>
-                                </strong>
-                            </div>
-                            <div class="bus-item">
-                                <small>Bus Status</small>
-                                <strong>
-                                    <?= ucfirst(htmlspecialchars($bus['status'])) ?>
-                                </strong>
-                            </div>
+            <div class="box">
+                <h2>Assigned Bus</h2>
+                <?php if ($bus): ?>
+                    <div class="bus-details">
+                        <div class="bus-item"> <small>Bus Number</small>
+                            <strong> <?= htmlspecialchars($bus['bus_number']) ?> </strong>
                         </div>
-                    <?php else: ?>
-                        <div class="not-assigned">
-                            No bus has been assigned to you yet.
+                        <div class="bus-item"> <small>Bus Name</small>
+                            <strong> <?= htmlspecialchars($bus['bus_name']) ?> </strong>
                         </div>
-                    <?php endif; ?>
+                        <div class="bus-item"> <small>Bus Type</small>
+                            <strong> <?= htmlspecialchars($bus['bus_type']) ?> </strong>
+                        </div>
+                        <div class="bus-item"> <small>Total Seats</small>
+                            <strong> <?= htmlspecialchars($bus['seats']) ?> </strong>
+                        </div>
+                        <div class="bus-item"> <small>Bus Status</small>
+                            <strong> <?= ucfirst(htmlspecialchars($bus['status'])) ?> </strong>
+                        </div>
+                        <div class="bus-item">
+                            <small>Trip Status</small>
+                            <?php
+                            $bus_status = 'Upcoming';
+
+                            if (!empty($today_schedule)) {
+                                foreach ($today_schedule as $trip) {
+                                    if (strtolower($trip['status']) === 'completed') {
+                                        $bus_status = 'Completed';
+                                        break;
+                                    } elseif (date('H:i:s') >= $trip['departure_time']) {
+                                        $bus_status = 'On Trip';
+                                    }
+                                }
+                            }
+                            ?>
+                            <strong class="status <?= strtolower(str_replace(' ', '-', $bus_status)) ?>">
+                                <?= htmlspecialchars($bus_status) ?>
+                            </strong>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="not-assigned"> No bus has been assigned to you yet. </div>
+                <?php endif; ?>
+                <br>
+                <h2>Passenger Summary</h2>
+                <div class=" pass-summary">
+                    <p> Today's Passengers<br> <?= $today_bookings ?> </p>
+                    <p>Total Booking<br> <?= $total_bookings ?> </p>
                 </div>
                 <div class="box">
                     <h2>Today's Trips</h2>
@@ -211,114 +199,20 @@ $driver_photo = !empty($verification['profile_photo'])
                     <?php else: ?>
                         <div class="empty"> No trips scheduled for today. </div>
                     <?php endif; ?>
-                </div>
-                <div class="box">
-                    <h2>Driver Information</h2>
-                    <div class="bus-details">
-                        <div class="bus-item">
-                            <small>Name</small>
-                            <strong>
-                                <?= htmlspecialchars($driver['name']) ?>
-                            </strong>
-                        </div>
-                        <div class="bus-item">
-                            <small>Phone</small>
-                            <strong>
-                                <?= htmlspecialchars($driver['phone']) ?>
-                            </strong>
-                        </div>
-                        <div class="bus-item">
-                            <small>Email</small>
-                            <strong>
-                                <?= htmlspecialchars($driver['email']) ?>
-                            </strong>
-                        </div>
-                        <div class="bus-item">
-                            <small>Verification</small>
-                            <?php if (($driver['verification_status'] ?? '') === 'verified'): ?>
-                                <span class="verified">
-                                    Verified
-                                </span>
+                    <?php if (($driver['verification_status'] ?? '') === 'verified'): ?>
+                        <div class="box">
+                            <div class="verification-box">
                             <?php else: ?>
-                                <span class="unverified">
-                                    Unverified
-                                </span>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <div class="box">
-                    <h2>Driver Status</h2>
-                    <div class="status-row">
-                        <span class="status-dot"></span>
-                        <span class="status-text">
-                            <?= htmlspecialchars($driver_status) ?>
-                        </span>
-                    </div>
-                    <p style="margin-top:15px;color:#777;font-size:14px;line-height:1.6;">
-                        Your current driver status is based on today's scheduled departure time.
-                    </p>
-                </div>
-                <div class="box">
-                    <h2>Verification Status</h2>
-                    <div class="verification-box">
-                        <?php if (($driver['verification_status'] ?? '') === 'verified'): ?>
-                            <h3 style="color:#198754;">
-                                Driver Verified
-                            </h3>
-                            <p>
-                                Your driver account has been verified.
-                                You can operate your assigned bus and trips.
-                            </p>
-                        <?php else: ?>
-                            <h3 style="color:#dc3545;">
-                                Driver Unverified
-                            </h3>
-                            <p>
-                                Your driver account has not been verified yet.
-                                Please complete the verification process.
-                            </p>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <div class="box">
-                    <h2>Notifications</h2>
-                    <?php if (!empty($notifications)): ?>
-                        <?php foreach ($notifications as $notification): ?>
-                            <div class="notification">
-                                <strong>
-                                    <?= htmlspecialchars($notification['title']) ?>
-                                </strong>
-                                <p>
-                                    <?= htmlspecialchars($notification['message']) ?>
-                                </p>
-                                <small>
-                                    <?= htmlspecialchars($notification['time']) ?>
-                                </small>
+                                <h3 style="color:#dc3545;"> Driver Unverified </h3>
+                                <p> Your driver account has not been verified yet. Please complete the verification process. </p>
                             </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="empty">No notifications.</div>
+                        </div>
                     <?php endif; ?>
-                </div>
-                <div class="box">
-                    <h2>Passenger Summary</h2>
-                    <div class="bus-details">
-                        <div class="bus-item">
-                            <small>Today's Passengers</small>
-                            <strong> <?= $today_bookings ?></strong>
-                        </div>
-                        <div class="bus-item">
-                            <small>Total Bookings</small>
-                            <strong> <?= $total_bookings ?> </strong>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 </body>
 
 </html>

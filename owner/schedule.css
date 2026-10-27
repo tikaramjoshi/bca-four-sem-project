@@ -212,4 +212,20 @@
                 padding: 0 20px;
             }
         }
-    
+    .schedule-form-toggle {
+    margin: 20px 0;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.schedule-form-toggle .add-btn {
+    padding: 12px 22px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+#scheduleFormCard {
+    margin-bottom: 25px;
+}

@@ -5,6 +5,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'owner') {
     exit();
 }
 require_once "../db.php";
+include "owner_header.php";
 $owner_id = (int)$_SESSION['user_id'];
 $stmt = $conn->prepare("SELECT user_id, name, email, phone, profile_image, verification_status, created_at FROM users WHERE user_id=? AND role='owner' LIMIT 1");
 $stmt->bind_param("i", $owner_id);
@@ -37,29 +38,26 @@ $verification_status = $owner['verification_status'] ?? 'unverified';
 </head>
 
 <body>
-    <div class="main">
-        <nav> <a href="dashboard.php"><i class="fa fa-home"></i> Home</a> </nav>
-    </div>
     <div class="profile-page">
         <div class="profile-title">
             <h1>My Profile</h1>
             <p>View your owner account and verification information</p>
         </div>
         <div class="profile-container">
-            <div class="profile-card">
-
-                <?php if (!empty($profile_image)): ?>
-                    <img src="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($verification['owner_photo']) ?>" alt="Owner Photo" class="profile-image">
-                <?php else: ?>
-                    <img src="../uploads/default.png" class="profile-image" alt="Profile">
-                <?php endif; ?>
-
-                <h2><?= htmlspecialchars($owner['name']) ?></h2>
-                <span class="role"><i class="fa fa-user"></i> Owner</span>
-                <a href="edit_profile.php" class="edit-btn"><i class="fa fa-edit"></i> Edit Profile</a>
-            </div>
             <div>
                 <div class="details-card">
+                    <div class="profile-card">
+
+                        <?php if (!empty($profile_image)): ?>
+                            <img src="../uploads/profile/<?= $owner_id ?>/profile/<?= htmlspecialchars($verification['owner_photo']) ?>" alt="Owner Photo" class="profile-image">
+                        <?php else: ?>
+                            <img src="../uploads/default.png" class="profile-image" alt="Profile">
+                        <?php endif; ?>
+
+                        <h2><?= htmlspecialchars($owner['name']) ?></h2>
+                        <span class="role"><i class="fa fa-user"></i> Owner</span><br>
+                        <a href="edit_profile.php" class="edit-btn"><i class="fa fa-edit"></i> Edit Profile</a>
+                    </div>
                     <h3 class="card-title"><i class="fa fa-user"></i> Personal Information</h3>
                     <div class="info-grid">
                         <div class="info-item">

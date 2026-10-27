@@ -24,14 +24,27 @@ $driver_photo = !empty($verification['profile_photo'])
 ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="../driver/dashboard.css">
+<style>
+    .logo a {
+        margin: 5px;
+        text-decoration: none;
+        background-color: #2e2ec9de;
+        color: #fff;
+        border-radius: 10px;
+    }
 
+    .logo p:hover,
+    a:hover {
+        background-color: #db5b11;
+    }
+</style>
 <header class="header">
-    <div class="logo">Driver Dashboard</div>
-    <div><a href="dashboard.php" class="<?= basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : '' ?>">Home</a></div>
-    <div><a href="scan_ticket.php" class="<?= basename($_SERVER['PHP_SELF']) == 'scan_ticket.php' ? 'active' : '' ?>">Scan</a></div>
-    <div><a href="bookings.php" class="<?= basename($_SERVER['PHP_SELF']) == 'bookings.php' ? 'active' : '' ?>">View Bookings</a></div>
-
-
+    <div class="logo">
+        <a href="dashboard.php" class="<?= basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : '' ?>"><i class="fa fa-home"></i> &nbsp;Home</a>
+        <a href="scan_ticket.php" class="<?= basename($_SERVER['PHP_SELF']) == 'scan_ticket.php' ? 'active' : '' ?>"><i class="fa fa-qrcode"></i> &nbsp;Scan</a>
+        <a href="bookings.php" class="<?= basename($_SERVER['PHP_SELF']) == 'bookings.php' ? 'active' : '' ?>"><i class="fa fa-ticket"></i> &nbsp;Bookings</a>
+    </div>
     <div class="driver-profile">
         <div class="driver-info">
             <strong>Welcome,&nbsp;<?= htmlspecialchars($driver['name']) ?></strong>

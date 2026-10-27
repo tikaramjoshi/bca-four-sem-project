@@ -393,7 +393,7 @@ button {
 
 .last a {
     color: #fff;
-    text-decoration: underline;
+    text-decoration: none;
     display: block;
     margin: 8px 0;
     transition: .3s;

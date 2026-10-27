@@ -1,0 +1,96 @@
+
+.container {
+    width: 95%;
+    max-width: 1400px;
+    margin: 30px auto;
+}
+.page-title {
+    margin-bottom: 20px;
+    color: #1d2c4e;
+    font-size: 27px;
+}
+.summary {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.summary h3 {
+    color: #1560bd;
+    margin-bottom: 8px;
+}
+.table-wrapper {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+.table-wrapper p{
+    margin: 15px;
+    font-size: 20px;
+
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1100px;
+    border: 1px solid #b6b4b4c3;
+}
+th,
+td {
+    padding: 13px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+    vertical-align: middle;
+}
+th {
+    background: #1d2c4e;
+    color: #fff;
+    white-space: nowrap;
+}
+tr:hover td {
+    background: #f8fafc;
+}
+.badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+.confirmed {
+    background: #d1fae5;
+    color: #065f46;
+}
+.cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+.used {
+    background: #dbeafe;
+    color: #1e40af;
+}
+.waiting {
+    background: #fef3c7;
+    color: #92400e;
+}
+.empty {
+    text-align: center;
+    padding: 30px;
+    color: #666;
+}
+@media (max-width: 600px) {
+    .container {
+        width: 98%;
+        margin: 20px auto;
+    }
+    .page-title {
+        font-size: 22px;
+    }
+}

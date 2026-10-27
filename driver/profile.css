@@ -1,0 +1,137 @@
+        .profile {
+            width: 90%;
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-sizing: border-box;
+        }
+        .profile h2 {
+            text-align: center;
+            color: #1560bd;
+            margin: 0 0 25px;
+        }
+        .photo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .photo>img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #1560bd;
+        }
+        .profile-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .info {
+            margin: 0;
+            padding: 13px 15px;
+            background: #f7f7f7;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .info span {
+            display: block;
+            color: #777;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+        .info strong {
+            display: block;
+            font-size: 16px;
+            color: #222;
+            word-break: break-word;
+        }
+        .status {
+            color: #f39c12 !important;
+            font-weight: bold;
+        }
+        .license {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .license h3 {
+            color: #1560bd;
+            margin: 0 0 15px;
+        }
+        .license-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .license-info .full {
+            grid-column: 1 / 3;
+        }
+        .license-images {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .license-images .photo {
+            margin: 0;
+            text-align: left;
+        }
+        .license-images .photo strong {
+            display: block;
+            font-size: 15px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        .license-images .photo img {
+            display: block;
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f7f7f7;
+        }
+        .btn {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .btn a {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #1560bd;
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .btn a:hover {
+            background: #0d4d9c;
+        }
+        @media (max-width: 600px) {
+            .profile {
+                width: 95%;
+                margin: 20px auto;
+                padding: 20px;
+            }
+            .profile-info {
+                grid-template-columns: 1fr;
+            }
+            .license-info {
+                grid-template-columns: 1fr;
+            }
+            .license-info .full {
+                grid-column: 1;
+            }
+            .license-images {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .license-images .photo img {
+                height: 200px;
+            }
+        }

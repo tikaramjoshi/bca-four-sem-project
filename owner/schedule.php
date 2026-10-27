@@ -149,6 +149,7 @@ $scheduleResult = $scheduleStmt->get_result();
 
 $today = date('Y-m-d');
 $max_date = date('Y-m-d', strtotime('+7 days'));
+$showScheduleForm = isset($_POST['add_schedule']) || isset($_POST['show_schedule_form']);
 $routes = [];
 $routeResult = mysqli_query($conn, "SELECT city_name FROM routes ORDER BY city_name ASC");
 if ($routeResult) {
@@ -197,30 +198,34 @@ if ($routeResult) {
                 No approved bus found. Your bus must be approved by admin before creating a schedule.
             </div>
 
-        <?php else: ?>
 
-            <div class="form-card">
+        <?php else: ?>
+            <div class="schedule-form-toggle">
+                <button type="button" id="toggleScheduleBtn" class="add-btn" onclick="toggleScheduleForm()">
+                    <i class="fa fa-plus"></i> Add New Schedule
+                </button>
+            </div>
+
+            <div class="form-card" id="scheduleFormCard"
+                style="display: <?= $showScheduleForm ? 'block' : 'none' ?>;">
                 <h2><i class="fa fa-calendar-plus"></i> Add New Schedule</h2>
 
                 <form method="POST">
-
                     <div class="form-grid">
-
                         <div class="form-group">
                             <label>Bus</label>
                             <select name="bus_id" required>
                                 <option value="">Select Approved Bus</option>
-
-                                <?php while ($bus = $busResult->fetch_assoc()): ?>
-
+                                <?php
+                                $busResult->data_seek(0);
+                                while ($bus = $busResult->fetch_assoc()):
+                                ?>
                                     <option value="<?= (int)$bus['bus_id'] ?>">
                                         <?= htmlspecialchars($bus['bus_number']) ?> -
                                         <?= htmlspecialchars($bus['bus_name']) ?>
                                         (<?= (int)$bus['seats'] ?> Seats)
                                     </option>
-
                                 <?php endwhile; ?>
-
                             </select>
                         </div>
 
@@ -250,18 +255,25 @@ if ($routeResult) {
 
                         <div class="form-group">
                             <label>Departure Date</label>
-                            <input type="date" name="departure_date" min="<?= $today ?>" max="<?= $max_date ?>" required>
+                            <input type="date" name="departure_date"
+                                min="<?= $today ?>" max="<?= $max_date ?>" required>
                         </div>
+
                         <div class="form-group">
                             <label>Departure Time</label>
                             <input type="time" name="departure_time" required>
                         </div>
+
                         <div class="form-group">
                             <label>Ticket Price</label>
-                            <input type="number" name="ticket_price" min="500" step="100" placeholder="Enter ticket price" required>
+                            <input type="number" name="ticket_price" min="500"
+                                step="100" placeholder="Enter ticket price" required>
                         </div>
+
                         <div class="full">
-                            <button type="submit" name="add_schedule" class="add-btn"> <i class="fa fa-plus"></i> Add Schedule </button>
+                            <button type="submit" name="add_schedule" class="add-btn">
+                                <i class="fa fa-plus"></i> Create Schedule
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -325,6 +337,55 @@ if ($routeResult) {
         </div>
     </div>
     <?php require_once "owner_footer.php"; ?>
+    <script>
+        function toggleScheduleForm() {
+            const form = document.getElementById('scheduleFormCard');
+            const button = document.getElementById('toggleScheduleBtn');
+
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                button.innerHTML = '<i class="fa fa-minus"></i> Hide Schedule Form';
+            } else {
+                form.style.display = 'none';
+                button.innerHTML = '<i class="fa fa-plus"></i> Add New Schedule';
+            }
+        }
+
+        function toggleScheduleForm() {
+            const form = document.getElementById('scheduleFormCard');
+            const button = document.getElementById('toggleScheduleBtn');
+
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                button.innerHTML = '<i class="fa fa-minus"></i> Hide Schedule Form';
+            } else {
+                form.style.display = 'none';
+                button.innerHTML = '<i class="fa fa-plus"></i> Add New Schedule';
+            }
+        }
+
+        const fromCity = document.getElementById('from_city');
+        const toCity = document.getElementById('to_city');
+
+        function updateCityOptions() {
+            const from = fromCity.value;
+            const to = toCity.value;
+
+            Array.from(toCity.options).forEach(option => {
+                option.disabled = option.value !== '' && option.value === from;
+            });
+
+            Array.from(fromCity.options).forEach(option => {
+                option.disabled = option.value !== '' && option.value === to;
+            });
+        }
+
+        fromCity.addEventListener('change', updateCityOptions);
+        toCity.addEventListener('change', updateCityOptions);
+
+        updateCityOptions();
+    </script>
+
 </body>
 
 </html>

@@ -124,121 +124,11 @@ $license_expiry_date = $verification['license_expiry_date'] ?? '';
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Edit Driver Profile</title>
     <link rel="stylesheet" href="dashboard.css">
-    <style>
-        .edit-profile {
-            width: 90%;
-            max-width: 900px;
-            margin: 40px auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-sizing: border-box;
-        }
-
-        .edit-profile h2 {
-            text-align: center;
-            color: #1560bd;
-            margin: 0 0 25px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group.full {
-            grid-column: 1 / 3;
-        }
-
-        .form-group label {
-            color: #555;
-            font-size: 14px;
-            margin-bottom: 6px;
-        }
-
-        .form-group input {
-            padding: 11px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #1560bd;
-        }
-
-        .buttons {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border-radius: 6px;
-            border: none;
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .save-btn {
-            background: #1560bd;
-            color: #fff;
-        }
-
-        .save-btn:hover {
-            background: #0d4d9c;
-        }
-
-        .back-btn {
-            background: #777;
-            color: #fff;
-        }
-
-        .back-btn:hover {
-            background: #555;
-        }
-
-        .message {
-            padding: 10px;
-            margin-bottom: 15px;
-            background: #ffe5e5;
-            color: #c00;
-            border-radius: 6px;
-        }
-
-        @media (max-width: 600px) {
-            .edit-profile {
-                width: 95%;
-                padding: 20px;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-group.full {
-                grid-column: 1;
-            }
-
-            .buttons {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="edit.css">
 </head>
 
 <body>
-    <?php include "dri_header.php"; ?>
+    <?php include "driver_header.php"; ?>
     <div class="container">
         <div class="edit-profile">
             <h2>Edit Driver Profile</h2>
@@ -248,45 +138,26 @@ $license_expiry_date = $verification['license_expiry_date'] ?? '';
             <form method="POST" enctype="multipart/form-data">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" required>
+                        <label>Name</label><input type="text" name="name" value="<?= htmlspecialchars($name) ?>" required>
                     </div>
                     <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
+                        <label>Email</label><input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
                     </div>
                     <div class="form-group">
-                        <label>Phone</label>
-                        <input type="text" name="phone" value="<?= htmlspecialchars($phone) ?>" required>
+                        <label>Phone</label><input type="text" name="phone" value="<?= htmlspecialchars($phone) ?>" required>
                     </div>
                     <div class="form-group">
-                        <label>Profile Photo</label>
-                        <input type="file" name="profile_photo" accept="image/*">
+                        <label>Profile Photo</label><input type="file" name="profile_photo" accept="image/*">
                     </div>
-                    <div class="form-group full">
-                        <label>License Number</label>
-                        <input type="text" name="license_number" value="<?= htmlspecialchars($license_number) ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Issue Date</label>
-                        <input type="date" name="license_issue_date" value="<?= htmlspecialchars($license_issue_date) ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Expiry Date</label>
-                        <input type="date" name="license_expiry_date" value="<?= htmlspecialchars($license_expiry_date) ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label>License Front</label>
-                        <input type="file" name="license_photo_front" accept="image/*">
-                    </div>
-                    <div class="form-group">
-                        <label>License Back</label>
-                        <input type="file" name="license_photo_back" accept="image/*">
-                    </div>
+                    <!-- <div class="form-group full"><label>License Number</label> <input type="text" name="license_number" value="<?= htmlspecialchars($license_number) ?>" required>  </div>
+                    <div class="form-group"><label>Issue Date</label> <input type="date" name="license_issue_date" value="<?= htmlspecialchars($license_issue_date) ?>" required>  </div>
+                    <div class="form-group"><label>Expiry Date</label> <input type="date" name="license_expiry_date" value="<?= htmlspecialchars($license_expiry_date) ?>" required>  </div>
+                    <div class="form-group"><label>License Front</label> <input type="file" name="license_photo_front" accept="image/*"></div>
+                    <div class="form-group"><label>License Back</label> <input type="file" name="license_photo_back" accept="image/*"></div> -->
                 </div>
                 <div class="buttons">
-                    <button type="submit" class="btn save-btn">Save Changes</button>
-                    <a href="profile.php" class="btn back-btn">Back</a>
+                    <button type="submit" class="btn save-btn"><i class="fa fa-save"></i>&nbsp; Save Changes</button>
+                    <a href="profile.php" class="btn back-btn"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
                 </div>
             </form>
         </div>

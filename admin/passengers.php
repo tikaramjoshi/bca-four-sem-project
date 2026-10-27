@@ -173,13 +173,15 @@ if (isset($_GET['msg'])) {
             <div class="filters">
                 <form method="GET" class="filter-form">
                     <input type="text" name="search" class="search-box" placeholder="Search by name, email or phone..." value="<?= htmlspecialchars($search) ?>">
+                    <button type="submit" class="filter-btn">Search</button>
+
                     <select name="status" class="status-select">
                         <option value="all" <?= $status === 'all' ? 'selected' : '' ?>>All Passengers</option>
                         <option value="pending" <?= $status === 'pending' ? 'selected' : '' ?>>Pending</option>
                         <option value="verified" <?= $status === 'verified' ? 'selected' : '' ?>>Verified</option>
                         <option value="rejected" <?= $status === 'rejected' ? 'selected' : '' ?>>Rejected</option>
                     </select>
-                    <button type="submit" class="filter-btn">Search</button>
+                    <button type="submit" class="filter-btn">Filter</button>
                     <a href="passengers.php" class="clear-btn">Clear</a>
                 </form>
             </div>
