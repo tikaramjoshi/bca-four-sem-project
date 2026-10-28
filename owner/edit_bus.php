@@ -8,19 +8,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "owner") {
 
 require_once "../db.php";
 $owner_id = $_SESSION['user_id'];
-
-
 if (!isset($_GET['id'])) {
     header("Location: dashboard.php");
     exit();
 }
 $bus_id = (int)$_GET['id'];
-$stmt = $conn->prepare("
-    SELECT *
-    FROM bus
-    WHERE bus_id=?
-    AND owner_id=?
-");
+$stmt = $conn->prepare(" SELECT * FROM bus WHERE bus_id=? AND owner_id=? ");
 $stmt->bind_param(
     "ii",
     $bus_id,
@@ -29,8 +22,6 @@ $stmt->bind_param(
 $stmt->execute();
 $result = $stmt->get_result();
 $bus = $result->fetch_assoc();
-
-
 
 if (!$bus) {
     die("Bus Not Found");
@@ -75,12 +66,7 @@ if (isset($_POST['update_bus'])) {
         }
     }
 
-    $check = $conn->prepare("
-        SELECT bus_id
-        FROM bus
-        WHERE bus_number=?
-        AND bus_id!=?
-    ");
+    $check = $conn->prepare(" SELECT bus_id FROM bus WHERE bus_number=? AND bus_id!=? ");
     $check->bind_param(
         "si",
         $bus_number,
@@ -91,17 +77,7 @@ if (isset($_POST['update_bus'])) {
     if ($result->num_rows > 0) {
         $message = "Bus Number Already Exists.";
     } else {
-        $update = $conn->prepare("
-            UPDATE bus
-            SET
-            bus_number=?,
-            bus_name=?,
-            bus_type=?,
-            seats=?,
-            bus_image=?,
-            status='pending'
-            WHERE bus_id=?
-        ");
+        $update = $conn->prepare(" UPDATE bus SET bus_number=?, bus_name=?, bus_type=?, seats=?, bus_image=?, status='pending' WHERE bus_id=? ");
         $update->bind_param(
             "sssisi",
             $bus_number,
@@ -127,118 +103,7 @@ include "owner_header.php";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Bus</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: #f4f7fb;
-        }
-
-        .container {
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
-        }
-
-        .edit-box {
-            width: 600px;
-            background: white;
-            padding: 35px;
-            border-radius: 12px;
-        }
-
-        .edit-box h2 {
-            text-align: center;
-            color: #1560BD;
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-            margin-top: 15px;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 15px;
-            outline: none;
-        }
-
-        input:focus,
-        select:focus {
-            border-color: #1560BD;
-        }
-
-        .message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        button,
-        .cancel-btn {
-            flex: 1;
-            padding: 13px;
-            text-align: center;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .update-btn {
-            background: #1560BD;
-            color: white;
-        }
-
-        .update-btn:hover {
-            background: #0d4d9b;
-        }
-
-        .cancel-btn {
-            background: #dc3545;
-            color: white;
-        }
-
-        .cancel-btn:hover {
-            background: #b52a37;
-        }
-
-        @media(max-width:700px) {
-            .edit-box {
-                width: 100%;
-                padding: 20px;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="edit_bus.css">
 </head>
 
 <body>
@@ -263,12 +128,11 @@ include "owner_header.php";
                 <label> Total Seats</label>
                 <input type="number" name="seats" min="10" max="80" value="<?= $bus['seats']; ?>" required>
                 <label>Bus Image</label>
-                <input type="file" name="bus_image" accept="image/*" onchange="previewImage(event)">
-                <br><br>
+                <input type="file" name="bus_image" accept="image/*" onchange="previewImage(event)"> <br><br>
                 <img id="preview" src="../uploads/bus/<?= htmlspecialchars($bus['bus_image']); ?>" width="200" height="130" style=" object-fit:cover; border-radius:8px; border:1px solid #ccc; ">
                 <div class="button-group">
-                    <button type="submit" name="update_bus" class="update-btn"> Update Bus </button>
-                    <a href="dashboard.php" class="cancel-btn"> Cancel </a>
+                    <button type="submit" name="update_bus" class="update-btn"> <i class="fas fa-save"></i> Update Bus </button>
+                    <a href="dashboard.php" class="cancel-btn"> <i class="fas fa-times"></i> Cancel </a>
                 </div>
             </form>
         </div>

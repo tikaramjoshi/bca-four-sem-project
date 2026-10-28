@@ -113,174 +113,7 @@ if (isset($_POST['submit'])) {
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Company Verification</title>
     <link rel="stylesheet" href="owner.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif
-        }
-
-        html,
-        body {
-            min-height: 100%;
-            background: #f5f7fb
-        }
-
-        .main {
-            background: #1560BD;
-            padding: 10px 25px
-        }
-
-        nav {
-            display: flex;
-            align-items: center
-        }
-
-        nav a:hover {
-            color: #fff;
-            background: #0fa070
-        }
-
-        .last-policy {
-            padding: 20px 40px;
-            min-height: calc(100vh - 115px)
-        }
-
-        .verification-box {
-            width: 500px;
-            max-width: 95%;
-            margin: 40px auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 10px
-        }
-
-        .verification-box h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #1e3a8a
-        }
-
-        .verification-box label {
-            display: block;
-            margin: 15px 0 6px;
-            font-weight: bold;
-            color: #333
-        }
-
-        .verification-box input[type=text],
-        .verification-box input[type=file] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px
-        }
-
-        .verification-box input[type=file] {
-            background: #fafafa
-        }
-
-        .verification-box button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 25px;
-            border: 0;
-            border-radius: 6px;
-            background: #2563eb;
-            color: #fff;
-            font-size: 17px;
-            cursor: pointer
-        }
-
-        .verification-box button:hover {
-            background: #1d4ed8
-        }
-
-        .success {
-            background: #d4edda;
-            color: #155724;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            text-align: center
-        }
-
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            text-align: center
-        }
-
-        .current-file {
-            margin: 15px 0;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            background: #f8f9fa;
-            text-align: center
-        }
-
-        .preview {
-            width: 140px;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 2px solid #1560BD;
-            display: block;
-            margin: 0 auto 15px
-        }
-
-        .view-btn {
-            display: inline-block;
-            background: #1560BD;
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            margin-bottom: 15px
-        }
-
-        .view-btn:hover {
-            background: #0d4e9e
-        }
-
-        .pdf-box {
-            width: 140px;
-            height: 140px;
-            margin: 0 auto 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 2px solid #1560BD;
-            border-radius: 10px;
-            background: #eee;
-            font-size: 18px;
-            font-weight: bold
-        }
-
-        .last {
-            background: #1560BD;
-            color: #fff;
-            text-align: center;
-            padding: 15px 0;
-            width: 100%
-        }
-
-        @media(max-width:600px) {
-            .verification-box {
-                width: 95%;
-                padding: 20px
-            }
-
-            .last-policy {
-                padding: 15px
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="verification.css">
 </head>
 
 <body>
@@ -336,13 +169,11 @@ if (isset($_POST['submit'])) {
                 <?php else: ?>
                     <input type="file" name="company_certificate" accept=".jpg,.jpeg,.png,.webp,.pdf" required>
                 <?php endif; ?>
-                <button type="submit" name="submit">Submit Verification</button>
+                <button type="submit" name="submit"> <i class="fa-solid fa-paper-plane"></i> &nbsp;Submit Verification</button>
             </form>
         </div>
     </div>
-    <footer class="last">
-        <p>&copy;2026 Online Bus Ticket Booking System | All rights reserved.</p>
-    </footer>
+    <?php include "owner_footer.php" ?>
     <?php if ($message_type === "success"): ?>
         <script>
             setTimeout(function() {

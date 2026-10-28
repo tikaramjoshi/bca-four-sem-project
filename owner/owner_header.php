@@ -36,17 +36,17 @@ $profile_image = $owner['owner_photo'];
 <body>
     <nav class="main">
         <div class="nav-left">
-            <a href="dashboard.php" class="<?= $current_page == 'dashboard.php' ? 'active' : '' ?>">Home</a>
-            <a href="<?= $isVerified ? 'register_bus.php' : '#' ?>" class="<?= $current_page == 'register_bus.php' ? 'active' : '' ?>">Add Bus</a>
-            <a href="<?= $isVerified ? 'my_bus.php' : '#' ?>" class="<?= $current_page == 'my_bus.php' ? 'active' : '' ?>">My Bus</a>
-            <a href="<?= $isVerified ? 'driver.php' : '#' ?>" class="<?= $current_page == 'driver.php' ? 'active' : '' ?>">Driver</a>
-            <a href="<?= $isVerified ? 'assign_driver.php' : '#' ?>" class="<?= $current_page == 'assign_driver.php' ? 'active' : '' ?>">Assign Driver</a>
-            <a href="<?= $isVerified ? 'schedule.php' : '#' ?>" class="<?= $current_page == 'schedule.php' ? 'active' : '' ?>">Schedule</a>
-            <a href="#aboutSection">About</a>
+            <a href="dashboard.php" class="<?= $current_page == 'dashboard.php' ? 'active' : '' ?>"> <i class="fa fa-home"></i> &nbsp;Home</a>
+            <!-- <a href="<?= $isVerified ? 'register_bus.php' : '#' ?>" class="<?= $current_page == 'register_bus.php' ? 'active' : '' ?>"> <i class="fa fa-plus"></i> &nbsp;Add Bus</a> -->
+            <a href="<?= $isVerified ? 'my_bus.php' : '#' ?>" class="<?= $current_page == 'my_bus.php' ? 'active' : '' ?>"> <i class="fa fa-bus"></i> &nbsp;My Bus</a>
+            <a href="<?= $isVerified ? 'driver.php' : '#' ?>" class="<?= $current_page == 'driver.php' ? 'active' : '' ?>"> <i class="fa fa-user"></i> &nbsp;Driver</a>
+            <a href="<?= $isVerified ? 'assign_driver.php' : '#' ?>" class="<?= $current_page == 'assign_driver.php' ? 'active' : '' ?>"> <i class="fa fa-users"></i> &nbsp;Assign Driver</a>
+            <a href="<?= $isVerified ? 'schedule.php' : '#' ?>" class="<?= $current_page == 'schedule.php' ? 'active' : '' ?>"> <i class="fa fa-calendar"></i> &nbsp;Schedule</a>
+            <a href="#aboutSection"> <i class="fa fa-info-circle"></i> &nbsp;About</a>
         </div>
         <div style="display:flex;gap:10px;color:white;align-items:center">
             <h3>Welcome, <span class="profile-name"><?= htmlspecialchars($owner_name) ?></span></h3>
-            <span class="status <?= strtolower($verification_status) ?>"><?= htmlspecialchars(ucfirst($verification_status)) ?></span>
+            <span class="status <?= strtolower($verification_status) ?>"> <?= htmlspecialchars(ucfirst($verification_status)) ?></span>
             <div class="settings-menu">
                 <div class="image" onclick="toggleMenu()">
                     <?php if (!empty($profile_image)) { ?>

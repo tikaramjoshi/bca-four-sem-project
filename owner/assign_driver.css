@@ -140,11 +140,11 @@ table {
 }
 
 th {
-    background: #f7f9fc;
+    background: #1d2775;
+    color: #fff;
     padding: 15px;
     text-align: left;
     font-size: 13px;
-    color: #555;
 }
 
 td {

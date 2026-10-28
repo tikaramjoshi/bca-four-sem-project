@@ -1,21 +1,16 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'owner') {
     header("Location: ../login.php");
     exit();
 }
-
 require_once "../db.php";
-
 $owner_id = (int)$_SESSION['user_id'];
 $schedule_id = (int)($_GET['id'] ?? $_POST['schedule_id'] ?? 0);
-
 if ($schedule_id <= 0) {
     header("Location: schedule.php");
     exit();
 }
-
 $stmt = $conn->prepare("
     SELECT s.*
     FROM schedules s
@@ -27,15 +22,12 @@ $stmt->bind_param("ii", $schedule_id, $owner_id);
 $stmt->execute();
 $schedule = $stmt->get_result()->fetch_assoc();
 $stmt->close();
-
 if (!$schedule) {
     $_SESSION['error'] = "Schedule not found or access denied.";
     header("Location: schedule.php");
     exit();
 }
-
 $message = "";
-
 if (isset($_POST['update_schedule'])) {
     $bus_id = (int)($_POST['bus_id'] ?? 0);
     $from_city = trim($_POST['from_city'] ?? '');
@@ -43,7 +35,6 @@ if (isset($_POST['update_schedule'])) {
     $departure_date = trim($_POST['departure_date'] ?? '');
     $departure_time = trim($_POST['departure_time'] ?? '');
     $ticket_price = (float)($_POST['ticket_price'] ?? 0);
-
     if (
         $bus_id <= 0 || $from_city === '' || $to_city === '' ||
         $departure_date === '' || $departure_time === '' || $ticket_price < 500
@@ -61,7 +52,6 @@ if (isset($_POST['update_schedule'])) {
         $busCheck->execute();
         $validBus = $busCheck->get_result()->fetch_assoc();
         $busCheck->close();
-
         if (!$validBus) {
             $message = "Please select your own approved bus.";
         } else {
@@ -75,7 +65,6 @@ if (isset($_POST['update_schedule'])) {
             $check->execute();
             $exists = $check->get_result()->num_rows > 0;
             $check->close();
-
             if ($exists) {
                 $message = "A schedule already exists for this bus at that date and time.";
             } else {
@@ -95,21 +84,18 @@ if (isset($_POST['update_schedule'])) {
                     $ticket_price,
                     $schedule_id
                 );
-
                 if ($update->execute()) {
                     $update->close();
                     $_SESSION['success'] = "Schedule updated successfully.";
                     header("Location: schedule.php");
                     exit();
                 }
-
                 $message = "Failed to update schedule.";
                 $update->close();
             }
         }
     }
 }
-
 $buses = $conn->prepare("
     SELECT bus_id, bus_number, bus_name, seats
     FROM bus
@@ -119,10 +105,8 @@ $buses = $conn->prepare("
 $buses->bind_param("i", $owner_id);
 $buses->execute();
 $busResult = $buses->get_result();
-
 $routes = [];
 $result = $conn->query("SELECT city_name FROM routes ORDER BY city_name ASC");
-
 if ($result) {
     while ($row = $result->fetch_assoc()) {
         $routes[] = $row['city_name'];
@@ -214,23 +198,18 @@ if ($result) {
 </head>
 
 <body>
-
     <?php require_once "owner_header.php"; ?>
-
     <div class="container">
         <div class="title">
             <h1>Edit Schedule</h1>
             <p>Update your bus schedule details.</p>
         </div>
-
         <?php if ($message !== ''): ?>
             <div class="error-msg"><?= htmlspecialchars($message) ?></div>
         <?php endif; ?>
-
         <div class="edit-box">
             <form method="POST" class="edit-form">
                 <input type="hidden" name="schedule_id" value="<?= (int)$schedule['schedule_id'] ?>">
-
                 <div>
                     <label>Bus</label>
                     <select name="bus_id" required>
@@ -243,7 +222,6 @@ if ($result) {
                         <?php endwhile; ?>
                     </select>
                 </div>
-
                 <div>
                     <label>From City</label>
                     <select name="from_city" required>
@@ -255,7 +233,6 @@ if ($result) {
                         <?php endforeach; ?>
                     </select>
                 </div>
-
                 <div>
                     <label>To City</label>
                     <select name="to_city" required>
@@ -267,25 +244,21 @@ if ($result) {
                         <?php endforeach; ?>
                     </select>
                 </div>
-
                 <div>
                     <label>Departure Date</label>
                     <input type="date" name="departure_date"
                         value="<?= htmlspecialchars($schedule['departure_date']) ?>" required>
                 </div>
-
                 <div>
                     <label>Departure Time</label>
                     <input type="time" name="departure_time"
                         value="<?= htmlspecialchars(substr($schedule['departure_time'], 0, 5)) ?>" required>
                 </div>
-
                 <div>
                     <label>Ticket Price (Rs.)</label>
                     <input type="number" name="ticket_price" min="500" step="100"
                         value="<?= htmlspecialchars((string)$schedule['ticket_price']) ?>" required>
                 </div>
-
                 <div class="edit-actions">
                     <button type="submit" name="update_schedule" class="save-btn">
                         <i class="fa fa-save"></i> Update Schedule
@@ -297,9 +270,7 @@ if ($result) {
             </form>
         </div>
     </div>
-
     <?php require_once "owner_footer.php"; ?>
-
 </body>
 
 </html>

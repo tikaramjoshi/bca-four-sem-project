@@ -130,104 +130,7 @@ $profile_image = !empty($owner['profile_image']) ? $owner['profile_image'] : "de
     <title>Edit Owner Profile</title>
     <link rel="stylesheet" href="profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <style>
-        .edit-page {
-            min-height: calc(100vh - 60px);
-            padding: 40px 20px;
-            background: #f5f7fa;
-        }
-
-        .edit-container {
-            max-width: 600px;
-            margin: auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-        }
-
-        .edit-title {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .edit-title h1 {
-            color: #1560bd;
-            margin-bottom: 8px;
-        }
-
-        .profile-preview {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .profile-preview img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #1560bd;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 7px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 15px;
-        }
-
-        .save-btn {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: 6px;
-            background: #1560bd;
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .save-btn:hover {
-            background: #0fa070;
-        }
-
-        .back-btn {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
-            color: #1560bd;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .message {
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 18px;
-            text-align: center;
-        }
-
-        .success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-    </style>
+    <link rel="stylesheet" href="edit_profile.css">
 </head>
 
 <body>
@@ -271,9 +174,7 @@ $profile_image = !empty($owner['profile_image']) ? $owner['profile_image'] : "de
             </form>
         </div>
     </div>
-    <footer class="footer">
-        <p>&copy;2026 Online Bus Ticket Booking System || All rights reserved.</p>
-    </footer>
+    <?php include "owner_footer.php" ?>
 </body>
 
 </html>

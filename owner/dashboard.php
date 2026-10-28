@@ -8,17 +8,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "owner") {
 require_once "../db.php";
 include "owner_header.php";
 $owner_id = (int)$_SESSION['user_id'];
-
 $stmt = $conn->prepare("SELECT status, reject_reason FROM owner_verification WHERE owner_id=? ORDER BY verification_id DESC LIMIT 1");
 $stmt->bind_param("i", $owner_id);
 $stmt->execute();
 $verify = $stmt->get_result()->fetch_assoc();
 $stmt->close();
-
 $verification_status = $verify['status'] ?? 'unverified';
 $isVerified = ($verification_status === 'verified');
-
-
 $message = "";
 $message_type = "";
 if (isset($_SESSION['success'])) {
@@ -137,7 +133,6 @@ if (!empty($search)) {
 $stmt->execute();
 $busResult = $stmt->get_result();
 
-
 $totalBusStmt = $conn->prepare("SELECT COUNT(*) FROM bus WHERE owner_id=?");
 $totalBusStmt->bind_param("i", $owner_id);
 $totalBusStmt->execute();
@@ -168,35 +163,12 @@ $driverStmt->execute();
 $drivers = (int)$driverStmt->get_result()->fetch_row()[0];
 $driverStmt->close();
 
-$totalDriverStmt = $conn->prepare("
-    SELECT COUNT(*) 
-    FROM users u
-    WHERE u.role = 'driver'
-    AND u.verification_status = 'verified'
-    AND u.user_id NOT IN (
-        SELECT bd.driver_id
-        FROM bus_driver bd
-        INNER JOIN bus b ON bd.bus_id = b.bus_id
-        WHERE b.owner_id = ?
-    )
-");
+$totalDriverStmt = $conn->prepare(" SELECT COUNT(*)  FROM users u WHERE u.role = 'driver' AND u.verification_status = 'verified' AND u.user_id NOT IN ( SELECT bd.driver_id  FROM bus_driver bd INNER JOIN bus b ON bd.bus_id = b.bus_id  WHERE b.owner_id = ? ) ");
 $totalDriverStmt->bind_param("i", $owner_id);
 $totalDriverStmt->execute();
 $totalDrivers = (int)$totalDriverStmt->get_result()->fetch_row()[0];
 $totalDriverStmt->close();
 
-$assignStmt = $conn->prepare(" SELECT COUNT(*) FROM bus_driver bd INNER JOIN bus b     ON bd.bus_id = b.bus_id INNER JOIN users u     ON bd.driver_id = u.user_id WHERE b.owner_id = ? AND u.role = 'driver' AND u.verification_status = 'verified' ");
-$assignStmt->bind_param("i", $owner_id);
-$assignStmt->execute();
-$assignResult = $assignStmt->get_result();
-$totalDrivers = $assignResult->fetch_row()[0];
-$assignStmt->close();
-$totalDriverStmt = $conn->prepare(" SELECT COUNT(*) FROM bus_driver bd INNER JOIN bus b ON bd.bus_id = b.bus_id WHERE b.owner_id = ? ");
-$totalDriverStmt->bind_param("i", $owner_id);
-$totalDriverStmt->execute();
-$totalDriverResult = $totalDriverStmt->get_result();
-$totalDrivers = (int)$totalDriverResult->fetch_row()[0];
-$totalDriverStmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -229,36 +201,37 @@ $totalDriverStmt->close();
     <?php endif; ?>
     <section class="stats">
         <div class="box">
-            <h2><?= $totalBus ?></h2>
             <p>Total Bus</p>
+            <h2><?= $totalBus ?></h2>
         </div>
         <div class="box">
+            <p>Assigned Drivers</p>
             <h2><?= $drivers ?></h2>
-            <p>Drivers</p>
         </div>
         <div class="box">
+            <p>Pending Bus</p>
             <h2><?= $pending ?></h2>
-            <p>Pending</p>
         </div>
         <div class="box">
+            <p>Approved Bus</p>
             <h2><?= $approved ?></h2>
-            <p>Approved</p>
         </div>
         <div class="box">
+            <p>Rejected Bus</p>
             <h2><?= $rejected ?></h2>
-            <p>Rejected</p>
         </div>
         <div class="box">
-            <h2><?= $totalDrivers ?></h2>
             <p>Unassigned Drivers</p>
+            <h2><?= $totalDrivers ?></h2>
         </div>
     </section>
-
     <section class="search-area">
         <h2>My Bus List</h2>
         <form method="GET" class="search-box">
             <input type="text" name="search" placeholder="Search Bus Number or Bus Name" value="<?= htmlspecialchars($search) ?>">
-            <button type="submit"> Search </button>
+            <button type="submit"><i class="fa fa-search"></i> Search </button>
+            <button type="button" onclick="window.location.href='dashboard.php'" style="background-color: #433e3e;"><i class="fa fa-eraser"></i> Clear</button>
+
         </form>
     </section>
     <section class="table-area">
@@ -284,50 +257,41 @@ $totalDriverStmt->close();
                             <td>
                                 <?php if (!empty($row['bus_image'])) { ?>
                                     <img src="../uploads/bus/<?= htmlspecialchars($row['bus_image']) ?>" width="90" height="60" style="object-fit:cover;border-radius:6px;">
-                                <?php } else { ?>
-                                    <img src="../images/no-image.png" width="90" height="60">
-                                <?php } ?>
+                                <?php } else { ?> <img src="../images/no-image.png" width="90" height="60"> <?php } ?>
                             </td>
                             <td><?= htmlspecialchars($row['bus_number']) ?></td>
                             <td><?= htmlspecialchars($row['bus_name']) ?></td>
                             <td><?= htmlspecialchars($row['bus_type']) ?></td>
                             <td><?= $row['seats'] ?></td>
                             <td>
-                                <?php
-                                $status = $row['status'];
+                                <?php $status = $row['status'];
                                 if ($status == "approved") {
                                     echo "<span class='approved'>Approved</span>";
                                 } elseif ($status == "pending") {
                                     echo "<span class='pending'>Pending</span>";
                                 } else {
                                     echo "<span class='rejected'>Rejected</span>";
-                                }
-                                ?>
+                                } ?>
                             </td>
                             <td>
                                 <?php if ($isVerified) { ?>
-                                    <a href="edit_bus.php?id=<?= $row['bus_id'] ?>" class="edit-btn"> Edit </a>
-                                    <a href="delete_bus.php?id=<?= $row['bus_id'] ?>" class="delete-btn" onclick="return confirm('Delete this bus?')"> Delete </a>
+                                    <a href="edit_bus.php?id=<?= $row['bus_id'] ?>" class="edit-btn"><i class="fa fa-edit"></i> Edit </a>
+                                    <a href="delete_bus.php?id=<?= $row['bus_id'] ?>" class="delete-btn" onclick="return confirm('Delete this bus?')"> <i class="fa fa-trash"></i> Delete </a>
                                 <?php } else { ?>
-                                    <button class="edit-btn" disabled> Locked </button>
-                                    <button class="delete-btn" disabled> Locked </button>
+                                    <button class="edit-btn" disabled><i class="fa fa-lock"></i> Locked </button>
+                                    <button class="delete-btn" disabled><i class="fa fa-lock"></i> Locked </button>
                                 <?php } ?>
                             </td>
                             <td>
                                 <?php if ($row['status'] == "rejected") { ?>
-                                    <a href="reject_discription.php?id=<?= $row['bus_id'] ?>"
-                                        class="view-btn">
-                                        View Reason
-                                    </a>
-                                <?php } else { ?>
-                                    -
-                                <?php } ?>
+                                    <a href="reject_discription.php?id=<?= $row['bus_id'] ?>" class="view-btn"> View Reason </a>
+                                <?php } else { ?> - <?php } ?>
                             </td>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="8"> No Bus Found. </td>
+                        <td colspan="9"> No Bus Found. </td>
                     </tr>
                 <?php endif; ?>
             </tbody>

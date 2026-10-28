@@ -24,12 +24,22 @@ $isVerified = $isVerified ?? false;
             <p><i class="fa fa-phone"></i> Phone: <a href="tel:+9779840792553">+9779840792553</a></p>
             <p><i class="fab fa-whatsapp"></i> WhatsApp: <a href="https://wa.me/9779840792553">+9779840792553</a></p>
         </div>
-        <div class="last-about" id="aboutSection">
+        <!-- <div class="last-about" id="followSection">
             <h3><i class="fa fa-share-alt"></i> Follow Us</h3>
             <a href="#"><i class="fab fa-facebook"></i> Facebook</a>
             <a href="#"><i class="fab fa-instagram"></i> Instagram</a>
             <a href="#"><i class="fab fa-tiktok"></i> TikTok</a>
             <a href="#"><i class="fab fa-youtube"></i> YouTube</a>
+        </div> -->
+        <div class="last-about" id="aboutSection">
+            <h3>About</h3>
+            <ul>
+                <li><i class="fa fa-bus"></i> &nbsp; Online Bus Ticket Booking System</li>
+                <li><i class="fa fa-search"></i> &nbsp; Easy Bus Search</li>
+                <li><i class="fa fa-headphones"></i> &nbsp; 24/7 Customer Support</li>
+                <li><i class="fa fa-lock"></i> &nbsp; Safe Online Booking</li>
+                <li><i class="fa fa-ticket"></i> &nbsp; No Cancel Ticket</li>
+            </ul>
         </div>
     </div>
     <hr>

@@ -1,42 +1,33 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'owner') {
     header("Location: ../login.php");
     exit();
 }
-
 require_once "../db.php";
-
 $owner_id = (int)$_SESSION['user_id'];
 $message = "";
 $message_type = "";
-
 if (isset($_SESSION['success'])) {
     $message = $_SESSION['success'];
     $message_type = "success";
     unset($_SESSION['success']);
 }
-
 if (isset($_SESSION['error'])) {
     $message = $_SESSION['error'];
     $message_type = "error";
 }
-
 $stmt = $conn->prepare("SELECT verification_status FROM users WHERE user_id=? AND role='owner' LIMIT 1");
 $stmt->bind_param("i", $owner_id);
 $stmt->execute();
 $owner = $stmt->get_result()->fetch_assoc();
 $stmt->close();
-
 if (!$owner) {
     session_destroy();
     header("Location: ../login.php");
     exit();
 }
-
 $isVerified = ($owner['verification_status'] === 'verified');
-
 if (isset($_POST['add_schedule'])) {
     if (!$isVerified) {
         $message = "Please complete account verification first.";
@@ -48,7 +39,6 @@ if (isset($_POST['add_schedule'])) {
         $departure_date = trim($_POST['departure_date'] ?? '');
         $departure_time = trim($_POST['departure_time'] ?? '');
         $ticket_price = (float)($_POST['ticket_price'] ?? 0);
-
         if ($bus_id <= 0 || $from_city === '' || $to_city === '' || $departure_date === '' || $departure_time === '' || $ticket_price <= 0) {
             $message = "All fields are required.";
             $message_type = "error";
@@ -61,26 +51,22 @@ if (isset($_POST['add_schedule'])) {
             $busStmt->execute();
             $bus = $busStmt->get_result()->fetch_assoc();
             $busStmt->close();
-
             if (!$bus) {
                 $message = "Invalid bus. You can only create schedule for your own approved bus.";
                 $message_type = "error";
             } else {
                 $available_seats = (int)$bus['seats'];
-
                 $checkStmt = $conn->prepare("SELECT schedule_id FROM schedules WHERE bus_id=? AND departure_date=? AND departure_time=? LIMIT 1");
                 $checkStmt->bind_param("iss", $bus_id, $departure_date, $departure_time);
                 $checkStmt->execute();
                 $exists = $checkStmt->get_result()->num_rows > 0;
                 $checkStmt->close();
-
                 if ($exists) {
                     $message = "A schedule already exists for this bus at the selected date and time.";
                     $message_type = "error";
                 } else {
                     $insert = $conn->prepare("INSERT INTO schedules (bus_id,from_city,to_city,departure_date,departure_time,ticket_price,available_seats,status) VALUES (?,?,?,?,?,?,?,'active')");
                     $insert->bind_param("issssdi", $bus_id, $from_city, $to_city, $departure_date, $departure_time, $ticket_price, $available_seats);
-
                     if ($insert->execute()) {
                         $_SESSION['success'] = "Schedule added successfully.";
                         $insert->close();
@@ -90,63 +76,35 @@ if (isset($_POST['add_schedule'])) {
                         $message = "Failed to add schedule.";
                         $message_type = "error";
                     }
-
                     $insert->close();
                 }
             }
         }
     }
 }
-
 if (isset($_GET['delete'])) {
     $schedule_id = (int)$_GET['delete'];
-
     if ($schedule_id > 0) {
         $delete = $conn->prepare("DELETE s FROM schedules s INNER JOIN bus b ON s.bus_id=b.bus_id WHERE s.schedule_id=? AND b.owner_id=?");
         $delete->bind_param("ii", $schedule_id, $owner_id);
-
         if ($delete->execute() && $delete->affected_rows > 0) {
             $_SESSION['success'] = "Schedule deleted successfully.";
         } else {
             $_SESSION['error'] = "Schedule not found or you do not have permission.";
         }
-
         $delete->close();
     }
-
     header("Location: schedule.php");
     exit();
 }
-
 $busStmt = $conn->prepare("SELECT bus_id,bus_number,bus_name,bus_type,seats FROM bus WHERE owner_id=? AND status='approved' ORDER BY bus_id DESC");
 $busStmt->bind_param("i", $owner_id);
 $busStmt->execute();
 $busResult = $busStmt->get_result();
-
-$scheduleStmt = $conn->prepare("
-    SELECT
-        s.schedule_id,
-        s.bus_id,
-        s.from_city,
-        s.to_city,
-        s.departure_date,
-        s.departure_time,
-        s.ticket_price,
-        s.available_seats,
-        s.status,
-        b.bus_number,
-        b.bus_name,
-        b.bus_type,
-        b.seats
-    FROM schedules s
-    INNER JOIN bus b ON s.bus_id=b.bus_id
-    WHERE b.owner_id=?
-    ORDER BY s.departure_date ASC,s.departure_time ASC,s.schedule_id DESC
-");
+$scheduleStmt = $conn->prepare(" SELECT s.schedule_id, s.bus_id, s.from_city, s.to_city, s.departure_date, s.departure_time, s.ticket_price, s.available_seats, s.status, b.bus_number, b.bus_name, b.bus_type, b.seats FROM schedules s INNER JOIN bus b ON s.bus_id=b.bus_id WHERE b.owner_id=? ORDER BY s.departure_date ASC,s.departure_time ASC,s.schedule_id DESC ");
 $scheduleStmt->bind_param("i", $owner_id);
 $scheduleStmt->execute();
 $scheduleResult = $scheduleStmt->get_result();
-
 $today = date('Y-m-d');
 $max_date = date('Y-m-d', strtotime('+7 days'));
 $showScheduleForm = isset($_POST['add_schedule']) || isset($_POST['show_schedule_form']);
@@ -172,44 +130,24 @@ if ($routeResult) {
 <body>
     <?php require_once "owner_header.php"; ?>
     <div class="container">
-
         <div class="title">
             <h1>Schedule Management</h1>
             <p>Create and manage schedules for your approved buses.</p>
         </div>
-
         <?php if ($message !== ""): ?>
-            <div class="alert <?= htmlspecialchars($message_type) ?>">
-                <?= htmlspecialchars($message) ?>
-            </div>
+            <div class="alert <?= htmlspecialchars($message_type) ?>"> <?= htmlspecialchars($message) ?> </div>
         <?php endif; ?>
-
         <?php if (!$isVerified): ?>
-
-            <div class="warning">
-                <i class="fa fa-lock"></i>
-                Please complete your account verification before creating or managing schedules.
-            </div>
-
+            <div class="warning"> <i class="fa fa-lock"></i> Please complete your account verification before creating or managing schedules. </div>
         <?php elseif ($busResult->num_rows === 0): ?>
-
-            <div class="warning">
-                <i class="fa fa-bus"></i>
-                No approved bus found. Your bus must be approved by admin before creating a schedule.
-            </div>
-
-
+            <div class="warning"> <i class="fa fa-bus"></i> No approved bus found. Your bus must be approved by admin before creating a schedule.</div>
         <?php else: ?>
             <div class="schedule-form-toggle">
-                <button type="button" id="toggleScheduleBtn" class="add-btn" onclick="toggleScheduleForm()">
-                    <i class="fa fa-plus"></i> Add New Schedule
-                </button>
+                <button type="button" id="toggleScheduleBtn" class="add-btn" onclick="toggleScheduleForm()"> <i class="fa fa-plus"></i> Add New Schedule </button>
             </div>
-
             <div class="form-card" id="scheduleFormCard"
                 style="display: <?= $showScheduleForm ? 'block' : 'none' ?>;">
                 <h2><i class="fa fa-calendar-plus"></i> Add New Schedule</h2>
-
                 <form method="POST">
                     <div class="form-grid">
                         <div class="form-group">
@@ -228,7 +166,6 @@ if ($routeResult) {
                                 <?php endwhile; ?>
                             </select>
                         </div>
-
                         <div class="form-group">
                             <label>From City</label>
                             <select name="from_city" id="from_city" required>
@@ -240,41 +177,28 @@ if ($routeResult) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-
                         <div class="form-group">
                             <label>To City</label>
                             <select name="to_city" id="to_city" required>
                                 <option value="">Select To City</option>
                                 <?php foreach ($routes as $city): ?>
-                                    <option value="<?= htmlspecialchars($city) ?>">
-                                        <?= htmlspecialchars(ucwords(strtolower($city))) ?>
-                                    </option>
+                                    <option value="<?= htmlspecialchars($city) ?>"> <?= htmlspecialchars(ucwords(strtolower($city))) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
-
                         <div class="form-group">
                             <label>Departure Date</label>
-                            <input type="date" name="departure_date"
-                                min="<?= $today ?>" max="<?= $max_date ?>" required>
+                            <input type="date" name="departure_date" min="<?= $today ?>" max="<?= $max_date ?>" required>
                         </div>
-
                         <div class="form-group">
                             <label>Departure Time</label>
                             <input type="time" name="departure_time" required>
                         </div>
-
                         <div class="form-group">
                             <label>Ticket Price</label>
-                            <input type="number" name="ticket_price" min="500"
-                                step="100" placeholder="Enter ticket price" required>
+                            <input type="number" name="ticket_price" min="500" step="100" placeholder="Enter ticket price" required>
                         </div>
-
-                        <div class="full">
-                            <button type="submit" name="add_schedule" class="add-btn">
-                                <i class="fa fa-plus"></i> Create Schedule
-                            </button>
-                        </div>
+                        <div class="full"> <button type="submit" name="add_schedule" class="add-btn"> <i class="fa fa-plus"></i> Create Schedule </button></div>
                     </div>
                 </form>
             </div>
@@ -282,7 +206,6 @@ if ($routeResult) {
         <div class="table-card">
             <h2> <i class="fa fa-calendar"></i> My Bus Schedules </h2>
             <?php if ($scheduleResult->num_rows > 0): ?>
-
                 <table>
                     <thead>
                         <tr>
@@ -304,20 +227,12 @@ if ($routeResult) {
                                 <td><?= (int)$row['schedule_id'] ?></td>
                                 <td><?= htmlspecialchars($row['bus_number']) ?></td>
                                 <td><?= htmlspecialchars($row['bus_name']) ?></td>
-                                <td>
-                                    <?= htmlspecialchars($row['from_city']) ?>
-                                    <i class="fa fa-arrow-right"></i>
-                                    <?= htmlspecialchars($row['to_city']) ?>
-                                </td>
+                                <td> <?= htmlspecialchars($row['from_city']) ?> <i class="fa fa-arrow-right"></i> <?= htmlspecialchars($row['to_city']) ?> </td>
                                 <td><?= htmlspecialchars($row['departure_date']) ?></td>
                                 <td><?= htmlspecialchars(date("h:i A", strtotime($row['departure_time']))) ?></td>
                                 <td>Rs. <?= number_format((float)$row['ticket_price'], 2) ?></td>
                                 <td><?= (int)$row['available_seats'] ?></td>
-                                <td>
-                                    <?php if ($row['status'] === 'active'): ?>
-                                        <span class="statu active">Active</span>
-                                    <?php else: ?>
-                                        <span class="statu inactive"> <?= htmlspecialchars(ucfirst($row['status'])) ?> </span>
+                                <td> <?php if ($row['status'] === 'active'): ?> <span class="statu active">Active</span> <?php else: ?> <span class="statu inactive"> <?= htmlspecialchars(ucfirst($row['status'])) ?> </span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -341,7 +256,6 @@ if ($routeResult) {
         function toggleScheduleForm() {
             const form = document.getElementById('scheduleFormCard');
             const button = document.getElementById('toggleScheduleBtn');
-
             if (form.style.display === 'none') {
                 form.style.display = 'block';
                 button.innerHTML = '<i class="fa fa-minus"></i> Hide Schedule Form';
@@ -354,7 +268,6 @@ if ($routeResult) {
         function toggleScheduleForm() {
             const form = document.getElementById('scheduleFormCard');
             const button = document.getElementById('toggleScheduleBtn');
-
             if (form.style.display === 'none') {
                 form.style.display = 'block';
                 button.innerHTML = '<i class="fa fa-minus"></i> Hide Schedule Form';
@@ -363,29 +276,23 @@ if ($routeResult) {
                 button.innerHTML = '<i class="fa fa-plus"></i> Add New Schedule';
             }
         }
-
         const fromCity = document.getElementById('from_city');
         const toCity = document.getElementById('to_city');
 
         function updateCityOptions() {
             const from = fromCity.value;
             const to = toCity.value;
-
             Array.from(toCity.options).forEach(option => {
                 option.disabled = option.value !== '' && option.value === from;
             });
-
             Array.from(fromCity.options).forEach(option => {
                 option.disabled = option.value !== '' && option.value === to;
             });
         }
-
         fromCity.addEventListener('change', updateCityOptions);
         toCity.addEventListener('change', updateCityOptions);
-
         updateCityOptions();
     </script>
-
 </body>
 
 </html>

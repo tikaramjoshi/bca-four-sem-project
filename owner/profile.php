@@ -171,9 +171,7 @@ $verification_status = $owner['verification_status'] ?? 'unverified';
             </div>
         </div>
     </div>
-    <footer class="footer">
-        <p>&copy;2026 Online Bus Ticket Booking System || All rights reserved.</p>
-    </footer>
+    <?php include "owner_footer.php" ?>
 </body>
 
 </html>

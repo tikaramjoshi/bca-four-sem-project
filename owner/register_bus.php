@@ -5,26 +5,20 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'owner') {
     header("Location: ../login.php");
     exit();
 }
-
 require_once "../db.php";
-
 $owner_id = (int)$_SESSION['user_id'];
 $message = "";
 $message_type = "";
-
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $bus_number = trim($_POST['bus_number'] ?? '');
     $bus_name = trim($_POST['bus_name'] ?? '');
     $bus_type = trim($_POST['bus_type'] ?? '');
     $seat = (int)($_POST['seat'] ?? 0);
     $facilities = $_POST['facilities'] ?? [];
-
     if (!is_array($facilities)) {
         $facilities = [$facilities];
     }
-
     $facilities = implode(', ', array_map('trim', $facilities));
-
     if ($bus_number === '' || $bus_name === '' || $bus_type === '' || $seat <= 0) {
         $message = "Please fill in all required fields.";
         $message_type = "error";
@@ -36,7 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $check->bind_param("s", $bus_number);
         $check->execute();
         $result = $check->get_result();
-
         if ($result->num_rows > 0) {
             $message = "Bus number already exists.";
             $message_type = "error";
@@ -46,11 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (!is_dir($upload_dir)) {
                 mkdir($upload_dir, 0777, true);
             }
-
             $file = $_FILES['bus_image'];
             $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-
             if (!in_array($extension, $allowed, true)) {
                 $message = "Only JPG, JPEG, PNG, GIF and WEBP images are allowed.";
                 $message_type = "error";
@@ -65,14 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $message = "Failed to upload bus image.";
                     $message_type = "error";
                 } else {
-
-
-                    $insert = $conn->prepare("
-    INSERT INTO bus
-    (owner_id, bus_number, bus_name, bus_type, seats, facilities, bus_image, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')
-");
-
+                    $insert = $conn->prepare(" INSERT INTO bus (owner_id, bus_number, bus_name, bus_type, seats, facilities, bus_image, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending') ");
                     $insert->bind_param(
                         "isssiss",
                         $owner_id,
@@ -83,7 +67,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $facilities,
                         $image_name
                     );
-
                     if ($insert->execute()) {
                         $_SESSION['success'] = "Bus registered successfully. Waiting for admin approval.";
                         header("Location: dashboard.php");
@@ -110,159 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Bus</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: #f4f7fb;
-        }
-
-        .container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px 15px;
-        }
-
-        .register-box {
-            width: 700px;
-            background: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, .08);
-        }
-
-        .register-box h2 {
-            text-align: center;
-            color: #1560BD;
-            margin-bottom: 25px;
-        }
-
-        .register-box label {
-            display: block;
-            margin-top: 15px;
-            margin-bottom: 6px;
-            font-weight: bold;
-        }
-
-        .register-box input,
-        .register-box select,
-        .register-box textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 15px;
-            outline: none;
-        }
-
-        .register-box input:focus,
-        .register-box select:focus,
-        .register-box textarea:focus {
-            border-color: #1560BD;
-        }
-
-        #preview {
-            margin-top: 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-
-        .success,
-        .error {
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-
-        .success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .facilities {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 5px;
-        }
-
-        .facilities label {
-            margin: 0;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-weight: normal;
-            cursor: pointer;
-        }
-
-        .facilities input {
-            width: auto;
-            margin-right: 5px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .button-group button,
-        .cancel-btn {
-            flex: 1;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .submit-btn {
-            background: #1560BD;
-            color: #fff;
-        }
-
-        .submit-btn:hover {
-            background: #0d4d9b;
-        }
-
-        .cancel-btn {
-            background: #777;
-            color: #fff;
-        }
-
-        .cancel-btn:hover {
-            background: #555;
-        }
-
-        @media(max-width:768px) {
-            .register-box {
-                width: 100%;
-                padding: 20px;
-            }
-
-            .facilities {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="register_bus.css">
 </head>
 
 <body>
@@ -271,9 +102,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <div class="register-box">
             <h2>Register New Bus</h2>
             <?php if ($message !== ""): ?>
-                <div class="<?= htmlspecialchars($message_type) ?>">
-                    <?= htmlspecialchars($message) ?>
-                </div>
+                <div class="<?= htmlspecialchars($message_type) ?>"> <?= htmlspecialchars($message) ?> </div>
             <?php endif; ?>
             <form method="POST" enctype="multipart/form-data">
                 <label>Bus Number</label>
@@ -305,10 +134,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <label><input type="checkbox" name="facilities[]" value="CCTV"> CCTV</label>
                     <label><input type="checkbox" name="facilities[]" value="Toilet"> Toilet</label>
                 </div>
-
                 <div class="button-group">
-                    <button type="submit" name="register_bus" class="submit-btn">Register Bus</button>
-                    <a href="dashboard.php" class="cancel-btn">Cancel</a>
+                    <button type="submit" name="register_bus" class="submit-btn"> <i class="fas fa-bus"></i>&nbsp; Register Bus</button>
+                    <button type="button" class="cancel-btn" onclick="window.location.href='my_bus.php'"><i class="fas fa-close"></i>&nbsp; Cancel </button>
                 </div>
             </form>
         </div>

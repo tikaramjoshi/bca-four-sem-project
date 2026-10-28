@@ -33,14 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "Please select a bus and driver.";
             $message_type = "error";
         } else {
-            $stmt = $conn->prepare("
-                SELECT bus_id
-                FROM bus
-                WHERE bus_id = ?
-                AND owner_id = ?
-                AND status = 'approved'
-                LIMIT 1
-            ");
+            $stmt = $conn->prepare(" SELECT bus_id FROM bus WHERE bus_id = ? AND owner_id = ? AND status = 'approved' LIMIT 1 ");
             $stmt->bind_param("ii", $bus_id, $owner_id);
             $stmt->execute();
             $bus_result = $stmt->get_result();
@@ -49,13 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = "Invalid bus or this bus is not approved.";
                 $message_type = "error";
             } else {
-                $stmt = $conn->prepare("
-                    SELECT user_id
-                    FROM users
-                    WHERE user_id = ?
-                    AND role = 'driver'
-                    AND verification_status = 'verified'
-                    LIMIT 1
+                $stmt = $conn->prepare(" SELECT user_id FROM users WHERE user_id = ? AND role = 'driver' AND verification_status = 'verified' LIMIT 1
                 ");
                 $stmt->bind_param("i", $driver_id);
                 $stmt->execute();
@@ -65,11 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $message = "This driver is not approved by admin.";
                     $message_type = "error";
                 } else {
-                    $stmt = $conn->prepare("
-                        SELECT bus_driver_id
-                        FROM bus_driver
-                        WHERE driver_id = ?
-                        LIMIT 1
+                    $stmt = $conn->prepare(" SELECT bus_driver_id FROM bus_driver WHERE driver_id = ? LIMIT 1
                     ");
                     $stmt->bind_param("i", $driver_id);
                     $stmt->execute();
@@ -79,10 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $message = "This driver is already assigned to another bus.";
                         $message_type = "error";
                     } else {
-                        $stmt = $conn->prepare("
-                            INSERT INTO bus_driver
-                            (bus_id, driver_id)
-                            VALUES (?, ?)
+                        $stmt = $conn->prepare(" INSERT INTO bus_driver (bus_id, driver_id) VALUES (?, ?)
                         ");
                         $stmt->bind_param("ii", $bus_id, $driver_id);
 
@@ -105,14 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             : 0;
 
         if ($assignment_id > 0) {
-            $stmt = $conn->prepare("
-                DELETE bd
-                FROM bus_driver bd
-                INNER JOIN bus b
-                    ON bd.bus_id = b.bus_id
-                WHERE bd.bus_driver_id = ?
-                AND b.owner_id = ?
-            ");
+            $stmt = $conn->prepare(" DELETE bd FROM bus_driver bd INNER JOIN bus b     ON bd.bus_id = b.bus_id WHERE bd.bus_driver_id = ? AND b.owner_id = ? ");
             $stmt->bind_param("ii", $assignment_id, $owner_id);
 
             if ($stmt->execute()) {
@@ -128,17 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $buses = [];
 
-$stmt = $conn->prepare("
-    SELECT
-        bus_id,
-        bus_number,
-        bus_name,
-        bus_type,
-        seats
-    FROM bus
-    WHERE owner_id = ?
-    AND status = 'approved'
-    ORDER BY bus_id DESC
+$stmt = $conn->prepare(" SELECT     bus_id,     bus_number,     bus_name,     bus_type,     seats FROM bus WHERE owner_id = ? AND status = 'approved' ORDER BY bus_id DESC
 ");
 $stmt->bind_param("i", $owner_id);
 $stmt->execute();
@@ -150,20 +113,8 @@ while ($row = $result->fetch_assoc()) {
 
 $available_drivers = [];
 
-$stmt = $conn->prepare("
-    SELECT u.user_id, u.name, u.email, u.phone,
-           u.profile_image, u.verification_status
-    FROM users u
-    WHERE u.role = 'driver'
-    AND u.verification_status = 'verified'
-    AND NOT EXISTS (
-        SELECT 1
-        FROM bus_driver bd
-        WHERE bd.driver_id = u.user_id
-    )
-    ORDER BY u.name ASC
+$stmt = $conn->prepare(" SELECT u.user_id, u.name, u.email, u.phone,        u.profile_image, u.verification_status FROM users u WHERE u.role = 'driver' AND u.verification_status = 'verified' AND NOT EXISTS (     SELECT 1     FROM bus_driver bd     WHERE bd.driver_id = u.user_id ) ORDER BY u.name ASC
 ");
-
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -173,27 +124,7 @@ while ($row = $result->fetch_assoc()) {
 
 $assignments = [];
 
-$stmt = $conn->prepare("
-    SELECT
-        bd.bus_driver_id,
-        b.bus_id,
-        b.bus_number,
-        b.bus_name,
-        b.bus_type,
-        u.user_id AS driver_id,
-        u.name AS driver_name,
-        u.email AS driver_email,
-        u.phone AS driver_phone,
-        u.profile_image,
-        u.verification_status
-    FROM bus_driver bd
-    INNER JOIN bus b
-        ON bd.bus_id = b.bus_id
-    INNER JOIN users u
-        ON bd.driver_id = u.user_id
-    WHERE b.owner_id = ?
-    ORDER BY bd.bus_driver_id DESC
-");
+$stmt = $conn->prepare(" SELECT     bd.bus_driver_id,     b.bus_id,     b.bus_number,     b.bus_name,     b.bus_type,     u.user_id AS driver_id,     u.name AS driver_name,     u.email AS driver_email,     u.phone AS driver_phone,     u.profile_image,     u.verification_status FROM bus_driver bd INNER JOIN bus b     ON bd.bus_id = b.bus_id INNER JOIN users u     ON bd.driver_id = u.user_id WHERE b.owner_id = ? ORDER BY bd.bus_driver_id DESC ");
 $stmt->bind_param("i", $owner_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -226,15 +157,13 @@ $total_assignments = count($assignments);
                 <h1>Driver Management</h1>
                 <p>Assign approved drivers to your approved buses.</p>
             </div>
-            <a href="dashboard.php" class="back-btn">Dashboard</a>
+            <a href="dashboard.php" class="back-btn"><i class="fa fa-home"></i> Home</a>
         </div>
-
         <?php if ($message !== ""): ?>
             <div class="message <?= htmlspecialchars($message_type) ?>">
                 <?= htmlspecialchars($message) ?>
             </div>
         <?php endif; ?>
-
         <div class="stats">
             <div class="stat">
                 <small>My Approved Buses</small>
@@ -249,11 +178,9 @@ $total_assignments = count($assignments);
                 <strong><?= $total_assignments ?></strong>
             </div>
         </div>
-
         <div class="boxdriver">
             <h2>Assign Driver</h2>
             <p class="box-description"> Only drivers approved by Admin and not assigned to another bus are available. </p>
-
             <?php if (!empty($buses) && !empty($available_drivers)): ?>
                 <form method="POST" onsubmit="return confirm('Are you sure you want to assign this driver to this bus?');">
                     <div class="form-grid">
@@ -267,7 +194,6 @@ $total_assignments = count($assignments);
                                 <?php endforeach; ?>
                             </select>
                         </div>
-
                         <div class="form-group">
                             <label>Select Approved Driver</label>
                             <select name="driver_id" required>
@@ -276,10 +202,7 @@ $total_assignments = count($assignments);
                                 <?php endforeach; ?>
                             </select>
                         </div>
-
-                        <button type="submit" name="assign_driver" class="assign-btn">
-                            Assign Driver
-                        </button>
+                        <button type="submit" name="assign_driver" class="assign-btn"> <i class="fa-solid fa-user-plus"></i> Assign Driver </button>
                     </div>
                 </form>
             <?php elseif (empty($buses)): ?>
@@ -296,18 +219,17 @@ $total_assignments = count($assignments);
                 </div>
             <?php endif; ?>
         </div>
-
         <div class="table-box">
             <div class="table-header">
                 <h2>Approved Drivers</h2>
                 <span><?= count($available_drivers) ?> Driver(s)</span>
             </div>
-
             <?php if (!empty($available_drivers)): ?>
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
+                                <th>S.No</th>
                                 <th>Driver</th>
                                 <th>Email</th>
                                 <th>Phone</th>
@@ -315,19 +237,13 @@ $total_assignments = count($assignments);
                                 <th>Action</th>
                             </tr>
                         </thead>
-
                         <tbody>
-                            <?php foreach ($available_drivers as $driver): ?>
+
+                            <?php $sn = 1;
+                            foreach ($available_drivers as $driver): ?>
                                 <?php
                                 $driver_id = (int)$driver['user_id'];
-
-                                $stmt_photo = $conn->prepare("
-    SELECT profile_photo
-    FROM driver_verification
-    WHERE driver_id = ?
-    ORDER BY verification_id DESC
-    LIMIT 1
-");
+                                $stmt_photo = $conn->prepare(" SELECT profile_photo FROM driver_verification WHERE driver_id = ? ORDER BY verification_id DESC LIMIT 1 ");
                                 $stmt_photo->bind_param("i", $driver_id);
                                 $stmt_photo->execute();
                                 $photo_result = $stmt_photo->get_result()->fetch_assoc();
@@ -341,47 +257,26 @@ $total_assignments = count($assignments);
                                     $driver_image = "../uploads/profile/default.png";
                                 }
                                 ?>
-
                                 <tr>
+                                    <td><?= $sn++ ?></td>
                                     <td>
                                         <div class="driver-info">
-                                            <img
-                                                src="<?= htmlspecialchars($driver_image) ?>"
-                                                class="driver-image"
-                                                alt="Driver"
-                                                onerror="this.onerror=null;this.src='../uploads/profile/default.png';">
-                                            <div class="driver-name">
-                                                <?= htmlspecialchars($driver['name'] ?? '') ?>
-                                            </div>
+                                            <img src="<?= htmlspecialchars($driver_image) ?>" class="driver-image" alt="Driver" onerror="this.onerror=null;this.src='../uploads/profile/default.png';">
+                                            <div class="driver-name"><?= htmlspecialchars($driver['name'] ?? '') ?> </div>
                                         </div>
                                     </td>
-
                                     <td><?= htmlspecialchars($driver['email'] ?? '') ?></td>
                                     <td><?= htmlspecialchars($driver['phone'] ?? '') ?></td>
-
-                                    <td>
-                                        <span class="badge verified">Approved</span>
-                                    </td>
-
+                                    <td><span class="badge verified">Approved</span></td>
                                     <td>
                                         <form method="POST">
-                                            <input type="hidden" name="driver_id"
-                                                value="<?= (int)$driver['user_id'] ?>">
-
+                                            <input type="hidden" name="driver_id" value="<?= (int)$driver['user_id'] ?>">
                                             <select name="bus_id" required>
                                                 <option value="">Select Bus</option>
-                                                <?php foreach ($buses as $bus): ?>
-                                                    <option value="<?= (int)$bus['bus_id'] ?>">
-                                                        <?= htmlspecialchars($bus['bus_number']) ?> -
-                                                        <?= htmlspecialchars($bus['bus_name']) ?>
-                                                    </option>
+                                                <?php foreach ($buses as $bus): ?> <option value="<?= (int)$bus['bus_id'] ?>"> <?= htmlspecialchars($bus['bus_number']) ?> - <?= htmlspecialchars($bus['bus_name']) ?> </option>
                                                 <?php endforeach; ?>
                                             </select>
-
-                                            <button type="submit" name="assign_driver"
-                                                class="assign-btn">
-                                                Assign
-                                            </button>
+                                            <button type="submit" name="assign_driver" class="assign-btn"><i class="fa-solid fa-link"></i> Assign </button>
                                         </form>
                                     </td>
                                 </tr>
@@ -389,17 +284,12 @@ $total_assignments = count($assignments);
                         </tbody>
                     </table>
                 </div>
-
             <?php else: ?>
-
                 <div class="empty">
                     <div class="empty-icon"></div>
                     <h3>No Approved Drivers</h3>
-                    <p>
-                        No Admin-approved drivers are currently available.
-                    </p>
+                    <p> No Admin-approved drivers are currently available.</p>
                 </div>
-
             <?php endif; ?>
         </div>
     </div>
