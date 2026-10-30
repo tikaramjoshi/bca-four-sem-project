@@ -1,5 +1,11 @@
 <?php
-require_once "auth.php";
+if (session_status() === PHP_SESSION_NONE) session_start();
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
+    header("Location: ../login.php");
+    exit;
+}
+require_once "../db.php";
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -111,8 +117,8 @@ require_once "auth.php";
                 <input type="text" name="title" placeholder="Post Title" required>
                 <textarea name="message" placeholder="Post Message" required></textarea>
                 <input type="file" name="image" accept="image/*">
-                <button type="submit">Post</button>
-                <a href="view_post.php" class="view-btn">Back</a>
+                <button type="submit"><i class="fa fa-save"></i>&nbsp; Post</button>
+                <a href="view_post.php" class="view-btn"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
             </form>
         </div>
     </div>

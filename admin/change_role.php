@@ -66,9 +66,7 @@ if (isset($_POST['reject_request'])) {
     header("Location: change_role.php");
     exit();
 }
-
-$result = $conn->query("SELECT r.request_id,r.user_id,r.old_role,r.requested_role,r.reason,r.status,r.admin_reason,r.requested_at,r.reviewed_at,u.name,u.email,u.phone,u.profile_image,u.role,u.verification_status FROM role_change_requests r INNER JOIN users u ON r.user_id=u.user_id ORDER BY r.request_id DESC");
-
+$result = $conn->query("SELECT r.request_id,r.user_id,r.old_role,r.requested_role,r.reason,r.status,r.admin_reason,r.requested_at,r.reviewed_at,u.name,u.email,u.phone,u.profile_image,u.role,u.verification_status,dv.profile_photo,ov.owner_photo FROM role_change_requests r INNER JOIN users u ON r.user_id=u.user_id LEFT JOIN (SELECT driver_id,profile_photo FROM driver_verification WHERE verification_id IN (SELECT MAX(verification_id) FROM driver_verification GROUP BY driver_id)) dv ON dv.driver_id=u.user_id LEFT JOIN (SELECT owner_id,owner_photo FROM owner_verification WHERE verification_id IN (SELECT MAX(verification_id) FROM owner_verification GROUP BY owner_id)) ov ON ov.owner_id=u.user_id ORDER BY r.request_id DESC");
 $success = $_SESSION['success'] ?? '';
 $error = $_SESSION['error'] ?? '';
 
@@ -83,234 +81,16 @@ unset($_SESSION['error']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Change User Role</title>
+    <link rel="stylesheet" href="change_role.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-        }
-
-        .content {
-            padding: 25px;
-        }
-
-        .container {
-            width: 100%;
-        }
-
-        h3 {
-            margin: 0 0 20px;
-            font-size: 24px;
-            color: #222;
-        }
-
-        .alert {
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .alert-success {
-            background: #d1e7dd;
-            color: #0f5132;
-            border: 1px solid #badbcc;
-        }
-
-        .alert-danger {
-            background: #f8d7da;
-            color: #842029;
-            border: 1px solid #f5c2c7;
-        }
-
-        .table-box {
-            width: 100%;
-            overflow-x: auto;
-            background: white;
-            border-radius: 8px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: #4413e5;
-            color: white;
-            padding: 12px 9px;
-            text-align: left;
-            font-size: 12px;
-        }
-
-        td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #ddd;
-            font-size: 14px;
-            color: #333;
-            vertical-align: middle;
-        }
-
-        tr:hover {
-            background: #f8f8ff;
-        }
-
         .profile {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
-            border: 1px solid #ddd;
-        }
-
-        .admin-btn {
-            padding: 8px 14px;
-            border: 0;
-            border-radius: 5px;
-            background: #6c757d;
-            color: white;
-            cursor: not-allowed;
-        }
-
-        .status {
-            padding: 6px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            display: inline-block;
-        }
-
-        .pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .approved {
-            background: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .rejected {
-            background: #f8d7da;
-            color: #842029;
-            border: none;
-        }
-
-
-        .rejected:hover,
-        .approved:hover {
-            background: #a86c11;
-            color: #fff;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, .5);
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .modal-box {
-            width: 420px;
-            max-width: 90%;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, .2);
-        }
-
-        .modal-box h3 {
-            margin: 0 0 20px;
-            font-size: 22px;
-        }
-
-        .modal-box label {
+            object-fit: cover;
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-
-        .modal-box textarea {
-            width: 100%;
-            height: 120px;
-            resize: none;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-        }
-
-        .modal-box textarea:focus {
-            outline: none;
-            border-color: #4413e5;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .cancel-btn {
-            padding: 8px 12px;
-            border: 0;
-            border-radius: 5px;
-            background: #6c757d;
-            color: white;
-            cursor: pointer;
-        }
-
-        @media(max-width:768px) {
-            .content {
-                padding: 15px;
-            }
-
-            h3 {
-                font-size: 20px;
-            }
-        }
-
-        .reason-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, .5);
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        }
-
-        .reason-box {
-            width: 420px;
-            max-width: 90%;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-        }
-
-        .reason-box h3 {
-            margin: 0 0 15px;
-        }
-
-        .reason-text {
-            padding: 12px;
-            background: #f8d7da;
-            color: #842029;
-            border-radius: 6px;
-            line-height: 1.5;
         }
     </style>
 </head>
@@ -354,9 +134,32 @@ unset($_SESSION['error']);
 
                                 <td>
                                     <?php
-                                    $image = !empty($row['profile_image']) ? $row['profile_image'] : 'default.png';
+                                    $image = "../uploads/default.png";
+
+                                    if ($row['role'] === 'owner' && !empty($row['owner_photo'])) {
+                                        $candidate = "../uploads/profile/" . (int)$row['user_id'] . "/profile/" . basename($row['owner_photo']);
+                                        if (file_exists($candidate)) {
+                                            $image = $candidate;
+                                        }
+                                    } elseif ($row['role'] === 'driver' && !empty($row['profile_photo'])) {
+                                        $candidate = "../uploads/driver/profile/" . basename($row['profile_photo']);
+                                        if (file_exists($candidate)) {
+                                            $image = $candidate;
+                                        }
+                                    } elseif ($row['role'] === 'passenger' && !empty($row['profile_image'])) {
+                                        $candidate = "../uploads/profile/passenger/" . $row['name'] . "/" . basename($row['profile_image']);
+                                        if (file_exists($candidate)) {
+                                            $image = $candidate;
+                                        }
+                                    } elseif (!empty($row['profile_image'])) {
+                                        $candidate = "../uploads/profile/" . basename($row['profile_image']);
+                                        if (file_exists($candidate)) {
+                                            $image = $candidate;
+                                        }
+                                    }
                                     ?>
-                                    <img class="profile" src="../uploads/<?php echo htmlspecialchars($image); ?>">
+
+                                    <img class="profile" src="<?= htmlspecialchars($image) ?>" alt="Profile" onerror="this.onerror=null;this.src='../uploads/default.png';">
                                 </td>
 
                                 <td><?php echo htmlspecialchars($row['name']); ?></td>
@@ -373,20 +176,20 @@ unset($_SESSION['error']);
                                     ?>
                                         <form method="POST" style="display:inline;">
                                             <input type="hidden" name="request_id" value="<?php echo $row['request_id']; ?>">
-                                            <button type="submit" name="approve_request" class="approve-btn" onclick="return confirm('Approve this role request?')">Approve</button>
+                                            <button type="submit" name="approve_request" class="status approved" onclick="return confirm('Approve this role request?')"><i class="fa fa-check"></i>&nbsp; Approve</button>
                                         </form>
-                                        <button type="button" class="reject-btn" onclick="openRejectForm(<?php echo $row['request_id']; ?>)">Reject</button>
+                                        <button type="button" class="status rejected" onclick="openRejectForm(<?php echo $row['request_id']; ?>)"><i class="fa fa-trash"></i>&nbsp; Reject</button>
                                     <?php
                                     } elseif ($row['status'] == 'approved') {
                                     ?>
-                                        <span class="status approved">Approved</span>
+                                        <span class="status approved" style="background-color: #3d383884;"><i class="fa fa-check"></i>&nbsp; Approved</span>
                                     <?php
                                     } elseif ($row['status'] == 'rejected') {
                                     ?>
-                                        <button type="button" class="status rejected" onclick="viewRejectReason(<?php echo htmlspecialchars(json_encode($row['admin_reason'] ?? 'No reason provided')); ?>)">Rejected</button>
-                                    <?php
+                                        <span class="status rejected" style="background-color: #3d383884;"><i class="fa fa-trash"></i>&nbsp; Rejected</button>
+                                        <?php
                                     }
-                                    ?>
+                                        ?>
                                 </td>
 
                             </tr>
@@ -408,8 +211,8 @@ unset($_SESSION['error']);
                 <textarea name="admin_reason" id="adminReason" placeholder="Enter reject reason..." required></textarea>
 
                 <div class="modal-buttons">
-                    <button type="submit" name="reject_request" class="reject-btn">Reject Request</button>
-                    <button type="button" class="cancel-btn" onclick="closeRejectForm()">Cancel</button>
+                    <button type="submit" name="reject_request" class="reject-btn"><i class="fa fa-trash"></i>&nbsp; Reject Request</button>
+                    <button type="button" class="cancel-btn" onclick="closeRejectForm()"><i class="fa fa-close"></i>&nbsp; Cancel</button>
                 </div>
             </form>
         </div>
@@ -419,7 +222,7 @@ unset($_SESSION['error']);
             <h3>Reject Reason</h3>
             <div class="reason-text" id="reasonText"></div>
             <div class="modal-buttons">
-                <button type="button" class="cancel-btn" onclick="closeReason()">Close</button>
+                <button type="button" class="cancel-btn" onclick="closeReason()"><i class="fa fa-close"></i>&nbsp; Close </button>
             </div>
         </div>
     </div>

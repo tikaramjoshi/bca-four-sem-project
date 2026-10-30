@@ -17,44 +17,9 @@ $today = date('Y-m-d');
 $max_date = date('Y-m-d', strtotime('+7 days'));
 
 
-$conn->query("
-    INSERT INTO schedule_history
-    (
-        schedule_id,
-        bus_id,
-        from_city,
-        to_city,
-        departure_date,
-        departure_time,
-        ticket_price,
-        available_seats,
-        status
-    )
-    SELECT
-        s.schedule_id,
-        s.bus_id,
-        s.from_city,
-        s.to_city,
-        s.departure_date,
-        s.departure_time,
-        s.ticket_price,
-        s.available_seats,
-        s.status
-    FROM schedules s
-    WHERE TIMESTAMP(s.departure_date, s.departure_time)
-          <= DATE_SUB(NOW(), INTERVAL 30 MINUTE)
-    AND NOT EXISTS (
-        SELECT 1
-        FROM schedule_history h
-        WHERE h.schedule_id = s.schedule_id
-    )
-");
+$conn->query("  INSERT INTO schedule_history  (      schedule_id,      bus_id,      from_city,      to_city,      departure_date,      departure_time,      ticket_price,      available_seats,      status  )  SELECT      s.schedule_id,      s.bus_id,      s.from_city,      s.to_city,      s.departure_date,      s.departure_time,      s.ticket_price,      s.available_seats,      s.status  FROM schedules s  WHERE TIMESTAMP(s.departure_date, s.departure_time)        <= DATE_SUB(NOW(), INTERVAL 30 MINUTE)  AND NOT EXISTS (      SELECT 1      FROM schedule_history h      WHERE h.schedule_id = s.schedule_id ) ");
 
-$conn->query("
-    DELETE FROM schedules
-    WHERE TIMESTAMP(departure_date, departure_time)
-          <= DATE_SUB(NOW(), INTERVAL 30 MINUTE)
-");
+$conn->query(" DELETE FROM schedules WHERE TIMESTAMP(departure_date, departure_time)  <= DATE_SUB(NOW(), INTERVAL 30 MINUTE) ");
 
 $message = "";
 $type = "";
@@ -229,11 +194,6 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
                         <label>Ticket Price</label>
                         <input type="number" name="ticket_price" value="<?= htmlspecialchars($edit_schedules['ticket_price'] ?? '') ?>" min="500" step="100" required>
                     </div>
-                    <!-- <div class="form-group">
-                        <label>Available Seats</label>
-                        <input type="number" name="available_seats" id="available_seats" value="<?= htmlspecialchars($edit_schedules['available_seats'] ?? '') ?>" min="0" readonly required>
-                    </div> -->
-
                     <div class="form-group">
                         <label>Available Seats</label>
                         <input type="number" name="available_seats" id="available_seats" value="<?= htmlspecialchars($edit_schedules['available_seats'] ?? '') ?>" min="1" readonly required>
@@ -250,10 +210,10 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
                     </div>
                     <div class="form-actions">
                         <?php if ($edit_schedules): ?>
-                            <button type="submit" name="update_schedules" class="btn btn-primary"><i class="fa fa-save"></i> Update schedules</button>
+                            <button type="submit" name="update_schedules" class="btn btn-primary"><i class="fa fa-save"></i>&nbsp; Update schedules</button>
                             <a href="schedule.php" class="btn btn-cancel">Cancel</a>
                         <?php else: ?>
-                            <button type="submit" name="add_schedules" class="btn btn-primary"><i class="fa fa-plus"></i> Add schedules</button>
+                            <button type="submit" name="add_schedules" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp; Add schedules</button>
                         <?php endif; ?>
                     </div>
                 </form>
@@ -290,9 +250,9 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
                                         <td><strong><?= ($row['available_seats']) ?></strong></td>
                                         <td><span class="status <?= htmlspecialchars($row['status']) ?>"><?= ucfirst(htmlspecialchars($row['status'])) ?></span></td>
                                         <td>
-                                            <a href="schedule.php?edit=<?= (int)$row['schedule_id'] ?>" class="edit"><i class="fa fa-edit"></i> Edit</a>
+                                            <a href="schedule.php?edit=<?= (int)$row['schedule_id'] ?>" class="edit"><i class="fa fa-edit"></i> &nbsp; Edit</a>
 
-                                            <a href="schedule.php?delete=<?= (int)$row['schedule_id'] ?>" class="delete" onclick="return confirm('Are you sure you want to delete this schedule?')"><i class="fa fa-trash"></i> Delete</a>
+                                            <a href="schedule.php?delete=<?= (int)$row['schedule_id'] ?>" class="delete" onclick="return confirm('Are you sure you want to delete this schedule?')"><i class="fa fa-trash"></i>&nbsp; Delete</a>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
@@ -337,19 +297,6 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
             }
         });
     </script>
-
-    <!-- <script>
-        document.getElementById('bus_id').addEventListener('change', function() {
-            document.getElementById('available_seats').value = this.options[this.selectedIndex].dataset.seats || 0;
-        });
-
-        function toggleMenu() {
-            document.getElementById("settingMenu").classList.toggle("show")
-        }
-        window.onclick = function(e) {
-            if (!e.target.closest(".setting")) document.getElementById("settingMenu").classList.remove("show")
-        }
-    </script> -->
 </body>
 
 </html>

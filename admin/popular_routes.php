@@ -89,13 +89,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $stmt->close();
 
                     $stmt = $conn->prepare("UPDATE popular_routes SET bus_id=?,from_city=?,to_city=?,departure_date=?,departure_time=?,price=?,image=?,status=? WHERE popular_id=?");
+
                     $stmt->bind_param("issssdssi", $bus_id, $from_city, $to_city, $departure_date, $departure_time, $price, $image, $status, $edit_id);
                     $success = $stmt->execute();
                     $stmt->close();
 
                     if ($success) {
                         $stmt = $conn->prepare("SELECT schedule_id FROM schedules WHERE bus_id=? AND LOWER(TRIM(from_city))=LOWER(TRIM(?)) AND LOWER(TRIM(to_city))=LOWER(TRIM(?)) AND departure_date=? AND TIME(departure_time)=TIME(?) LIMIT 1");
-                        $stmt->bind_param("issss", $bus_id, $from_city, $to_city, $departure_date, $departure_time);
+                        $stmt->bind_param("issss", $old['bus_id'], $old['from_city'], $old['to_city'], $old['departure_date'], $old['departure_time']);
                         $stmt->execute();
                         $schedule = $stmt->get_result()->fetch_assoc();
                         $stmt->close();
@@ -112,25 +113,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             $stmt->close();
                         }
                     }
+                } else {
+                    $stmt = $conn->prepare("INSERT INTO popular_routes (bus_id,from_city,to_city,departure_date,departure_time,price,image,status) VALUES (?,?,?,?,?,?,?,?)");
+                    $stmt->bind_param("issssdss", $bus_id, $from_city, $to_city, $departure_date, $departure_time, $price, $image, $status);
+                    $success = $stmt->execute();
+                    $stmt->close();
 
-                    if ($success && $status === 'active') {
-                        $stmt = $conn->prepare("SELECT schedule_id FROM schedules WHERE bus_id=? AND LOWER(TRIM(from_city))=LOWER(TRIM(?)) AND LOWER(TRIM(to_city))=LOWER(TRIM(?)) AND departure_date=? AND TIME(departure_time)=TIME(?) LIMIT 1");
-                        $stmt->bind_param("issss", $bus_id, $from_city, $to_city, $departure_date, $departure_time);
+                    if ($success) {
+                        $stmt = $conn->prepare("INSERT INTO schedules (bus_id,from_city,to_city,departure_date,departure_time,ticket_price,available_seats,status) VALUES (?,?,?,?,?,?,?,?)");
+                        $stmt->bind_param("issssdis", $bus_id, $from_city, $to_city, $departure_date, $departure_time, $price, $total_seats, $status);
                         $stmt->execute();
-                        $schedule_exists = $stmt->get_result()->fetch_assoc();
                         $stmt->close();
-
-                        if ($schedule_exists) {
-                            $stmt = $conn->prepare("UPDATE schedules SET ticket_price=?,available_seats=?,status='active' WHERE schedule_id=?");
-                            $stmt->bind_param("dii", $price, $total_seats, $schedule_exists['schedule_id']);
-                            $stmt->execute();
-                            $stmt->close();
-                        } else {
-                            $stmt = $conn->prepare("INSERT INTO schedules(bus_id,from_city,to_city,departure_date,departure_time,ticket_price,available_seats,status) VALUES(?,?,?,?,?,?,?,'active')");
-                            $stmt->bind_param("issssdi", $bus_id, $from_city, $to_city, $departure_date, $departure_time, $price, $total_seats);
-                            $stmt->execute();
-                            $stmt->close();
-                        }
                     }
                 }
 
@@ -214,8 +207,8 @@ while ($result && $row = $result->fetch_assoc()) $routes[] = $row;
                             <option value="inactive" <?= (($edit_route['status'] ?? '') === 'inactive') ? 'selected' : '' ?>>Inactive</option>
                         </select></div>
                 </div>
-                <button type="submit" class="add-btn"><?= $edit_route ? 'Update Popular Route' : 'Assign Popular Route' ?></button>
-                <?php if ($edit_route): ?><a href="popular_routes.php" class="add-btn">Cancel</a><?php endif; ?>
+                <button type="submit" class="add-btn"><i class="fa fa-save"></i>&nbsp; <?= $edit_route ? 'Update Popular Route' : 'Assign Popular Route' ?></button>
+                <?php if ($edit_route): ?><a href="popular_routes.php" class="add-btn"><i class="fa fa-close"></i>&nbsp; Cancel</a><?php endif; ?>
             </form>
         </div>
         <div class="route-box">
@@ -250,7 +243,7 @@ while ($result && $row = $result->fetch_assoc()) $routes[] = $row;
                                 <td><?= date('h:i A', strtotime($route['departure_time'])) ?></td>
                                 <td><?= (int)$route['seats'] ?></td>
                                 <td><span class="badge <?= $route['status'] === 'active' ? 'badge-active' : 'badge-inactive' ?>"><?= ucfirst($route['status']) ?></span></td>
-                                <td><a href="?edit=<?= (int)$route['popular_id'] ?>" class="edit-btn">Edit</a> <a href="?delete=<?= (int)$route['popular_id'] ?>" class="delete-btn" onclick="return confirm('Delete this route?')">Delete</a></td>
+                                <td><a href="?edit=<?= (int)$route['popular_id'] ?>" class="edit-btn"><i class="fa fa-edit"></i>&nbsp; Edit</a> <a href="?delete=<?= (int)$route['popular_id'] ?>" class="delete-btn" onclick="return confirm('Delete this route?')"><i class="fa fa-trash"></i>&nbsp; Delete</a></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

@@ -54,6 +54,8 @@ $booking_active = in_array($current_page, ['bookings.php', 'booking_history.php'
         <div class="sidebar">
             <a href="dashboard.php" class="<?= $active_page === 'dashboard.php' ? 'active' : '' ?>"> <i class="fa fa-dashboard"></i>&nbsp;&nbsp;Dashboard</a>
 
+            <a href="bookings.php" class="<?= $active_page === 'bookings.php' ? 'active' : '' ?>"><i class="fa fa-ticket"></i>&nbsp;&nbsp;Bookings</a>
+
             <a href="view_owners.php" class="<?= $active_page === 'view_owners.php' ? 'active' : '' ?>"> <i class="fa fa-briefcase"></i>&nbsp;&nbsp;Owners</a>
 
             <a href="drivers.php" class="<?= $active_page === 'drivers.php' ? 'active' : '' ?>"><i class="fa fa-id-card-o"></i>&nbsp;&nbsp;Drivers</a>
@@ -69,8 +71,6 @@ $booking_active = in_array($current_page, ['bookings.php', 'booking_history.php'
             <a href="routes.php" class="<?= $active_page === 'routes.php' ? 'active' : '' ?>"><i class="fa fa-map-signs"></i>&nbsp;&nbsp;Routes</a>
 
             <a href="schedule.php" class="<?= $active_page === 'schedule.php' ? 'active' : '' ?>"><i class="fa fa-calendar"></i>&nbsp;&nbsp;Schedule</a>
-
-            <a href="bookings.php" class="<?= $active_page === 'bookings.php' ? 'active' : '' ?>"><i class="fa fa-ticket"></i>&nbsp;&nbsp;Bookings</a>
 
             <a href="popular_routes.php" class="<?= $active_page === 'popular_routes.php' ? 'active' : '' ?>"><i class="fa fa-line-chart"></i>&nbsp;&nbsp;Popular Route</a>
 

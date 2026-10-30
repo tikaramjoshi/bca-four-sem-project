@@ -1,0 +1,163 @@
+
+.contain {
+    max-width: 90%;
+    margin-left: 210px
+}
+
+.pending {
+    background:  #dd2476;
+    padding: 14px 22px;
+    border-radius: 30px;
+    font-weight: bold
+}
+.message {
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    color: #fff;
+    font-weight: bold;
+    text-align: center
+}
+.success {
+    background:  #d6c90a;
+}
+.error {
+    background: #ff4b2b;
+}
+.table-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 12px 30px #0001
+}
+.table-wrapper {
+    overflow-x: auto
+}
+table {
+    width: 100%;
+    min-width: 1200px;
+    border-collapse: collapse
+}
+thead {
+    background: #2575fc;
+}
+th {
+    color: #fff;
+    padding: 15px 12px;
+    text-align: left;
+    font-size: 14px
+}
+td {
+    padding: 15px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #334155;
+    font-size: 14px;
+    vertical-align: middle
+}
+.user {
+    display: flex;
+    align-items: center;
+    gap: 12px
+}
+.user img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ddd6fe
+}
+.user-name {
+    font-weight: bold;
+    color: #4c1d95
+}
+.user-email {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 3px
+}
+.role,
+.status {
+    display: inline-block;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase
+}
+.passenger {
+    background: #dbeafe;
+    color: #1d4ed8
+}
+.driver {
+    background: #dcfce7;
+    color: #15803d
+}
+.owner {
+    background: #fef3c7;
+    color: #b45309
+}
+.status.pending {
+    background: #fef3c7;
+    color: #b45309
+}
+.status.approved {
+    background: #dcfce7;
+    color: #15803d
+}
+.status.rejected {
+    background: #fee2e2;
+    color: #dc2626
+}
+.reason {
+    max-width: 220px;
+    line-height: 1.5
+}
+.action-box {
+    display: flex;
+    gap: 8px
+}
+.action-box form {
+    margin: 0
+}
+.approve,
+.reject {
+    border: 0;
+    padding: 9px 13px;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 12px
+}
+.approve {
+    background:  #0c7817;
+}
+.reject {
+    background: l #ea3b1d;
+}
+.waiting {
+    color: #b40370;
+    font-weight: bold
+}
+.empty {
+    text-align: center;
+    padding: 45px;
+    color: #64748b;
+    font-size: 17px
+}
+@media(max-width:700px) {
+    body {
+        padding: 15px
+    }
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px
+    }
+    .header h1 {
+        font-size: 25px
+    }
+    .table-card {
+        padding: 15px
+    }
+}

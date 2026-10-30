@@ -13,7 +13,9 @@ $totalPassengers = $conn->query("SELECT COUNT(*) FROM users WHERE role='passenge
 $totalBuses = $conn->query("SELECT COUNT(*) FROM bus")->fetch_row()[0];
 $totalOwnerVerification = $conn->query("SELECT COUNT(*) FROM owner_verification WHERE status='pending'")->fetch_row()[0];
 $totalDriverVerification = $conn->query("SELECT COUNT(*) FROM driver_verification WHERE status='pending'")->fetch_row()[0];
-$totalPassengerVerification = $conn->query("SELECT COUNT(*) FROM users WHERE role='passenger' AND (verification_status IS NULL OR verification_status <> 'verified')")->fetch_row()[0];
+
+$totalPassengerVerification = $conn->query("SELECT COUNT(*) FROM users WHERE role='passenger' AND (verification_status IS NULL OR verification_status IN ('unverified','pending'))")->fetch_row()[0];
+
 $totalPending = $conn->query("SELECT COUNT(*) FROM bus WHERE status='pending'")->fetch_row()[0];
 if (isset($_GET['action'], $_GET['id'])) {
     $id = (int)$_GET['id'];
@@ -156,8 +158,10 @@ if ($result) {
                             <td><?= htmlspecialchars($row['seats']) ?></td>
                             <td><span class="pending-text">Pending</span></td>
                             <td>
-                                <a class="approve" href="?action=approve&id=<?= (int)$row['bus_id'] ?>" onclick="return confirm('Approve this bus?')">Approve</a>
-                                <a class="reject" href="reject_bus.php?id=<?= (int)$row['bus_id'] ?>" onclick="return confirm('Do you want to reject this bus?')">Reject</a>
+                                <button type="button" class="approve" onclick="if(confirm('Approve this bus?')) window.location.href='?action=approve&id=<?= (int)$row['bus_id'] ?>'"> <i class="fa fa-check"></i>&nbsp;Approve </button>
+                                <button type="button" class="reject" onclick="if(confirm('Do you want to reject this bus?')) window.location.href='reject_bus.php?id=<?= (int)$row['bus_id'] ?>'"> <i class="fa fa-times"></i>&nbsp;Reject
+                                </button>
+
                             </td>
                         </tr>
                     <?php endwhile; ?>
@@ -194,8 +198,9 @@ if ($result) {
                             <td><a href="../uploads/profile/<?= (int)$row['owner_id'] ?>/profile/<?= htmlspecialchars($row['company_certificate']) ?>" target="_blank">View Certificate</a></td>
                             <td><span class="pending-text">Pending</span></td>
                             <td>
-                                <a href="verify_owner.php?id=<?= (int)$row['verification_id'] ?>" class="approve" onclick="return confirm('Verify this owner?')">Verify</a>
-                                <a class="reject" href="reject_owner.php?id=<?= (int)$row['verification_id'] ?>" onclick="return confirm('Reject this owner?')">Reject</a>
+                                <button type="button" class="approve" onclick="if(confirm('Verify this owner?')) window.location.href='verify_owner.php?id=<?= (int)$row['verification_id'] ?>'"> <i class="fa fa-check"></i>&nbsp;Verify </button>
+                                <button type="button" class="reject" onclick="if(confirm('Reject this owner?')) window.location.href='reject_owner.php?id=<?= (int)$row['verification_id'] ?>'"> <i class="fa fa-times"></i>&nbsp;Reject </button>
+
                             </td>
                         </tr>
                     <?php endwhile; ?>
@@ -216,7 +221,7 @@ if ($result) {
     ?>
     <?php if (count($driverVerificationRows) > 0): ?>
         <div class="table-box">
-            <h2><i class="fa fa-id-card"></i> Pending Driver Verification</h2>
+            <h2> Pending Driver Verification</h2>
             <div class="table-scroll">
                 <table>
                     <thead>
@@ -242,9 +247,10 @@ if ($result) {
                                 <td><?= htmlspecialchars($row['license_expiry_date']) ?></td>
                                 <td><span class="pending-text">Pending</span></td>
                                 <td>
-                                    <a href="view_driver.php?id=<?= (int)$row['driver_id'] ?>" class="approve">View</a>
-                                    <a href="verify_driver.php?id=<?= (int)$row['verification_id'] ?>" class="approve" onclick="return confirm('Verify this driver?')">Verify</a>
-                                    <a href="reject_driver.php?id=<?= (int)$row['verification_id'] ?>" class="reject" onclick="return confirm('Reject this driver?')">Reject</a>
+                                    <button type="button" class="approve" onclick="window.location.href='view_driver.php?id=<?= (int)$row['driver_id'] ?>'"> <i class="fa fa-eye"></i>&nbsp;View </button>
+                                    <button type="button" class="approve" onclick="if(confirm('Verify this driver?')) window.location.href='verify_driver.php?id=<?= (int)$row['verification_id'] ?>'"> <i class="fa fa-check"></i>&nbsp;Verify </button>
+                                    <button type="button" class="reject" onclick="if(confirm('Reject this driver?')) window.location.href='reject_driver.php?id=<?= (int)$row['verification_id'] ?>'"> <i class="fa fa-times"></i>&nbsp;Reject </button>
+
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -268,7 +274,7 @@ if ($result) {
                         <th>Action</th>
                     </tr>
                     <?php
-                    $stmt = $conn->prepare("SELECT user_id,name,email,phone,verification_status FROM users WHERE role='passenger' AND (verification_status IS NULL OR verification_status <> 'verified') ORDER BY user_id DESC");
+                    $stmt = $conn->prepare("SELECT user_id,name,email,phone,verification_status FROM users WHERE role='passenger' AND (verification_status IS NULL OR verification_status IN ('unverified','pending')) ORDER BY user_id DESC");
                     $stmt->execute();
                     $result = $stmt->get_result();
                     while ($row = $result->fetch_assoc()):
@@ -278,10 +284,11 @@ if ($result) {
                             <td><?= htmlspecialchars($row['name']) ?></td>
                             <td><?= htmlspecialchars($row['email']) ?></td>
                             <td><?= htmlspecialchars($row['phone']) ?></td>
-                            <td><span class="pending-text">Pending</span></td>
+                            <td><span class="pending-text"><?= htmlspecialchars(ucfirst($row['verification_status'] ?? 'pending')) ?></span></td>
                             <td>
-                                <a class="approve" href="verify_passenger.php?id=<?= (int)$row['user_id'] ?>" onclick="return confirm('Verify this passenger?')">Verify</a>
-                                <a class="reject" href="reject_passenger.php?id=<?= (int)$row['user_id'] ?>" onclick="return confirm('Reject this passenger?')">Reject</a>
+                                <button type="button" class="approve" onclick="if(confirm('Verify this passenger?')) window.location.href='verify_passenger.php?id=<?= (int)$row['user_id'] ?>'"> <i class="fa fa-check"></i>&nbsp; Verify </button>
+
+                                <button type="button" class="reject" onclick="if(confirm('Reject this passenger?')) window.location.href='reject_passenger.php?id=<?= (int)$row['user_id'] ?>'"> <i class="fa fa-times"></i>&nbsp; Reject </button>
                             </td>
                         </tr>
                     <?php endwhile; ?>
@@ -307,16 +314,40 @@ if ($result) {
                         <th>Action</th>
                     </tr>
                     <?php
-                    $stmt = $conn->prepare("SELECT r.request_id,r.old_role,r.requested_role,r.reason,r.status,u.user_id,u.name,u.email,u.phone,u.profile_image FROM role_change_requests r INNER JOIN users u ON r.user_id=u.user_id WHERE r.status='pending' ORDER BY r.request_id DESC");
+                    $stmt = $conn->prepare("SELECT r.request_id,r.old_role,r.requested_role,r.reason,r.status,u.user_id,u.name,u.email,u.phone,u.profile_image,u.role,dv.profile_photo,ov.owner_photo FROM role_change_requests r INNER JOIN users u ON r.user_id=u.user_id LEFT JOIN (SELECT driver_id,profile_photo FROM driver_verification WHERE verification_id IN (SELECT MAX(verification_id) FROM driver_verification GROUP BY driver_id)) dv ON dv.driver_id=u.user_id LEFT JOIN (SELECT owner_id,owner_photo FROM owner_verification WHERE verification_id IN (SELECT MAX(verification_id) FROM owner_verification GROUP BY owner_id)) ov ON ov.owner_id=u.user_id WHERE r.status='pending' ORDER BY r.request_id DESC");
                     $stmt->execute();
                     $result = $stmt->get_result();
+
                     while ($row = $result->fetch_assoc()):
                         $profile = !empty($row['profile_image']) ? $row['profile_image'] : 'default.png';
+
                     ?>
                         <tr>
                             <td><?= (int)$row['request_id'] ?></td>
                             <td>
-                                <img src="../uploads/profile/<?= htmlspecialchars($profile) ?>" width="45" height="45" style="border-radius:50%;object-fit:cover;" onerror="this.src='../uploads/default.png'">
+                                <?php
+                                $image = "../uploads/default.png";
+                                $file = "";
+
+                                if ($row['role'] === 'owner' && !empty($row['owner_photo'])) {
+                                    $file = "../uploads/profile/" . (int)$row['user_id'] . "/profile/" . basename($row['owner_photo']);
+                                } elseif ($row['role'] === 'driver' && !empty($row['profile_photo'])) {
+                                    $file = "../uploads/driver/profile/" . basename($row['profile_photo']);
+                                } elseif ($row['role'] === 'passenger' && !empty($row['profile_image'])) {
+                                    $file = "../uploads/profile/passenger/" . $row['name'] . "/" . basename($row['profile_image']);
+                                } elseif (!empty($row['profile_image'])) {
+                                    $file = "../uploads/profile/" . basename($row['profile_image']);
+                                }
+
+                                if ($file !== "" && file_exists(__DIR__ . "/" . $file)) {
+                                    $image = $file;
+                                }
+                                ?>
+
+                                <img src="<?= htmlspecialchars($image) ?>"
+                                    width="45" height="45"
+                                    style="border-radius:50%;object-fit:cover;"
+                                    onerror="this.onerror=null;this.src='../uploads/default.png';">
                             </td>
                             <td><?= htmlspecialchars($row['name']) ?></td>
                             <td><?= htmlspecialchars($row['email']) ?></td>
@@ -327,9 +358,9 @@ if ($result) {
                             <td>
                                 <form method="POST" action="change_role.php" style="display:inline;">
                                     <input type="hidden" name="request_id" value="<?= (int)$row['request_id'] ?>">
-                                    <button type="submit" name="approve_request" class="approve" onclick="return confirm('Approve this role request?')">Verify</button>
+                                    <button type="submit" name="approve_request" class="approve" onclick="return confirm('Approve this role request?')"><i class="fa fa-check"></i>&nbsp;Verify</button>
                                 </form>
-                                <button type="button" class="reject" onclick="openRejectModal(<?= (int)$row['request_id'] ?>)">Reject</button>
+                                <button type="button" class="reject" onclick="openRejectModal(<?= (int)$row['request_id'] ?>)"><i class="fa fa-times    "></i>&nbsp;Reject</button>
                             </td>
                         </tr>
                     <?php endwhile; ?>
@@ -347,8 +378,8 @@ if ($result) {
             <label>Reject Reason</label>
             <textarea name="admin_reason" id="rejectReason" placeholder="Enter reject reason" required></textarea>
             <div class="reject-actions">
-                <button type="submit" name="reject_request">Reject Request</button>
-                <button type="button" onclick="closeRejectModal()">Cancel</button>
+                <button type="submit" name="reject_request"><i class="fa fa-pen"></i>&nbsp; Reject Request</button>
+                <button type="button" onclick="closeRejectModal()"><i class="fa fa-close"></i>&nbsp;Cancel</button>
             </div>
         </form>
     </div>

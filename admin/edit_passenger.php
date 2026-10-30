@@ -10,7 +10,7 @@ if ($user_id <= 0) {
     header("Location: passengers.php");
     exit;
 }
-$stmt = $conn->prepare("SELECT user_id,name,email,phone,password,profile_image,role,created_at,verification_status FROM users WHERE user_id=? AND role='passenger'");
+$stmt = $conn->prepare("SELECT user_id,name,email,phone,profile_image,role,created_at,verification_status FROM users WHERE user_id=? AND role='passenger'");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -23,28 +23,17 @@ if (!$user) {
 $message = "";
 $message_type = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $new_user_id = (int)($_POST['user_id'] ?? 0);
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     $role = trim($_POST['role'] ?? '');
     $verification_status = trim($_POST['verification_status'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $created_at_input = trim($_POST['created_at'] ?? '');
-    $allowed_roles = ['admin', 'owner', 'driver', 'passenger'];
+
+    $allowed_roles = ['owner', 'driver', 'passenger'];
     $allowed_status = ['pending', 'verified', 'rejected'];
     $profile_image = $user['profile_image'] ?: 'default.png';
-    $created_at = '';
-    if ($created_at_input !== '') {
-        $timestamp = strtotime($created_at_input);
-        if ($timestamp !== false) {
-            $created_at = date('Y-m-d H:i:s', $timestamp);
-        }
-    }
-    if ($new_user_id <= 0) {
-        $message = "Invalid User ID.";
-        $message_type = "error";
-    } elseif ($name === '' || $email === '' || $phone === '') {
+
+    if ($name === '' || $email === '' || $phone === '') {
         $message = "Name, email and phone are required.";
         $message_type = "error";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -56,93 +45,76 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } elseif (!in_array($verification_status, $allowed_status, true)) {
         $message = "Invalid verification status.";
         $message_type = "error";
-    } elseif ($created_at === '') {
-        $message = "Please enter a valid created date.";
-        $message_type = "error";
-    } else {
+    }
+
+    if ($message_type !== "error") {
         $check = $conn->prepare("SELECT user_id FROM users WHERE email=? AND user_id!=?");
         $check->bind_param("si", $email, $user_id);
         $check->execute();
         $check_result = $check->get_result();
+
         if ($check_result->num_rows > 0) {
             $message = "This email is already used by another user.";
             $message_type = "error";
         }
         $check->close();
-        if ($message_type !== "error" && $new_user_id !== $user_id) {
-            $id_check = $conn->prepare("SELECT user_id FROM users WHERE user_id=?");
-            $id_check->bind_param("i", $new_user_id);
-            $id_check->execute();
-            $id_result = $id_check->get_result();
-            if ($id_result->num_rows > 0) {
-                $message = "This User ID is already used by another user.";
+    }
+
+    if ($message_type !== "error") {
+        if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] !== UPLOAD_ERR_NO_FILE) {
+            if ($_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
+                $message = "Failed to upload profile image.";
                 $message_type = "error";
-            }
-            $id_check->close();
-        }
-        if ($message_type !== "error") {
-            if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] !== UPLOAD_ERR_NO_FILE) {
-                if ($_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
-                    $message = "Failed to upload profile image.";
+            } else {
+                $upload_dir = "../uploads/profile/passenger/" . $name . "/";
+
+                if (!is_dir($upload_dir)) {
+                    mkdir($upload_dir, 0777, true);
+                }
+
+                $extension = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
+                $allowed_extensions = ['jpg', 'jpeg', 'png', 'webp'];
+
+                if (!in_array($extension, $allowed_extensions, true)) {
+                    $message = "Only JPG, JPEG, PNG and WEBP images are allowed.";
+                    $message_type = "error";
+                } elseif ($_FILES['profile_image']['size'] > 5 * 1024 * 1024) {
+                    $message = "Image size must be less than 5MB.";
                     $message_type = "error";
                 } else {
-                    $upload_dir = "../uploads/profile/";
-                    if (!is_dir($upload_dir)) {
-                        mkdir($upload_dir, 0777, true);
-                    }
-                    $extension = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
-                    $allowed_extensions = ['jpg', 'jpeg', 'png', 'webp'];
-                    if (!in_array($extension, $allowed_extensions, true)) {
-                        $message = "Only JPG, JPEG, PNG and WEBP images are allowed.";
-                        $message_type = "error";
-                    } elseif ($_FILES['profile_image']['size'] > 5 * 1024 * 1024) {
-                        $message = "Image size must be less than 5MB.";
-                        $message_type = "error";
+                    $new_image = $user_id . "_" . time() . "." . $extension;
+                    if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $upload_dir . $new_image)) {
+                        $profile_image = $new_image;
                     } else {
-                        $new_image = "passenger_" . $new_user_id . "_" . time() . "." . $extension;
-                        if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $upload_dir . $new_image)) {
-                            if ($profile_image !== '' && $profile_image !== 'default.png' && file_exists($upload_dir . $profile_image)) {
-                                unlink($upload_dir . $profile_image);
-                            }
-                            $profile_image = $new_image;
-                        } else {
-                            $message = "Failed to save profile image.";
-                            $message_type = "error";
-                        }
+                        $message = "Failed to save profile image.";
+                        $message_type = "error";
                     }
                 }
             }
         }
-        if ($message_type !== "error") {
-            if ($password !== '') {
-                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                $update = $conn->prepare("UPDATE users SET user_id=?,name=?,email=?,phone=?,password=?,profile_image=?,role=?,verification_status=?,created_at=? WHERE user_id=?");
-                $update->bind_param("issssssssi", $new_user_id, $name, $email, $phone, $hashed_password, $profile_image, $role, $verification_status, $created_at, $user_id);
-            } else {
-                $update = $conn->prepare("UPDATE users SET user_id=?,name=?,email=?,phone=?,profile_image=?,role=?,verification_status=?,created_at=? WHERE user_id=?");
-                $update->bind_param("isssssssi", $new_user_id, $name, $email, $phone, $profile_image, $role, $verification_status, $created_at, $user_id);
-            }
-            if ($update->execute()) {
-                $update->close();
-                header("Location: passengers.php?msg=updated");
-                exit;
-            } else {
-                $message = "Failed to update user: " . $update->error;
-                $message_type = "error";
-                $update->close();
-            }
+    }
+
+    if ($message_type !== "error") {
+        $update = $conn->prepare("UPDATE users SET name=?,email=?,phone=?,profile_image=?,role=?,verification_status=? WHERE user_id=?");
+        $update->bind_param("ssssssi", $name, $email, $phone, $profile_image, $role, $verification_status, $user_id);
+
+        if ($update->execute()) {
+            $update->close();
+            header("Location: passengers.php?msg=updated");
+            exit;
+        } else {
+            $message = "Failed to update user: " . $update->error;
+            $message_type = "error";
+            $update->close();
         }
     }
-    $user['user_id'] = $new_user_id;
+
     $user['name'] = $name;
     $user['email'] = $email;
     $user['phone'] = $phone;
     $user['role'] = $role;
     $user['verification_status'] = $verification_status;
     $user['profile_image'] = $profile_image;
-    if ($created_at !== '') {
-        $user['created_at'] = $created_at;
-    }
 }
 ?>
 <!DOCTYPE html>
@@ -152,166 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Edit Passenger</title>
-    <style>
-        .container {
-            justify-content: center;
-            display: flexbox;
-            margin: 5px 15px 20px 120px;
-        }
-
-        .header {
-            background: #fff;
-            padding: 25px 30px;
-            border-radius: 14px 14px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, .08)
-        }
-
-        .header h1 {
-            color: #1d3557;
-            font-size: 26px
-        }
-
-        .header p {
-            color: #777;
-            margin-top: 6px
-        }
-
-        .back-btn {
-            text-decoration: none;
-            background: #6c757d;
-            color: #fff;
-            padding: 10px 18px;
-            border-radius: 7px
-        }
-
-        .form-box {
-            background: #fff;
-            padding: 30px;
-            border-radius: 0 0 14px 14px;
-        }
-
-        .message {
-            padding: 13px 16px;
-            margin-bottom: 20px;
-            border-radius: 7px
-        }
-
-        .error {
-            background: #ffe5e5;
-            color: #c62828
-        }
-
-        .profile-section {
-            text-align: center;
-            margin-bottom: 30px
-        }
-
-        .profile-section img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #e8eef7;
-            display: block;
-            margin: 0 auto 15px
-        }
-
-        .profile-section input {
-            display: block;
-            margin: auto
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px
-        }
-
-        .form-group {
-            margin-bottom: 5px
-        }
-
-        .form-group.full {
-            grid-column: 1/-1
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #ccc;
-            border-radius: 7px;
-            font-size: 15px;
-            outline: none;
-            background: #fff
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: #1560bd
-        }
-
-        .password-note {
-            font-size: 13px;
-            color: #777;
-            margin-top: 6px
-        }
-
-        .buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 30px
-        }
-
-        .update-btn {
-            border: 0;
-            background: #1560bd;
-            color: #fff;
-            padding: 12px 28px;
-            border-radius: 7px;
-            cursor: pointer;
-            font-size: 15px
-        }
-
-        .cancel-btn {
-            text-decoration: none;
-            background: #6c757d;
-            color: #fff;
-            padding: 12px 28px;
-            border-radius: 7px
-        }
-
-        @media(max-width:650px) {
-            .page {
-                margin: 15px auto;
-                padding: 10px
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr
-            }
-
-            .form-group.full {
-                grid-column: auto
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="edit_passenger.css">
 </head>
 
 <body>
@@ -327,18 +140,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <?php endif; ?>
             <form method="POST" enctype="multipart/form-data">
                 <div class="profile-section">
-                    <?php $image = $user['profile_image'] ?: 'default.png'; ?>
-                    <img src="../uploads/profile/<?= htmlspecialchars($image) ?>" onerror="this.onerror=null;this.src='../images/default.png';" alt="Profile">
+                    <?php
+                    $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png';
+                    $image_path = "../uploads/profile/passenger/" . $user['name'] . "/" . $image;
+                    ?>
+
+                    <img src="<?= htmlspecialchars($image_path) ?>"
+                        onerror="this.onerror=null;this.src='../uploads/default.png';"
+                        alt="Passenger Profile">
                     <input type="file" name="profile_image" accept=".jpg,.jpeg,.png,.webp">
                 </div>
                 <div class="form-grid">
                     <div class="form-group">
                         <label>User ID</label>
-                        <input type="number" name="user_id" value="<?= (int)$user['user_id'] ?>" required>
+                        <input type="text" value="<?= (int)$user['user_id'] ?>" readonly>
                     </div>
                     <div class="form-group">
                         <label>Created Date</label>
-                        <input type="datetime-local" name="created_at" value="<?= htmlspecialchars(date('Y-m-d\TH:i', strtotime($user['created_at']))) ?>" required>
+                        <input type="text" value="<?= htmlspecialchars(date('Y-m-d h:i A', strtotime($user['created_at']))) ?>" readonly>
                     </div>
                     <div class="form-group">
                         <label>Name</label>
@@ -355,7 +174,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="form-group">
                         <label>Role</label>
                         <select name="role" required>
-                            <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
                             <option value="owner" <?= $user['role'] === 'owner' ? 'selected' : '' ?>>Owner</option>
                             <option value="driver" <?= $user['role'] === 'driver' ? 'selected' : '' ?>>Driver</option>
                             <option value="passenger" <?= $user['role'] === 'passenger' ? 'selected' : '' ?>>Passenger</option>
@@ -371,8 +189,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
                 </div>
                 <div class="buttons">
-                    <button type="submit" class="update-btn">Update Passenger</button>
-                    <a href="passengers.php" class="cancel-btn">Cancel</a>
+                    <button type="submit" class="update-btn"><i class="fa fa-save"></i>&nbsp; Update Passenger</button>
+                    <a href="passengers.php" class="cancel-btn"><i class="fa fa-close"></i>&nbsp; Cancel</a>
                 </div>
             </form>
         </div>

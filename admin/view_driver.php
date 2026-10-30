@@ -64,14 +64,17 @@ if ($driver['bus_id']) {
     $today_bookings = (int)$stmt->get_result()->fetch_assoc()['total'];
 }
 $status = "Available";
+$current_time = date("H:i:s");
 
 foreach ($today_trips as $trip) {
-    if (date("H:i:s") >= $trip['departure_time']) {
+    if (
+        $current_time >= $trip['departure_time'] &&
+        $current_time <= $trip['arrival_time']
+    ) {
         $status = "On Trip";
         break;
     }
 }
-
 $verified = $driver['verification_status'] === 'verified';
 ?>
 <!DOCTYPE html>
@@ -93,7 +96,7 @@ $verified = $driver['verification_status'] === 'verified';
                 <h1>Driver Details</h1>
                 <p>Complete information about the selected driver.</p>
             </div>
-            <a href="drivers.php" class="back">Back</a>
+            <a href="drivers.php" class="back"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
         </div>
 
         <div class="profile">
@@ -113,20 +116,22 @@ $verified = $driver['verification_status'] === 'verified';
 
                 <div class="actions">
                     <?php if (!$verified): ?>
-                        <a href="drivers.php?action=verify&id=<?= $id ?>" class="verify" onclick="return confirm('Verify this driver?')">Verify Driver</a>
+                        <a href="drivers.php?action=verify&id=<?= $id ?>" class="verify" onclick="return confirm('Verify this driver?')"><i class="fa fa-check"></i>&nbsp; Verify Driver</a>
                     <?php else: ?>
-                        <a href="drivers.php?action=reject&id=<?= $id ?>" class="reject" onclick="return confirm('Reject this driver verification?')">Reject Verification</a>
+                        <a href="drivers.php?action=reject&id=<?= $id ?>" class="reject" onclick="return confirm('Reject this driver verification?')"> <i class="fa fa-close"></i> &nbsp; Reject Verification</a>
+
                     <?php endif; ?>
                 </div>
             </div>
+            <div class="stats">
+                <div><small>Driver ID</small><strong><?= $driver['user_id'] ?></strong></div>
+                <div><small>Today's Trips</small><strong><?= count($today_trips) ?></strong></div>
+                <div><small>Today's Passengers</small><strong><?= $today_bookings ?></strong></div>
+                <div><small>Total Bookings</small><strong><?= $total_bookings ?></strong></div>
+            </div>
         </div>
 
-        <div class="stats">
-            <div><small>Driver ID</small><strong><?= $driver['user_id'] ?></strong></div>
-            <div><small>Today's Trips</small><strong><?= count($today_trips) ?></strong></div>
-            <div><small>Today's Passengers</small><strong><?= $today_bookings ?></strong></div>
-            <div><small>Total Bookings</small><strong><?= $total_bookings ?></strong></div>
-        </div>
+
 
         <div class="grid">
             <div>
@@ -145,13 +150,7 @@ $verified = $driver['verification_status'] === 'verified';
                         <div><small>License Number </small>: <strong><?= htmlspecialchars($verification['license_number'] ?? 'Not Provided') ?></strong></div>
                         <div><small>License Issue Date </small>: <strong><?= !empty($verification['license_issue_date']) ? date("d M Y", strtotime($verification['license_issue_date'])) : 'Not Provided' ?></strong></div>
                         <div><small>License Expiry Date </small>: <strong><?= !empty($verification['license_expiry_date']) ? date("d M Y", strtotime($verification['license_expiry_date'])) : 'Not Provided' ?></strong></div>
-                        <div class="license">
-                            <small>Driving License</small>
-                            <?php if (!empty($verification['license_image'])): ?>
-                                <img src="../uploads/driver/license/<?= htmlspecialchars($verification['license_image']) ?>" alt="Driving License">
 
-                            <?php endif; ?>
-                        </div>
                     </div>
                 </div>
                 <div class="license-images">
@@ -172,33 +171,6 @@ $verified = $driver['verification_status'] === 'verified';
                         <?php endif; ?>
                     </div>
                 </div>
-                <div class="box">
-                    <h2>Today's Trips</h2>
-
-                    <?php if ($today_trips): ?>
-                        <table>
-                            <tr>
-                                <th>Route</th>
-                                <th>Departure</th>
-                                <th>Arrival</th>
-                                <th>Date</th>
-                            </tr>
-
-                            <?php foreach ($today_trips as $trip): ?>
-                                <tr>
-                                    <td class="route">
-                                        <?= htmlspecialchars($trip['from_city']) ?> → <?= htmlspecialchars($trip['to_city']) ?>
-                                    </td>
-                                    <td><?= date("h:i A", strtotime($trip['departure_time'])) ?></td>
-                                    <td><?= date("h:i A", strtotime($trip['arrival_time'])) ?></td>
-                                    <td><?= date("d M Y", strtotime($trip['departure_date'])) ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </table>
-                    <?php else: ?>
-                        <div class="empty">No trips scheduled for today.</div>
-                    <?php endif; ?>
-                </div>
             </div>
 
             <div>
@@ -207,12 +179,12 @@ $verified = $driver['verification_status'] === 'verified';
 
                     <?php if ($driver['bus_id']): ?>
                         <div class="details">
-                            <div><small>Bus Number</small><strong><?= htmlspecialchars($driver['bus_number']) ?></strong></div>
-                            <div><small>Bus Name</small><strong><?= htmlspecialchars($driver['bus_name']) ?></strong></div>
-                            <div><small>Bus Type</small><strong><?= htmlspecialchars($driver['bus_type']) ?></strong></div>
-                            <div><small>Total Seats</small><strong><?= $driver['seats'] ?></strong></div>
-                            <div><small>Bus Status</small><strong><?= ucfirst(htmlspecialchars($driver['bus_status'])) ?></strong></div>
-                            <div><small>Total Trips</small><strong><?= $total_trips ?></strong></div>
+                            <div><small>Bus Number</small> : <strong><?= htmlspecialchars($driver['bus_number']) ?></strong></div>
+                            <div><small>Bus Name</small> : <strong><?= htmlspecialchars($driver['bus_name']) ?></strong></div>
+                            <div><small>Bus Type</small> : <strong><?= htmlspecialchars($driver['bus_type']) ?></strong></div>
+                            <div><small>Total Seats</small> : <strong><?= $driver['seats'] ?></strong></div>
+                            <div><small>Bus Status</small> : <strong><?= ucfirst(htmlspecialchars($driver['bus_status'])) ?></strong></div>
+                            <div><small>Total Trips</small> : <strong><?= $total_trips ?></strong></div>
                         </div>
                     <?php else: ?>
                         <div class="no-bus">No bus has been assigned to this driver.</div>
@@ -231,9 +203,32 @@ $verified = $driver['verification_status'] === 'verified';
                 </div>
             </div>
         </div>
-    </div>
-    </div>
+        <div class="box-trip">
+            <h2>Today's Trips</h2>
 
+            <?php if ($today_trips): ?>
+                <table>
+                    <tr>
+                        <th>Route</th>
+                        <th>Departure</th>
+                        <th>Date</th>
+                    </tr>
+
+                    <?php foreach ($today_trips as $trip): ?>
+                        <tr>
+                            <td class="route">
+                                <?= htmlspecialchars($trip['from_city']) ?> → <?= htmlspecialchars($trip['to_city']) ?>
+                            </td>
+                            <td><?= date("h:i A", strtotime($trip['departure_time'])) ?></td>
+                            <td><?= date("d M Y", strtotime($trip['departure_date'])) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php else: ?>
+                <div class="empty">No trips scheduled for today.</div>
+            <?php endif; ?>
+        </div>
+    </div>
     <script>
         function toggleMenu() {
             document.getElementById("settingMenu").classList.toggle("show");

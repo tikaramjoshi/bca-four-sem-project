@@ -27,19 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     } else {
         $conn->begin_transaction();
         try {
-            $stmt = $conn->prepare("
-                UPDATE owner_verification
-                SET status='rejected',
-                    reject_reason=?
-                WHERE verification_id=?
-            ");
+            $stmt = $conn->prepare(" UPDATE owner_verification SET status='rejected',     reject_reason=? WHERE verification_id=? ");
             $stmt->bind_param("si", $reason, $id);
             $stmt->execute();
-            $stmt = $conn->prepare("
-                UPDATE users
-                SET verification_status='unverified'
-                WHERE user_id=?
-            ");
+            $stmt = $conn->prepare(" UPDATE users SET verification_status='unverified' WHERE user_id=? ");
             $stmt->bind_param("i", $owner_id);
             $stmt->execute();
             $conn->commit();
@@ -59,6 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reject Owner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -80,18 +73,22 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             padding: 10px;
         }
 
-        button {
-            background: red;
+        button,
+        .cancel {
             color: #fff;
             border: none;
-            padding: 10px 20px;
+            padding: 10px;
             cursor: pointer;
-            margin-top: 10px;
+            border-radius: 10px;
         }
 
-        a {
-            text-decoration: none;
-            margin-left: 10px;
+        .button {
+            margin-top: 10px;
+            background: red;
+        }
+
+        .cancel {
+            background-color: #242a56;
         }
 
         .error {
@@ -102,11 +99,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 </head>
 
 <body>
-    <div class="main">
-        <nav>
-            <a href="dashboard.php" id="home">Home</a>
-        </nav>
-    </div>
     <div class="box">
         <h2>Reject Owner Verification</h2>
         <?php if (isset($error)) { ?>
@@ -114,12 +106,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         <?php } ?>
         <form method="POST">
             <label><b>Reject Reason:</b></label><br><br>
-            <textarea name="reason"
-                placeholder="Write reason for rejection..."
-                required></textarea>
+            <textarea name="reason" placeholder="Write reason for rejection..." required></textarea>
             <br>
-            <button type="submit">Reject Owner</button>
-            <a href="dashboard.php">Cancel</a>
+            <button type="submit" class="button"><i class="fa fa-close"></i> Reject Bus </button>
+            <button type="submit" class="cancel" onclick="window.location.href='dashboard.php'"><i class="fa fa-home"></i> Dashboard</button>
         </form>
     </div>
 </body>

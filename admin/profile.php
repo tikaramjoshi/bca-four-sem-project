@@ -99,16 +99,12 @@ if (!$user) {
     <?php include "admin_header.php"; ?>
     <div class="container">
         <div class="profile-box">
-            <h2>Welcome
-                <?= htmlspecialchars($_SESSION['name']) ?>
-            </h2>
+            <h2>Welcome <?= htmlspecialchars($_SESSION['name']) ?> </h2>
             <div class="profile-img">
                 <?php
                 $image = !empty($user['profile_image']) ? $user['profile_image'] : 'default.png';
                 ?>
-
-                <img src="../uploads/profile/admin/<?= htmlspecialchars($user['name']) ?>/<?= htmlspecialchars($image) ?>"
-                    alt="Profile">
+                <img src="../uploads/profile/admin/<?= htmlspecialchars($user['name']) ?>/<?= htmlspecialchars($image) ?>" alt="Profile">
             </div>
             <table>
                 <tr>
@@ -133,8 +129,8 @@ if (!$user) {
                 </tr>
             </table>
             <div class="btns">
-                <a class="btn edit" href="edit_profile.php">Edit Profile</a>
-                <a class="btn back" href="dashboard.php">Back</a>
+                <a class="btn edit" href="edit_profile.php"><i class="fa fa-edit"></i>&nbsp; Edit Profile</a>
+                <a class="btn back" href="dashboard.php"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
             </div>
         </div>
     </div>

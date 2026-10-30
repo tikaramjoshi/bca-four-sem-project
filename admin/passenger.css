@@ -322,7 +322,7 @@ tr:hover td {
 
 .action-btn.edit {
     background: #ffc107;
-    color: #212529;
+    color: #ffffff;
 }
 
 .action-btn.edit:hover {
@@ -483,3 +483,27 @@ tr:hover td {
 .close-btn:hover{
     background:#444;
 }
+ .action-btn.disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(1)
+        }
+
+        .action-btn.current {
+            box-shadow: 0 0 0 2px #111;
+            font-weight: 700;
+            cursor: not-allowed
+        }
+
+        .modal-status-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap
+        }
+
+        .modal-status-actions .action-btn {
+            border: 0
+        }

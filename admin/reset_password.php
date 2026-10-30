@@ -81,32 +81,14 @@ if (isset($_GET['verify']) && $_GET['verify'] == '1') {
             $mail->Subject = "Password Reset Notification";
             $mail->Body = "
             <div style='font-family:Arial,sans-serif;padding:20px;line-height:1.6'>
-                <h2 style='color:#1560BD'>
-                    Online Bus Ticket Booking System
-                </h2>
-                <p>
-                    Hello <b>" . htmlspecialchars($reset_user['name']) . "</b>,
-                </p>
-                <p>
-                    Your password has been reset by the <b>Online Bus Ticket Booking System Administrator.</b>
-                </p>
-                <p>
-                    <b>New Password:</b>
-                    <span style='font-size:18px;color:#1560BD'>
-                        123456
-                    </span>
-                </p>
-                <p>
-                    You can now login using this new password.
-                </p>
-                <p>
-                    For security, please change your password after logging in.
-                </p>
-                <br>
-                <p>Thank you.</p>
-                <p>
-                    <b>Online Bus Ticket Booking System</b>
-                </p>
+            <h2 style='color:#1560BD'> Online Bus Ticket Booking System </h2>
+            <p>  Hello <b>" . htmlspecialchars($reset_user['name']) . "</b>, </p>
+            <p> Your password has been reset by the <b>Online Bus Ticket Booking System Administrator.</b> </p>
+            <p> <b>New Password:</b> <span style='font-size:18px;color:#1560BD'> 123456 </span> </p>
+            <p> You can now login using this new password. </p>
+            <p> For security, please change your password after logging in. </p> <br>
+            <p>Thank you.</p>
+            <p> <b>Online Bus Ticket Booking System</b> </p>
             </div>
             ";
             $mail->send();
@@ -199,9 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 $users = mysqli_query(
     $conn,
-    "SELECT user_id, name, email, role, verification_status
-     FROM users
-     ORDER BY user_id ASC"
+    "SELECT user_id, name, email, role, verification_status  FROM users  ORDER BY user_id ASC"
 );
 ?>
 <!DOCTYPE html>
@@ -211,156 +191,7 @@ $users = mysqli_query(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password - Admin</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f7fb;
-            color: #222;
-        }
-
-        .main-content {
-            margin-left: 250px;
-            padding: 30px;
-        }
-
-        .page-title {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 25px;
-        }
-
-        .card {
-            background: #fff;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        }
-
-        .card h2 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 21px;
-        }
-
-        .btn {
-            border: none;
-            padding: 10px 17px;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-        }
-
-        .btn-reset {
-            background: #1560bd;
-            color: white;
-        }
-
-        .btn-reset:hover {
-            background: #0f4f9d;
-        }
-
-        .btn-cancel {
-            background: #777;
-            color: white;
-            margin-left: 8px;
-        }
-
-        .alert {
-            padding: 13px 16px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-
-        .success {
-            background: #dff5e4;
-            color: #176b2c;
-        }
-
-        .error {
-            background: #fde2e2;
-            color: #a51d1d;
-        }
-
-        .user-info {
-            background: #f4f7fb;
-            padding: 15px;
-            border-radius: 7px;
-            margin-bottom: 20px;
-        }
-
-        .user-info p {
-            margin: 7px 0;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table th,
-        table td {
-            padding: 13px 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-        table th {
-            background: #1560bd;
-            color: white;
-        }
-
-        table tr:hover {
-            background: #f7f9fc;
-        }
-
-        .role {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: capitalize;
-        }
-
-        .role-admin {
-            background: #eadcff;
-            color: #6420a8;
-        }
-
-        .role-owner {
-            background: #dceeff;
-            color: #125a9c;
-        }
-
-        .role-driver {
-            background: #fff0c7;
-            color: #805b00;
-        }
-
-        .role-passenger {
-            background: #dff5e4;
-            color: #176b2c;
-        }
-
-        @media (max-width: 900px) {
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="reset_password.css">
 </head>
 
 <body>
@@ -368,48 +199,24 @@ $users = mysqli_query(
     <div class="main-content">
         <div class="page-title">Reset User Password</div>
         <?php if ($message): ?>
-            <div class="alert success">
-                <?php echo htmlspecialchars($message); ?>
-            </div>
+            <div class="alert success"> <?php echo htmlspecialchars($message); ?></div>
         <?php endif; ?>
         <?php if ($error): ?>
-            <div class="alert error">
-                <?php echo htmlspecialchars($error); ?>
-            </div>
+            <div class="alert error"> <?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         <?php if ($selected_user && isset($_GET['user_id'])): ?>
             <div class="card">
                 <h2> Reset Password for </h2>
                 <div class="user-info">
                     <p> <strong>User ID:</strong> <?php echo htmlspecialchars($selected_user['user_id']); ?> </p>
-                    <p>
-                        <strong>Name:</strong>
-                        <?php echo htmlspecialchars($selected_user['name']); ?>
-                    </p>
-                    <p>
-                        <strong>Email:</strong>
-                        <?php echo htmlspecialchars($selected_user['email']); ?>
-                    </p>
-                    <p>
-                        <strong>Role:</strong>
-                        <?php echo htmlspecialchars($selected_user['role']); ?>
-                    </p>
+                    <p><strong>Name:</strong><?php echo htmlspecialchars($selected_user['name']); ?> </p>
+                    <p><strong>Email:</strong><?php echo htmlspecialchars($selected_user['email']); ?> </p>
+                    <p><strong>Role:</strong><?php echo htmlspecialchars($selected_user['role']); ?> </p>
                 </div>
                 <form method="POST">
                     <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($selected_user['user_id']); ?>">
-                    <!--
-                OLD PASSWORD INPUT CODE
-                <div class="form-group">
-                    <label>New Password</label>
-                    <input type="password" name="new_password" required minlength="6">
-                </div>
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" name="confirm_password" required minlength="6">
-                </div>
-                -->
-                    <button type="submit" class="btn btn-reset"> Reset Password </button>
-                    <a href="/sl_project_final/admin/reset_password.php" class="btn btn-cancel"> Cancel </a>
+                    <button type="submit" class="btn btn-reset"><i class="fa fa-key"></i>&nbsp; Reset Password </button>
+                    <a href="/sl_project_final/admin/reset_password.php" class="btn btn-cancel"><i class="fa fa-close"></i>&nbsp; Cancel </a>
                 </form>
             </div>
         <?php endif; ?>
@@ -431,26 +238,12 @@ $users = mysqli_query(
                         <?php if ($users && mysqli_num_rows($users) > 0): ?>
                             <?php while ($user = mysqli_fetch_assoc($users)): ?>
                                 <tr>
-                                    <td>
-                                        <?php echo htmlspecialchars($user['user_id']); ?>
-                                    </td>
-                                    <td>
-                                        <?php echo htmlspecialchars($user['name']); ?>
-                                    </td>
-                                    <td>
-                                        <?php echo htmlspecialchars($user['email']); ?>
-                                    </td>
-                                    <td>
-                                        <span class="role role-<?php echo htmlspecialchars($user['role']); ?>">
-                                            <?php echo htmlspecialchars($user['role']); ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <?php echo htmlspecialchars($user['verification_status']); ?>
-                                    </td>
-                                    <td>
-                                        <a href="/sl_project_final/admin/reset_password.php?user_id=<?php echo $user['user_id']; ?>" class="btn btn-reset"> Reset Password </a>
-                                    </td>
+                                    <td><?php echo htmlspecialchars($user['user_id']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['name']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                    <td><span class="role role-<?php echo htmlspecialchars($user['role']); ?>"> <?php echo htmlspecialchars($user['role']); ?> </span></td>
+                                    <td><?php echo htmlspecialchars($user['verification_status']); ?></td>
+                                    <td> <a href="/sl_project_final/admin/reset_password.php?user_id=<?php echo $user['user_id']; ?>" class="btn btn-reset"><i class="fa fa-key"></i>&nbsp; Reset Password </a> </td>
                                 </tr>
                             <?php endwhile; ?>
                         <?php else: ?>

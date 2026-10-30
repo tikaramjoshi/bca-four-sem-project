@@ -1,0 +1,118 @@
+
+.content {
+    margin-left: 200px;
+    width: calc(100% - 200px);
+    min-height: calc(100vh - 70px);
+    padding: 100px 30px 30px;
+}
+.section-title {
+    margin-bottom: 20px;
+}
+.section-title h2 {
+    color: #222;
+}
+.table-box {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+}
+.table-box h2 {
+    margin-bottom: 10px;
+    color: #222;
+}
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+table {
+    width: 100%;
+    margin-top: 15px;
+    border-collapse: collapse;
+}
+table th,
+table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+    white-space: nowrap;
+}
+table th {
+    background: #1560bd;
+    color: #fff;
+}
+
+.post-img {
+    width: 100px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+.edit,
+.delete {
+    display: inline-block;
+    padding: 8px 12px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    margin: 2px;
+}
+.edit {
+    background: green;
+}
+.delete {
+    background: red;
+}
+.edit:hover {
+    background: #087308;
+}
+.delete:hover {
+    background: #c40000;
+}
+.active-status {
+    color: green;
+    font-weight: bold;
+}
+.inactive-status {
+    color: red;
+    font-weight: bold;
+}
+.no-post {
+    padding: 20px;
+    text-align: center;
+    color: green;
+    font-size: 18px;
+}
+@media (max-width: 500px) {
+    .header {
+        padding: 0 15px;
+    }
+    .header h2 {
+        font-size: 20px;
+    }
+    .sidebar {
+        width: 180px;
+    }
+    .content {
+        margin-left: 180px;
+        width: calc(100% - 180px);
+        padding: 100px 15px 15px;
+    }
+}
+.view-btn {
+    display: block;
+    width: 150px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: 30px;
+    margin-bottom: 20px;
+    padding: 12px 20px;
+    background: #1560bd;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+}
+.view-btn:hover {
+    background: #104d99;
+}

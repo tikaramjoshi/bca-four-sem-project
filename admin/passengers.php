@@ -105,34 +105,8 @@ if (isset($_GET['msg'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Manage Passengers</title>
-    <link rel="stylesheet" href="passenger.css">
     <link rel="stylesheet" href="side.css">
-    <style>
-        .action-btn.disabled {
-            opacity: .45;
-            cursor: not-allowed;
-            pointer-events: none;
-            filter: grayscale(1)
-        }
-
-        .action-btn.current {
-            box-shadow: 0 0 0 2px #111;
-            font-weight: 700;
-            cursor: not-allowed
-        }
-
-        .modal-status-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-            flex-wrap: wrap
-        }
-
-        .modal-status-actions .action-btn {
-            border: 0
-        }
-    </style>
+    <link rel="stylesheet" href="passenger.css">
 </head>
 
 <body>
@@ -149,31 +123,25 @@ if (isset($_GET['msg'])) {
                 <div class="message"><?= htmlspecialchars($message) ?></div>
             <?php endif; ?>
             <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-title">Total Passengers</div>
-                    <div class="stat-value"><?= $total_passengers ?></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Verified Passengers</div>
-                    <div class="stat-value"><?= $verified_passengers ?></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Pending Passengers</div>
-                    <div class="stat-value"><?= $pending_passengers ?></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Rejected Passengers</div>
-                    <div class="stat-value"><?= $rejected_passengers ?></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Total Bookings</div>
-                    <div class="stat-value"><?= $total_bookings ?></div>
-                </div>
+                <?php foreach (
+                    [
+                        'Total Passengers' => $total_passengers,
+                        'Verified Passengers' => $verified_passengers,
+                        'Pending Passengers' => $pending_passengers,
+                        'Rejected Passengers' => $rejected_passengers,
+                        'Total Bookings' => $total_bookings
+                    ] as $title => $value
+                ): ?>
+                    <div class="stat-card">
+                        <div class="stat-title"><?= $title ?></div>
+                        <div class="stat-value"><?= $value ?></div>
+                    </div>
+                <?php endforeach; ?>
             </div>
             <div class="filters">
                 <form method="GET" class="filter-form">
                     <input type="text" name="search" class="search-box" placeholder="Search by name, email or phone..." value="<?= htmlspecialchars($search) ?>">
-                    <button type="submit" class="filter-btn">Search</button>
+                    <button type="submit" class="filter-btn"><i class="fa fa-search"></i>&nbsp; Search</button>
 
                     <select name="status" class="status-select">
                         <option value="all" <?= $status === 'all' ? 'selected' : '' ?>>All Passengers</option>
@@ -181,8 +149,8 @@ if (isset($_GET['msg'])) {
                         <option value="verified" <?= $status === 'verified' ? 'selected' : '' ?>>Verified</option>
                         <option value="rejected" <?= $status === 'rejected' ? 'selected' : '' ?>>Rejected</option>
                     </select>
-                    <button type="submit" class="filter-btn">Filter</button>
-                    <a href="passengers.php" class="clear-btn">Clear</a>
+                    <button type="submit" class="filter-btn"><i class="fa fa-filter"></i>&nbsp; Filter</button>
+                    <a href="passengers.php" class="clear-btn"><i class="fa fa-rotate-left"></i>&nbsp; Clear</a>
                 </form>
             </div>
             <div class="passengers-box">
@@ -205,11 +173,15 @@ if (isset($_GET['msg'])) {
                             </thead>
                             <tbody>
                                 <?php foreach ($passengers as $p): ?>
-                                    <?php $image = $p['profile_image'] ?: 'default.png'; ?>
+                                    <?php
+                                    $image = !empty($p['profile_image'])
+                                        ? "../uploads/profile/passenger/" . $p['name'] . "/" . $p['profile_image']
+                                        : "../uploads/default.png";
+                                    ?>
                                     <tr>
                                         <td>
                                             <div class="passenger-info">
-                                                <img src="../uploads/profile/<?= htmlspecialchars($image) ?>" class="passenger-image" alt="Passenger" onerror="this.onerror=null;this.src='../images/default.png';">
+                                                <img src="<?= htmlspecialchars($image) ?>" class="passenger-image" alt="Passenger" onerror="this.onerror=null;this.src='../uploads/default.png';">
                                                 <div>
                                                     <div class="passenger-name"><?= htmlspecialchars($p['name']) ?></div>
                                                     <div class="passenger-email"><?= htmlspecialchars($p['email']) ?></div>
@@ -230,31 +202,31 @@ if (isset($_GET['msg'])) {
                                         <td><?= date("d M Y", strtotime($p['created_at'])) ?></td>
                                         <td>
                                             <div class="actions">
-                                                <button type="button" class="action-btn view" onclick='openPassengerModal(<?= htmlspecialchars(json_encode($p), ENT_QUOTES, "UTF-8") ?>)'>View</button>
+                                                <button type="button" class="action-btn view" onclick='openPassengerModal(<?= htmlspecialchars(json_encode($p), ENT_QUOTES, "UTF-8") ?>)'><i class="fa-solid fa-eye"></i>&nbsp; View</button>
                                                 <?php if ($p['verification_status'] === 'pending'): ?>
                                                     <form method="POST" class="inline-action" onsubmit="return confirmAction(this,'Approve this passenger?')">
                                                         <input type="hidden" name="action" value="verify">
                                                         <input type="hidden" name="id" value="<?= (int)$p['user_id'] ?>">
-                                                        <button type="submit" class="action-btn approve">Approve</button>
+                                                        <button type="submit" class="action-btn approve"><i class="fa-solid fa-check"></i>&nbsp; Approve</button>
                                                     </form>
                                                     <form method="POST" class="inline-action" onsubmit="return confirmAction(this,'Reject this passenger?')">
                                                         <input type="hidden" name="action" value="reject">
                                                         <input type="hidden" name="id" value="<?= (int)$p['user_id'] ?>">
-                                                        <button type="submit" class="action-btn reject">Reject</button>
+                                                        <button type="submit" class="action-btn reject"><i class="fa-solid fa-xmark"></i>&nbsp; Reject</button>
                                                     </form>
                                                 <?php elseif ($p['verification_status'] === 'verified'): ?>
                                                     <form method="POST" class="inline-action" onsubmit="return confirmAction(this,'Approve this passenger?')">
                                                         <input type="hidden" name="action" value="verify">
                                                         <input type="hidden" name="id" value="<?= (int)$p['user_id'] ?>">
-                                                        <button type="submit" class="action-btn approve">Approve</button>
+                                                        <button type="submit" class="action-btn approve"><i class="fa-solid fa-check"></i>&nbsp; Approve</button>
                                                     </form>
-                                                    <span class="action-btn reject current disabled">Reject</span>
+                                                    <span class="action-btn reject current disabled"><i class="fa fa-close"></i>&nbsp; Reject</span>
                                                 <?php elseif ($p['verification_status'] === 'rejected'): ?>
-                                                    <span class="action-btn approve current disabled">Approve</span>
+                                                    <span class="action-btn approve current disabled"><i class="fa fa-check "></i>&nbsp; Approve</span>
                                                     <form method="POST" class="inline-action" onsubmit="return confirmAction(this,'Reject this passenger?')">
                                                         <input type="hidden" name="action" value="reject">
                                                         <input type="hidden" name="id" value="<?= (int)$p['user_id'] ?>">
-                                                        <button type="submit" class="action-btn reject">Reject</button>
+                                                        <button type="submit" class="action-btn reject"><i class="fa fa-close"></i>&nbsp; Reject</button>
                                                     </form>
                                                 <?php endif; ?>
                                             </div>
@@ -293,122 +265,39 @@ if (isset($_GET['msg'])) {
                         <div class="detail-item"><small>Account Role</small><strong>Passenger</strong></div>
                     </div>
                     <div class="modal-status-actions">
-                        <form method="POST" class="modal-action-form" id="modalPendingForm" onsubmit="return confirmAction(this,'Move this passenger to pending?')">
-                            <input type="hidden" name="action" value="pending">
-                            <input type="hidden" name="id" id="modalPendingId">
-                            <button type="submit" id="modalPending" class="action-btn pending">Pending</button>
-                        </form>
-                        <form method="POST" class="modal-action-form" id="modalApproveForm" onsubmit="return confirmAction(this,'Approve this passenger?')">
-                            <input type="hidden" name="action" value="verify">
-                            <input type="hidden" name="id" id="modalApproveId">
-                            <button type="submit" id="modalApprove" class="action-btn approve">Approve</button>
-                        </form>
-                        <form method="POST" class="modal-action-form" id="modalRejectForm" onsubmit="return confirmAction(this,'Reject this passenger?')">
-                            <input type="hidden" name="action" value="reject">
-                            <input type="hidden" name="id" id="modalRejectId">
-                            <button type="submit" id="modalReject" class="action-btn reject">Reject</button>
-                        </form>
+                        <?php foreach (
+                            [
+                                'pending' => 'Pending',
+                                'verify' => 'Approve',
+                                'reject' => 'Reject'
+                            ] as $action => $label
+                        ): ?>
+                            <form method="POST" class="modal-action-form" id="modal<?= $label ?>Form" onsubmit="return confirmAction(this,'<?= $label === 'Pending' ? 'Move this passenger to pending?' : $label . ' this passenger?' ?>')">
+
+                                <input type="hidden" name="action" value="<?= $action ?>">
+                                <input type="hidden" name="id" id="modal<?= $label ?>Id">
+                                <button type="submit" id="modal<?= $label ?>" class="action-btn <?= $action === 'verify' ? 'approve' : $action ?>">
+                                    <?= $label ?>
+                                    <i class="fa-solid <?= $action === 'verify' ? 'fa-check' : ($action === 'reject' ? 'fa-xmark' : 'fa-clock') ?>"></i>
+                                </button>
+                            </form>
+                        <?php endforeach; ?>
                     </div>
                     <div class="modal-actions">
-                        <a id="modalDetails" href="#" class="action-btn view">Details</a>
-                        <a id="modalEdit" href="#" class="action-btn edit">Edit</a>
+                        <a id="modalDetails" href="#" class="action-btn view"> <i class="fa-solid fa-circle-info"></i>&nbsp; Details</a>
+                        <a id="modalEdit" href="#" class="action-btn edit"><i class="fa-solid fa-pen"></i>&nbsp; Edit</a>
                         <form method="POST" class="inline-action" onsubmit="return confirmAction(this,'Are you sure you want to delete this passenger?')">
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" id="modalDeleteId">
-                            <button type="submit" class="action-btn delete">Delete</button>
+                            <button type="submit" class="action-btn delete"><i class="fa-solid fa-trash"></i>&nbsp; Delete</button>
                         </form>
-                        <button type="button" class="action-btn close-btn" onclick="closePassengerModal()">Close</button>
+                        <button type="button" class="action-btn close-btn" onclick="closePassengerModal()"><i class="fa-solid fa-close"></i>&nbsp; Close</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        let actionProcessing = false;
-
-        function confirmAction(form, message) {
-            if (actionProcessing || form.dataset.processing === "1") return false;
-            if (!confirm(message)) return false;
-            actionProcessing = true;
-            form.dataset.processing = "1";
-            const button = form.querySelector('button[type="submit"]');
-            if (button) {
-                button.disabled = true;
-                button.style.pointerEvents = "none";
-                button.style.opacity = ".5";
-            }
-            return true;
-        }
-
-        function openPassengerModal(p) {
-            const modal = document.getElementById("passengerModal");
-            const image = document.getElementById("modalImage");
-            if (p.profile_image && p.profile_image.trim() && p.profile_image !== "default.png") {
-                image.src = "../uploads/profile/" + p.profile_image.trim();
-            } else {
-                image.src = "../uploads/profile/default.png";
-            }
-            image.onerror = function() {
-                this.onerror = null;
-                this.src = "../images/default.png";
-            };
-            document.getElementById("modalName").textContent = p.name || "-";
-            document.getElementById("modalEmail").textContent = p.email || "-";
-            document.getElementById("modalId").textContent = p.user_id || "-";
-            document.getElementById("modalPhone").textContent = p.phone || "-";
-            document.getElementById("modalVerification").textContent = p.verification_status === "verified" ? "Verified" : p.verification_status === "rejected" ? "Rejected" : "Pending";
-            document.getElementById("modalBookings").textContent = (p.total_bookings || 0) + " Booking(s)";
-            if (p.created_at) {
-                const d = new Date(p.created_at.replace(" ", "T"));
-                document.getElementById("modalDate").textContent = !isNaN(d) ? d.toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric"
-                }) : p.created_at;
-            } else {
-                document.getElementById("modalDate").textContent = "-";
-            }
-            const pending = document.getElementById("modalPending");
-            const approve = document.getElementById("modalApprove");
-            const reject = document.getElementById("modalReject");
-            document.getElementById("modalPendingId").value = p.user_id;
-            document.getElementById("modalApproveId").value = p.user_id;
-            document.getElementById("modalRejectId").value = p.user_id;
-            pending.className = "action-btn pending";
-            approve.className = "action-btn approve";
-            reject.className = "action-btn reject";
-            pending.disabled = false;
-            approve.disabled = false;
-            reject.disabled = false;
-            pending.textContent = "Pending";
-            approve.textContent = "Approve";
-            reject.textContent = "Reject";
-            if (p.verification_status === "pending") {
-                pending.classList.add("current", "disabled");
-                pending.disabled = true;
-            } else if (p.verification_status === "verified") {
-                approve.classList.add("current", "disabled");
-                approve.disabled = true;
-            } else if (p.verification_status === "rejected") {
-                reject.classList.add("current", "disabled");
-                reject.disabled = true;
-            }
-            document.getElementById("modalDetails").href = "view_passenger.php?id=" + p.user_id;
-            document.getElementById("modalEdit").href = "edit_passenger.php?id=" + p.user_id;
-            modal.classList.add("active");
-        }
-
-        function closePassengerModal() {
-            document.getElementById("passengerModal").classList.remove("active");
-        }
-
-        function closeModalOutside(e) {
-            if (e.target === document.getElementById("passengerModal")) closePassengerModal();
-        }
-        document.addEventListener("keydown", function(e) {
-            if (e.key === "Escape") closePassengerModal();
-        });
-    </script>
+    <script src="passenger.js"></script>
 </body>
 
 </html>

@@ -63,17 +63,17 @@ require_once "../db.php";
         </div>
         <div class="manage-user-cards">
             <div class="manage-user-card">
-                <p>View all users and Reset Password</p>
-                <a href="reset_password.php" class="manage-user-btn">Reset Password</a>
+                <p>View users and Reset Password</p>
+                <a href="reset_password.php" class="manage-user-btn"><i class="fa fa-key"></i>&nbsp; Reset Password</a>
             </div>
             <div class="manage-user-card">
-                <p>View all users and Change Roles</p>
-                <a href="change_role.php" class="manage-user-btn">Change Roles</a>
+                <p>View users and Change Roles</p>
+                <a href="change_role.php" class="manage-user-btn"><i class="fa fa-users-cog"></i>&nbsp; Roles Request </a>
             </div>
-            <!-- <div class="manage-user-card">
-                <p>all users and Change Information</p>
-                <a href="edit_passenger.php" class="manage-user-btn">Edit Data</a>
-            </div> -->
+            <div class="manage-user-card">
+                <p> Update Passenger Information</p>
+                <a href="edit_passenger.php" class="manage-user-btn"><i class="fa fa-user-edit"></i>&nbsp; Edit User Data</a>
+            </div>
         </div>
     </div>
     <script>

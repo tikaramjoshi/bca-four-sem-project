@@ -192,7 +192,8 @@ $history_result = $conn->query("SELECT h.*, b.bus_number, b.bus_name, b.seats AS
                             <button type="submit" name="update_history" class="btn btn-primary">
                                 <i class="fa fa-save"></i> Save & Restore
                             </button>
-                            <a href="schedule_history.php" class="btn btn-cancel">Cancel</a>
+                            <a href="schedule_history.php" class="btn btn-cancel"><i class="fa fa-close"></i>&nbsp;
+                                Cancel</a>
                         </div>
                     </form>
                 </div>

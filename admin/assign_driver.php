@@ -96,7 +96,7 @@ $stmt = $conn->prepare("SELECT u.user_id,u.name,u.email,u.phone,u.profile_image,
 $stmt->execute();
 $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) $drivers[] = $row;
-$sql = "SELECT bd.bus_driver_id,b.bus_id,b.bus_number,b.bus_name,b.bus_type,b.seats,u.user_id AS driver_id,u.name AS driver_name,u.email AS driver_email,u.phone AS driver_phone,u.profile_image,u.verification_status FROM bus_driver bd INNER JOIN bus b ON bd.bus_id=b.bus_id INNER JOIN users u ON bd.driver_id=u.user_id WHERE 1=1";
+$sql = "SELECT bd.bus_driver_id,b.bus_id,b.bus_number,b.bus_name,b.bus_type,b.seats,u.user_id AS driver_id,u.name AS driver_name,u.email AS driver_email,u.phone AS driver_phone,u.profile_image,u.verification_status,dv.profile_photo FROM bus_driver bd INNER JOIN bus b ON bd.bus_id=b.bus_id INNER JOIN users u ON bd.driver_id=u.user_id LEFT JOIN (SELECT driver_id,profile_photo FROM driver_verification WHERE verification_id IN (SELECT MAX(verification_id) FROM driver_verification GROUP BY driver_id)) dv ON dv.driver_id=u.user_id WHERE 1=1";
 $params = [];
 $types = "";
 if ($search !== '') {
@@ -173,7 +173,7 @@ $total_assignments = count($assignments);
                             <div class="form-group"><label>Select Verified Driver</label><select name="driver_id" required>
                                     <option value="">Select driver</option><?php foreach ($drivers as $driver): ?><option value="<?= $driver['user_id'] ?>"><?= htmlspecialchars($driver['name']) ?> - <?= htmlspecialchars($driver['phone']) ?></option><?php endforeach; ?>
                                 </select></div>
-                            <button type="submit" name="assign_driver" class="assign-btn">Assign Driver</button>
+                            <button type="submit" name="assign_driver" class="assign-btn"> <i class="fa-solid fa-user-plus"></i>&nbsp; Assign Driver</button>
                         </div>
                     </form>
                 <?php elseif (!$buses): ?>
@@ -202,8 +202,8 @@ $total_assignments = count($assignments);
                             <option value="<?= $id ?>" <?= $driver_id_filter == $id ? 'selected' : '' ?>><?= htmlspecialchars($name) ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <button type="submit" class="filter-btn">Search</button>
-                    <a href="assign_driver.php" class="clear-btn">Clear</a>
+                    <button type="submit" class="filter-btn"><i class="fa-solid fa-magnifying-glass"></i>&nbsp;Search</button>
+                    <a href="assign_driver.php" class="clear-btn"><i class="fa fa-close"></i>&nbsp;Clear</a>
                 </form>
             </div>
             <div class="table-box">
@@ -226,10 +226,18 @@ $total_assignments = count($assignments);
                             </thead>
                             <tbody>
                                 <?php foreach ($assignments as $assignment): ?>
-                                    <?php $image = $assignment['profile_image'] ?: 'default.png'; ?>
+                                    <?php
+                                    if (!empty($assignment['profile_photo']) && file_exists("../uploads/driver/profile/" . $assignment['profile_photo'])) {
+                                        $image = "../uploads/driver/profile/" . $assignment['profile_photo'];
+                                    } elseif (!empty($assignment['profile_image']) && file_exists("../uploads/profile/" . $assignment['profile_image'])) {
+                                        $image = "../uploads/profile/" . $assignment['profile_image'];
+                                    } else {
+                                        $image = "../uploads/default.png";
+                                    }
+                                    ?>
                                     <tr>
                                         <td>
-                                            <div class="driver-info"><img src="../uploads/profile/<?= htmlspecialchars($image) ?>" class="driver-image" alt="Driver" onerror="this.src='../images/default.png'">
+                                            <div class="driver-info"><img src="<?= htmlspecialchars($image) ?>" class="driver-image" alt="Driver" onerror="this.onerror=null;this.src='../uploads/default.png';">
                                                 <div>
                                                     <div class="driver-name"><?= htmlspecialchars($assignment['driver_name']) ?></div>
                                                     <div class="driver-email"><?= htmlspecialchars($assignment['driver_email']) ?></div>
@@ -245,8 +253,10 @@ $total_assignments = count($assignments);
                                         <td><span class="badge verified">Verified</span></td>
                                         <td><span class="badge assigned">Assigned</span></td>
                                         <td>
-                                            <div class="actions"><a href="view_driver.php?id=<?= $assignment['driver_id'] ?>" class="action-btn view-btn">View Driver</a>
-                                                <form method="POST" onsubmit="return confirmRemove()"><input type="hidden" name="assignment_id" value="<?= $assignment['bus_driver_id'] ?>"><button type="submit" name="remove_assignment" class="action-btn remove-btn">Remove</button></form>
+                                            <div class="actions"><a href="view_driver.php?id=<?= $assignment['driver_id'] ?>" class="action-btn view-btn"><i class="fa-solid fa-eye"></i>&nbsp; View Driver</a>
+                                                <form method="POST" onsubmit="return confirmRemove()"><input type="hidden" name="assignment_id" value="<?= $assignment['bus_driver_id'] ?>">
+                                                    <button type="submit" name="remove_assignment" class="action-btn remove-btn"> <i class="fa-solid fa-trash"></i>&nbsp; Remove</button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>

@@ -105,8 +105,8 @@ $message = match ($_GET['msg'] ?? '') {
                         <option value="verified" <?= $status === 'verified' ? 'selected' : '' ?>>Verified</option>
                         <option value="rejected" <?= $status === 'rejected' ? 'selected' : '' ?>>Rejected</option>
                     </select>
-                    <button type="submit" class="filter-btn">Search</button>
-                    <a href="drivers.php" class="clear-btn">Clear</a>
+                    <button type="submit" class="filter-btn"><i class="fa fa-search"></i>&nbsp;Search</button>
+                    <a href="drivers.php" class="clear-btn"><i class="fa fa-refresh"></i>&nbsp;Clear</a>
                 </form>
             </div>
             <div class="drivers-box">
@@ -120,6 +120,7 @@ $message = match ($_GET['msg'] ?? '') {
                                 <tr>
                                     <th>Driver</th>
                                     <th>Phone</th>
+                                    <th>Email</th>
                                     <th>Verification</th>
                                     <th>Assigned Bus</th>
                                     <th>Registered</th>
@@ -127,18 +128,15 @@ $message = match ($_GET['msg'] ?? '') {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($drivers as $driver): $image = $driver['profile_image'] ?: 'default.png'; ?>
+                                <?php foreach ($drivers as $driver): $image = $driver['profile_photo'] ?: 'default.png'; ?>
                                     <tr>
                                         <td>
                                             <div class="driver-info"><img src="../uploads/driver/profile/<?= htmlspecialchars($image) ?>" class="driver-image" alt="Driver" onerror="this.onerror=null;this.src='../uploads/default.png'">
-
-                                                <div>
-                                                    <div class="driver-name"><?= htmlspecialchars($driver['name']) ?></div>
-                                                    <div class="driver-email"><?= htmlspecialchars($driver['email']) ?></div>
-                                                </div>
+                                                <div class="driver-name"><?= htmlspecialchars($driver['name']) ?></div>
                                             </div>
                                         </td>
                                         <td><?= htmlspecialchars($driver['phone']) ?></td>
+                                        <td><?= htmlspecialchars($driver['email']) ?></td>
                                         <td><?php if ($driver['verification_status'] === 'verified'): ?><span class="badge verified">Verified</span><?php elseif ($driver['verification_status'] === 'pending'): ?><span class="badge unverified">Pending</span><?php else: ?><span class="badge unverified">Rejected</span><?php endif; ?></td>
                                         <td><?php if ($driver['bus_id']): ?><span class="badge assigned"><?= htmlspecialchars($driver['bus_number']) ?></span>
                                                 <div class="bus-type"><?= htmlspecialchars($driver['bus_type']) ?></div><?php else: ?><span class="badge not-assigned">Not Assigned</span><?php endif; ?>
@@ -146,11 +144,23 @@ $message = match ($_GET['msg'] ?? '') {
                                         <td><?= date("d M Y", strtotime($driver['created_at'])) ?></td>
                                         <td>
                                             <div class="actions">
-                                                <button type="button" class="action-btn view" onclick='openDriverModal(<?= json_encode($driver) ?>)'>View</button>
-                                                <?php if ($driver['verification_status'] !== 'verified'): ?><a href="drivers.php?action=verify&id=<?= (int)$driver['user_id'] ?>" class="action-btn approve" onclick="return confirm('Verify this driver?')">Verify</a><?php else: ?><a href="drivers.php?action=reject&id=<?= (int)$driver['user_id'] ?>" class="action-btn reject" onclick="return confirm('Reject verification for this driver?')">Reject</a><?php endif; ?>
-                                                <a href="view_driver.php?id=<?= (int)$driver['user_id'] ?>" class="action-btn view">Details</a>
-                                                <a href="drivers.php?action=delete&id=<?= (int)$driver['user_id'] ?>" class="action-btn delete" onclick="return confirm('Are you sure you want to delete this driver?')">Delete</a>
+                                                <button type="button" class="action-btn view" onclick='openDriverModal(<?= json_encode($driver) ?>)'><i class="fa fa-eye"></i>&nbsp;View</button>
+
+                                                <?php if ($driver['verification_status'] !== 'verified'): ?>
+                                                    <a href="drivers.php?action=verify&id=<?= (int)$driver['user_id'] ?>" class="action-btn approve" onclick="return confirm('Verify this driver?')"><i class="fa fa-check"></i>&nbsp;Verify </a>
+                                                <?php else: ?>
+                                                    <a href="drivers.php?action=reject&id=<?= (int)$driver['user_id'] ?>" class="action-btn reject" onclick="return confirm('Reject verification for this driver?')"><i class="fa fa-times"></i>&nbsp;Reject</a>
+                                                <?php endif; ?>
+
+                                                <a href="view_driver.php?id=<?= (int)$driver['user_id'] ?>" class="action-btn view">
+                                                    <i class="fa fa-info-circle"></i>&nbsp;Details
+                                                </a>
+
+                                                <a href="drivers.php?action=delete&id=<?= (int)$driver['user_id'] ?>" class="action-btn delete" onclick="return confirm('Are you sure you want to delete this driver?')">
+                                                    <i class="fa fa-trash"></i>&nbsp;Delete
+                                                </a>
                                             </div>
+
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -202,29 +212,84 @@ $message = match ($_GET['msg'] ?? '') {
     </div>
     <script>
         function openDriverModal(d) {
-            let m = document.getElementById("driverModal"),
-                i = document.getElementById("modalImage");
-            i.src = d.profile_image ? "../uploads/profile/" + d.profile_image : "../uploads/default.png";
+            let m = document.getElementById("driverModal");
+
+            let i = document.getElementById("modalImage");
+            i.src = d.profile_photo ?
+                "../uploads/driver/profile/" + d.profile_photo :
+                "../uploads/default.png";
+
             i.onerror = function() {
                 this.onerror = null;
-                this.src = "../uploads/default.png"
+                this.src = "../uploads/default.png";
             };
+
             document.getElementById("modalName").textContent = d.name || "-";
             document.getElementById("modalEmail").textContent = d.email || "-";
             document.getElementById("modalId").textContent = d.user_id || "-";
             document.getElementById("modalPhone").textContent = d.phone || "-";
-            document.getElementById("modalVerification").textContent = d.verification_status === "verified" ? "Verified" : d.verification_status === "pending" ? "Pending" : d.verification_status === "rejected" ? "Rejected" : "-";
+
+            document.getElementById("modalVerification").textContent =
+                d.verification_status === "verified" ? "Verified" :
+                d.verification_status === "pending" ? "Pending" :
+                d.verification_status === "rejected" ? "Rejected" : "-";
+
             document.getElementById("modalBus").textContent = d.bus_number || "Not Assigned";
             document.getElementById("modalBusName").textContent = d.bus_name || "-";
             document.getElementById("modalBusType").textContent = d.bus_type || "-";
             document.getElementById("modalBusStatus").textContent = d.bus_status || "-";
-            document.getElementById("modalDate").textContent = d.created_at ? new Date(d.created_at.replace(" ", "T")).toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
-            }) : "-";
+
+            document.getElementById("modalDate").textContent = d.created_at ?
+                new Date(d.created_at.replace(" ", "T")).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                }) :
+                "-";
+
+            // License Details
+            document.getElementById("modalLicense").textContent = d.license_number || "Not Provided";
+            document.getElementById("modalLicenseIssue").textContent = d.license_issue_date || "Not Provided";
+            document.getElementById("modalLicenseExpiry").textContent = d.license_expiry_date || "Not Provided";
+
+            // License Photos
+            let front = document.getElementById("modalLicenseFront");
+            let back = document.getElementById("modalLicenseBack");
+
+            front.src = d.license_photo_front ?
+                "../uploads/driver/license/" + d.license_photo_front :
+                "../uploads/default.png";
+
+            back.src = d.license_photo_back ?
+                "../uploads/driver/license/" + d.license_photo_back :
+                "../uploads/default.png";
+
+            front.onerror = function() {
+                this.onerror = null;
+                this.src = "../uploads/default.png";
+            };
+
+            back.onerror = function() {
+                this.onerror = null;
+                this.src = "../uploads/default.png";
+            };
+
             m.classList.add("active");
         }
+
+        function closeDriverModal() {
+            document.getElementById("driverModal").classList.remove("active");
+        }
+
+        function closeModalOutside(e) {
+            if (e.target === document.getElementById("driverModal")) {
+                closeDriverModal();
+            }
+        }
+
+        document.addEventListener("keydown", e => {
+            if (e.key === "Escape") closeDriverModal();
+        });
 
         function closeDriverModal() {
             document.getElementById("driverModal").classList.remove("active")

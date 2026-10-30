@@ -1,0 +1,108 @@
+
+.box {
+    width: 96%;
+    margin: 20px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+}
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: #1560BD;
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    vertical-align: middle;
+}
+
+tr:hover {
+    background: #f8f9fa;
+}
+
+.bus-image {
+    width: 90px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+.pending {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.view-btn {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #1560BD;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.view-btn:hover {
+    background: #0d4f9c;
+}
+
+.approve-btn {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #198754;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.approve-btn:hover {
+    background: #146c43;
+}
+
+.reject-btn {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #dc3545;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.reject-btn:hover {
+    background: #b02a37;
+}
+
+.actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.back {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #555;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.back:hover {
+    background: #333;
+}

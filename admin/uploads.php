@@ -16,19 +16,7 @@ function isImageUsed($conn, $relative)
     $relative = str_replace('\\', '/', ltrim($relative, '/'));
     $basename = basename($relative);
 
-    $result = $conn->query("
-        SELECT TABLE_NAME, COLUMN_NAME
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_SCHEMA = DATABASE()
-        AND (
-            LOWER(COLUMN_NAME) LIKE '%image%'
-            OR LOWER(COLUMN_NAME) LIKE '%photo%'
-            OR LOWER(COLUMN_NAME) LIKE '%picture%'
-            OR LOWER(COLUMN_NAME) LIKE '%file%'
-            OR LOWER(COLUMN_NAME) LIKE '%path%'
-        )
-        AND DATA_TYPE IN ('varchar','char','text','tinytext','mediumtext','longtext')
-    ");
+    $result = $conn->query("    SELECT TABLE_NAME, COLUMN_NAME    FROM INFORMATION_SCHEMA.COLUMNS    WHERE TABLE_SCHEMA = DATABASE()    AND (        LOWER(COLUMN_NAME) LIKE '%image%'        OR LOWER(COLUMN_NAME) LIKE '%photo%'        OR LOWER(COLUMN_NAME) LIKE '%picture%'        OR LOWER(COLUMN_NAME) LIKE '%file%'        OR LOWER(COLUMN_NAME) LIKE '%path%'    )    AND DATA_TYPE IN ('varchar','char','text','tinytext','mediumtext','longtext')");
 
     if (!$result) return false;
 

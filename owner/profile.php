@@ -57,6 +57,7 @@ $verification_status = $owner['verification_status'] ?? 'unverified';
                         <h2><?= htmlspecialchars($owner['name']) ?></h2>
                         <span class="role"><i class="fa fa-user"></i> Owner</span><br>
                         <a href="edit_profile.php" class="edit-btn"><i class="fa fa-edit"></i> Edit Profile</a>
+                        <a href="../role_request.php" class="edit-btn"><i class="fa fa-exchange"></i> Change Role</a>
                     </div>
                     <h3 class="card-title"><i class="fa fa-user"></i> Personal Information</h3>
                     <div class="info-grid">

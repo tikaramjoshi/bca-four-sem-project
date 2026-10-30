@@ -39,11 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = "Maximum 3 admins are allowed!";
             $message_type = "error";
         } else {
-            $stmt = $conn->prepare("
-    SELECT email, phone 
-    FROM users 
-    WHERE email=? OR phone=?
-");
+            $stmt = $conn->prepare(" SELECT email, phone  FROM users  WHERE email=? OR phone=? ");
 
             $stmt->bind_param("ss", $email, $phone);
             $stmt->execute();
@@ -69,18 +65,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $message_type = "error";
             } else {
                 $hash = password_hash($password, PASSWORD_BCRYPT);
-                $stmt = $conn->prepare("
-                    INSERT INTO users(name,email,phone,password,role)
-                    VALUES(?,?,?,?,?)
-                ");
-                $stmt->bind_param(
-                    "sssss",
-                    $name,
-                    $email,
-                    $phone,
-                    $hash,
-                    $role
-                );
+                $stmt = $conn->prepare(" INSERT INTO users(name,email,phone,password,role) VALUES(?,?,?,?,?) ");
+                $stmt->bind_param("sssss", $name, $email, $phone, $hash, $role);
                 if ($stmt->execute()) {
 
                     $message = "Admin Registration Successful!";
@@ -111,14 +97,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="main">
         <nav>
             <div>
-                <a href="../index.php">Home</a>
+                <a href="../index.php"><i class="fa fa-home"></i>&nbsp; Home</a>
             </div>
             <div class="submit">
                 <button type="button" id="login"
                     onclick="location.href='../login.php'">
-                    Login
+                    <i class="fa fa-sign-in"></i>&nbsp; Login
                 </button>
-                <button type="button" id="register" class="active">Register</button>
+                <button type="button" id="register" class="active"><i class="fa fa-user-plus"></i>&nbsp; Register</button>
             </div>
         </nav>
     </div>
@@ -143,7 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="password" name="confirm_password" id="c_pas" placeholder="Confirm password" minlength="6" required>
                     <span class="pass_view" onclick="passView('c_pas',this)"> <i class="fa-solid fa-eye"></i> </span>
                 </div>
-                <button type="submit" class="btn-register"> Register Admin </button>
+                <button type="submit" class="btn-register"><i class="fa fa-solid fa-user-plus"></i> Register </button>
                 <a href="../login.php"> I already have an account? </a>
             </form>
         </div>

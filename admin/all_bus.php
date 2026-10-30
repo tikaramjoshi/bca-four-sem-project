@@ -7,8 +7,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "admin") {
 }
 
 require_once "../db.php";
-$sql = " SELECT  bus.*, users.name AS owner_name, users.email AS owner_email, users.phone AS owner_phone FROM bus INNER JOIN users  ON bus.owner_id = users.user_id ORDER BY bus.bus_id DESC
-";
+$sql = " SELECT  bus.*, users.name AS owner_name, users.email AS owner_email, users.phone AS owner_phone FROM bus INNER JOIN users  ON bus.owner_id = users.user_id ORDER BY bus.bus_id DESC ";
 $result = mysqli_query($conn, $sql);
 
 if (!$result) {
@@ -22,7 +21,6 @@ if (!$result) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Buses</title>
-    <link rel="stylesheet" href="dashboard_admin.css">
     <style>
         body {
             font-family: Arial, sans-serif;

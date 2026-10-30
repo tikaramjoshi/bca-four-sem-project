@@ -155,14 +155,15 @@ body {
 }
 
 .stats div {
+    color: #fff;
+    background-color: steelblue;
     padding: 20px;
     text-align: center;
 }
 
 .stats small {
     display: block;
-    color: #777;
-    font-size: 12px;
+    font-size: 15px;
     margin-bottom: 8px;
 }
 
@@ -179,6 +180,14 @@ body {
 }
 
 .box {
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.box-trip {
+    background-color: #efe2e2;
+    border-radius: 10px;
+    margin-top: 10px;
     padding: 25px;
     margin-bottom: 25px;
 }
@@ -236,9 +245,9 @@ td {
 .empty,
 .no-bus {
     padding: 17px;
+    font-size: 20px;
     text-align: center;
-    background: #f7f9fc;
-    color: #777;
+    color: #ff0000;
     border-radius: 8px;
 }
 
