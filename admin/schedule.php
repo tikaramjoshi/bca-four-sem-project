@@ -211,7 +211,7 @@ $schedules = $conn->query("SELECT s.schedule_id,s.from_city,s.to_city,s.departur
                     <div class="form-actions">
                         <?php if ($edit_schedules): ?>
                             <button type="submit" name="update_schedules" class="btn btn-primary"><i class="fa fa-save"></i>&nbsp; Update schedules</button>
-                            <a href="schedule.php" class="btn btn-cancel">Cancel</a>
+                            <a href="schedule.php" class="btn btn-cancel"><i class="fa fa-close"></i> &nbsp;Cancel</a>
                         <?php else: ?>
                             <button type="submit" name="add_schedules" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp; Add schedules</button>
                         <?php endif; ?>

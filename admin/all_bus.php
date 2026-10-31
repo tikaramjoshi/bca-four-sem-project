@@ -164,7 +164,7 @@ if (!$result) {
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <a href="view_bus.php?id=<?= $bus['bus_id'] ?>" class="view-btn"> View Details</a>
+                                        <a href="view_bus.php?id=<?= $bus['bus_id'] ?>" class="view-btn"><i class="fa fa-eye"></i> View Details</a>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>

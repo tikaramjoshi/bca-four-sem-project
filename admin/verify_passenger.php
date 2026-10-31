@@ -19,12 +19,7 @@ if (!isset($_GET['id'])) {
 
 $user_id = (int) $_GET['id'];
 
-$stmt = $conn->prepare("
-    UPDATE users
-    SET verification_status = 'verified'
-    WHERE user_id = ?
-    AND role = 'passenger'
-");
+$stmt = $conn->prepare(" UPDATE users SET verification_status = 'verified' WHERE user_id = ? AND role = 'passenger' ");
 
 $stmt->bind_param("i", $user_id);
 $stmt->execute();

@@ -7,11 +7,41 @@ if (!isset($_SESSION['user_id'])) {
 }
 if (!isset($conn) || !$conn instanceof mysqli) exit('Database connection is not available.');
 $userId = (int)$_SESSION['user_id'];
-$stmt = $conn->prepare('SELECT booking_id, bus_name, bus_number, route, travel_date, seat_number, amount, status, created_at FROM bookings WHERE user_id = ? ORDER BY travel_date DESC, booking_id DESC');
+$stmt = $conn->prepare("
+    SELECT booking_id, booking_group_id, bus_name, bus_number, route,
+           travel_date, seat_number, amount, status, created_at
+    FROM (
+        SELECT booking_id, booking_group_id, user_id, schedule_id,
+               bus_name, bus_number, route, travel_date,
+               seat_number, amount, status, created_at
+        FROM bookings
+
+        UNION ALL
+
+        SELECT booking_id, booking_group_id, user_id, schedule_id,
+               bus_name, bus_number, route, travel_date,
+               seat_number, amount, status, created_at
+        FROM booking_history
+    ) AS all_bookings
+    WHERE user_id = ?
+    AND (
+        travel_date > CURDATE()
+        OR (
+            travel_date = CURDATE()
+            AND schedule_id IN (
+                SELECT schedule_id
+                FROM schedules
+                WHERE departure_time > CURTIME()
+            )
+        )
+    )
+    ORDER BY travel_date DESC, booking_id DESC
+");
+
 $stmt->bind_param('i', $userId);
 $stmt->execute();
 $bookings = $stmt->get_result();
-
+$stmt->close();
 include "pass_header.php";
 $i = 0;
 ?>
@@ -119,7 +149,7 @@ $i = 0;
     <main class="wrap">
         <section class="card">
             <div class="top">
-                <h2>My Bookings</h2><a class="button" href="dashboard.php">Back</a>
+                <h2>My Bookings</h2><a class="button" href="dashboard.php"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
             </div>
             <?php if ($bookings->num_rows): ?><div class="table-wrap">
                     <table>
@@ -137,7 +167,8 @@ $i = 0;
                         </thead>
                         <tbody>
                             <?php while ($booking = $bookings->fetch_assoc()): ?><tr>
-                                    <td><?= $bookings->num_rows - ($i++ ?? 0) ?></td>
+                                    <td><?= ++$i ?></td>
+                                    <!-- <td><?= $bookings->num_rows - ($i++ ?? 0) ?></td> -->
                                     <td>#<?= (int)$booking['booking_id'] ?></td>
                                     <td><?= htmlspecialchars($booking['bus_name'] . ' (' . $booking['bus_number'] . ')') ?></td>
                                     <td><?= htmlspecialchars($booking['route']) ?></td>

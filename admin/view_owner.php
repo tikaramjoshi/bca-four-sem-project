@@ -24,145 +24,7 @@ $owner = mysqli_fetch_assoc($result);
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Owner Details</title>
     <link rel="stylesheet" href="side.css">
-    <style>
-        /* * {
-            box-sizing: border-box
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            margin: 0;
-            padding: 0
-        } */
-
-        .box {
-            margin: 20px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-        }
-
-        /* h2 {
-            text-align: center;
-            margin: 0 0 25px;
-            color: #333
-        } */
-
-        .profile {
-            text-align: center;
-            margin-bottom: 25px
-        }
-
-        .profile img {
-            width: 140px;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 3px solid #1560BD
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse
-        }
-
-        td {
-            padding: 13px;
-            border-bottom: 1px solid #e5e5e5;
-            vertical-align: middle
-        }
-
-        td:first-child {
-            width: 240px;
-            font-weight: 600;
-            color: #444
-        }
-
-        td.section-title,
-        td.section-title {
-            background: #f1f4f8;
-            font-size: 17px;
-            font-weight: bold;
-            color: #f69903;
-
-        }
-
-        .approved,
-        .verified {
-            color: #198754;
-            font-weight: bold
-        }
-
-        .pending {
-            color: #f39c12;
-            font-weight: bold
-        }
-
-        .rejected,
-        .unverified {
-            color: #dc3545;
-            font-weight: bold
-        }
-
-        .document {
-            width: 220px;
-            max-height: 180px;
-            object-fit: contain;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 5px;
-            background: #fafafa
-        }
-
-        .view-document,
-        .back {
-            display: inline-block;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 6px
-        }
-
-        .view-document {
-            margin-top: 8px;
-            padding: 7px 12px;
-            background: #1560BD;
-            font-size: 13px
-        }
-
-        .view-document:hover {
-            background: #0d4f9c
-        }
-
-        .back {
-            margin-top: 25px;
-            padding: 10px 22px;
-            background: #555
-        }
-
-        .back:hover {
-            background: #333
-        }
-
-        @media(max-width:600px) {
-            .box {
-                padding: 18px;
-                margin: 20px auto
-            }
-
-            td {
-                padding: 10px
-            }
-
-            td:first-child {
-                width: 40%
-            }
-
-            .document {
-                width: 160px
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="view_owner.css">
 </head>
 
 <body>
@@ -170,14 +32,15 @@ $owner = mysqli_fetch_assoc($result);
     <div class="content">
         <div class="box">
             <h2>Owner Details</h2>
+
             <div class="profile">
-                <?php if (!empty($owner['profile_image'])): ?>
-                    <img src="../uploads/profile/<?= (int)$owner['user_id'] ?>/profile/<?= htmlspecialchars($owner['profile_image']) ?>" alt="Owner Profile">
-                <?php elseif (!empty($owner['owner_photo'])): ?>
-                    <img src="../uploads/<?= htmlspecialchars($owner['owner_photo']) ?>" alt="Owner Photo">
-                <?php else: ?>
-                    <img src="../images/default.png" alt="Default Profile">
-                <?php endif; ?>
+                <?php
+                $image = !empty($owner['profile_image'])
+                    ? "../uploads/profile/" . (int)$owner['user_id'] . "/profile/" . $owner['profile_image']
+                    : (!empty($owner['owner_photo']) ? "../uploads/" . $owner['owner_photo'] : "../uploads/default.png");
+                ?>
+                <img src="<?= htmlspecialchars($image) ?>" alt="Profile"
+                    onerror="this.onerror=null; this.src='../uploads/default.png';">
             </div>
             <table>
                 <tr>
@@ -237,7 +100,7 @@ $owner = mysqli_fetch_assoc($result);
                     <td>
                         <?php if (!empty($owner['owner_photo'])): ?>
                             <img src="../uploads/profile/<?= (int)$owner['user_id'] ?>/profile/<?= htmlspecialchars($owner['owner_photo']) ?>" class="document" alt="Owner Photo"><br>
-                            <a href="../uploads/profile/<?= (int)$owner['user_id'] ?>/profile/<?= htmlspecialchars($owner['owner_photo']) ?>" target="_blank" class="view-document">View Full Image</a><br>
+                            <a href="../uploads/profile/<?= (int)$owner['user_id'] ?>/profile/<?= htmlspecialchars($owner['owner_photo']) ?>" target="_blank" class="view-document"><i class="fa fa-eye"></i>&nbsp; View Full Image</a><br>
                             <?php else: ?>-<?php endif; ?>
                     </td>
                 </tr>
@@ -246,7 +109,7 @@ $owner = mysqli_fetch_assoc($result);
                     <td>
                         <?php if (!empty($owner['company_certificate'])): ?>
                             <img src="../uploads/profile/<?= (int)$owner['user_id'] ?>/profile/<?= htmlspecialchars($owner['company_certificate']) ?>" class="document" alt="Company Certificate"><br>
-                            <a href="../uploads/profile/<?= (int)$owner['user_id'] ?>/profile/<?= htmlspecialchars($owner['company_certificate']) ?>" target="_blank" class="view-document">View Certificate</a>
+                            <a href="../uploads/profile/<?= (int)$owner['user_id'] ?>/profile/<?= htmlspecialchars($owner['company_certificate']) ?>" target="_blank" class="view-document"><i class="fa fa-eye"></i>&nbsp; View Certificate</a>
                             <?php else: ?>-<?php endif; ?>
                     </td>
                 </tr>
@@ -255,7 +118,7 @@ $owner = mysqli_fetch_assoc($result);
                     <td><?= !empty($owner['reject_reason']) ? nl2br(htmlspecialchars($owner['reject_reason'])) : "-" ?></td>
                 </tr>
             </table>
-            <a href="view_owners.php" class="back">Back</a>
+            <a href="view_owners.php" class="back"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
         </div>
     </div>
 </body>

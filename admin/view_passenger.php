@@ -28,8 +28,9 @@ while ($row = $booking_result->fetch_assoc()) {
     $bookings[] = $row;
 }
 $total_bookings = count($bookings);
+
 $profile_image = trim((string)($passenger['profile_image'] ?? ''));
-$image = $profile_image !== '' ? "../uploads/profile/" . basename($profile_image) : "";
+$image = $profile_image !== '' ? "../uploads/profile/passenger/" . $passenger['name'] . "/" . basename($profile_image) : "../uploads/default.png";
 $verification = $passenger['verification_status'] ?? 'pending';
 include "admin_header.php"
 ?>

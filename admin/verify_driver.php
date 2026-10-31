@@ -20,11 +20,7 @@ if (!isset($_GET['id'])) {
 $verification_id = (int)$_GET['id'];
 
 
-$stmt = $conn->prepare("
-    UPDATE driver_verification
-    SET status = 'verified'
-    WHERE verification_id = ?
-");
+$stmt = $conn->prepare("  UPDATE driver_verification  SET status = 'verified'  WHERE verification_id = ? ");
 
 $stmt->bind_param("i", $verification_id);
 $stmt->execute();
@@ -32,13 +28,7 @@ $stmt->execute();
 $stmt->close();
 
 
-$stmt = $conn->prepare("
-    UPDATE users u
-    INNER JOIN driver_verification dv
-        ON u.user_id = dv.driver_id
-    SET u.verification_status = 'verified'
-    WHERE dv.verification_id = ?
-");
+$stmt = $conn->prepare("UPDATE users uINNER JOIN driver_verification dv    ON u.user_id = dv.driver_idSET u.verification_status = 'verified'WHERE dv.verification_id = ? ");
 
 $stmt->bind_param("i", $verification_id);
 $stmt->execute();

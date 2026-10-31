@@ -8,8 +8,20 @@ if ($group_id === '') {
 }
 
 $user_id = (int)$_SESSION['user_id'];
-$stmt = $conn->prepare("SELECT booking_id,booking_group_id,bus_name,bus_number,route,travel_date,seat_number,amount,status,created_at FROM bookings WHERE booking_group_id=? AND user_id=? ORDER BY CAST(seat_number AS UNSIGNED)");
-$stmt->bind_param("si", $group_id, $user_id);
+
+$stmt = $conn->prepare("
+SELECT booking_id,booking_group_id,bus_name,bus_number,route,travel_date,seat_number,amount,status,created_at
+FROM (
+    SELECT booking_id,booking_group_id,user_id,bus_name,bus_number,route,travel_date,seat_number,amount,status,created_at
+    FROM bookings WHERE booking_group_id=? AND user_id=?
+    UNION ALL
+    SELECT booking_id,booking_group_id,user_id,bus_name,bus_number,route,travel_date,seat_number,amount,status,created_at
+    FROM booking_history WHERE booking_group_id=? AND user_id=?
+) AS all_bookings
+ORDER BY CAST(seat_number AS UNSIGNED)
+");
+$stmt->bind_param("sisi", $group_id, $user_id, $group_id, $user_id);
+
 $stmt->execute();
 $result = $stmt->get_result();
 $bookings = [];

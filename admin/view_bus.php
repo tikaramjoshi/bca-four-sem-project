@@ -28,13 +28,6 @@ $bus = mysqli_fetch_assoc($result);
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Bus Details</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            margin: 0;
-            padding: 0;
-        }
-
         .box {
             width: 700px;
             max-width: 90%;
@@ -177,8 +170,8 @@ $bus = mysqli_fetch_assoc($result);
                 <td><?= !empty($bus['reject_reason']) ? nl2br(htmlspecialchars($bus['reject_reason'])) : "-" ?></td>
             </tr>
         </table>
-        <a class="back" href="all_bus.php">Back</a>
-        <a class="back" href="dashboard.php">Home</a>
+        <a class="back" href="all_bus.php"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
+        <a class="back" href="dashboard.php"><i class="fa fa-home"></i>&nbsp; Home</a>
 
     </div>
 </body>

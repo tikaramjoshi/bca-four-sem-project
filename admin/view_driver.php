@@ -12,7 +12,6 @@ if (empty($_GET['id'])) {
 $admin_id = (int)$_SESSION['user_id'];
 $admin_name = $_SESSION['name'];
 $id = (int)$_GET['id'];
-
 $stmt = $conn->prepare("SELECT u.user_id,u.name,u.email,u.phone,u.profile_image,u.verification_status,u.created_at,b.bus_id,b.bus_number,b.bus_name,b.bus_type,b.seats,b.status AS bus_status FROM users u LEFT JOIN bus_driver bd ON u.user_id=bd.driver_id LEFT JOIN bus b ON bd.bus_id=b.bus_id WHERE u.user_id=? AND u.role='driver' LIMIT 1");
 $stmt->bind_param("i", $id);
 $stmt->execute();
@@ -25,15 +24,12 @@ $stmt = $conn->prepare("SELECT profile_photo,license_number,license_issue_date,l
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $verification = $stmt->get_result()->fetch_assoc();
-
 $stmt = $conn->prepare("SELECT profile_image FROM users WHERE user_id=? AND role='admin' LIMIT 1");
 $stmt->bind_param("i", $admin_id);
 $stmt->execute();
 $admin = $stmt->get_result()->fetch_assoc();
-
 $driver_image = !empty($verification['profile_photo']) ? $verification['profile_photo'] : 'default.png';
 $profile_image = !empty($admin['profile_image']) ? $admin['profile_image'] : 'default.png';
-
 $today = date("Y-m-d");
 $today_trips = [];
 $total_trips = 0;
@@ -46,18 +42,15 @@ if ($driver['bus_id']) {
     $stmt->execute();
     $res = $stmt->get_result();
     $total_trips = $res->num_rows;
-
     while ($r = $res->fetch_assoc()) {
         if ($r['departure_date'] === $today) {
             $today_trips[] = $r;
         }
     }
-
     $stmt = $conn->prepare("SELECT COUNT(*) total FROM bookings bk INNER JOIN schedules s ON bk.schedule_id=s.schedule_id WHERE s.bus_id=?");
     $stmt->bind_param("i", $driver['bus_id']);
     $stmt->execute();
     $total_bookings = (int)$stmt->get_result()->fetch_assoc()['total'];
-
     $stmt = $conn->prepare("SELECT COUNT(*) total FROM bookings bk INNER JOIN schedules s ON bk.schedule_id=s.schedule_id WHERE s.bus_id=? AND s.departure_date=?");
     $stmt->bind_param("is", $driver['bus_id'], $today);
     $stmt->execute();
@@ -98,28 +91,22 @@ $verified = $driver['verification_status'] === 'verified';
             </div>
             <a href="drivers.php" class="back"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
         </div>
-
         <div class="profile">
             <img src="../uploads/driver/profile/<?= htmlspecialchars($driver_image) ?>" alt="Driver Profile" onerror="this.onerror=null;this.src='../uploads/default.png';">
-
             <div class="info">
                 <h2><?= htmlspecialchars($driver['name']) ?></h2>
                 <p><?= htmlspecialchars($driver['email']) ?></p>
-
                 <span class="badge <?= $verified ? 'verified' : 'unverified' ?>">
                     <?= $verified ? 'Verified' : 'Unverified' ?>
                 </span>
-
                 <span class="badge <?= $status === 'On Trip' ? 'trip' : 'available' ?>">
                     <?= $status ?>
                 </span>
-
                 <div class="actions">
                     <?php if (!$verified): ?>
                         <a href="drivers.php?action=verify&id=<?= $id ?>" class="verify" onclick="return confirm('Verify this driver?')"><i class="fa fa-check"></i>&nbsp; Verify Driver</a>
                     <?php else: ?>
                         <a href="drivers.php?action=reject&id=<?= $id ?>" class="reject" onclick="return confirm('Reject this driver verification?')"> <i class="fa fa-close"></i> &nbsp; Reject Verification</a>
-
                     <?php endif; ?>
                 </div>
             </div>
@@ -130,14 +117,10 @@ $verified = $driver['verification_status'] === 'verified';
                 <div><small>Total Bookings</small><strong><?= $total_bookings ?></strong></div>
             </div>
         </div>
-
-
-
         <div class="grid">
             <div>
                 <div class="box">
                     <h2>Driver Information</h2>
-
                     <div class="details">
                         <div><small>Driver ID </small>: <strong><?= $driver['user_id'] ?></strong></div>
                         <div><small>Full Name </small>: <strong><?= htmlspecialchars($driver['name']) ?></strong></div>
@@ -146,11 +129,9 @@ $verified = $driver['verification_status'] === 'verified';
                         <div><small>Verification </small>: <strong><?= $verified ? 'Verified' : 'Unverified' ?></strong></div>
                         <div><small>Driver Status </small>: <strong><?= $status ?></strong></div>
                         <div><small>Registered Date </small>: <strong><?= date("d M Y", strtotime($driver['created_at'])) ?></strong></div>
-
                         <div><small>License Number </small>: <strong><?= htmlspecialchars($verification['license_number'] ?? 'Not Provided') ?></strong></div>
                         <div><small>License Issue Date </small>: <strong><?= !empty($verification['license_issue_date']) ? date("d M Y", strtotime($verification['license_issue_date'])) : 'Not Provided' ?></strong></div>
                         <div><small>License Expiry Date </small>: <strong><?= !empty($verification['license_expiry_date']) ? date("d M Y", strtotime($verification['license_expiry_date'])) : 'Not Provided' ?></strong></div>
-
                     </div>
                 </div>
                 <div class="license-images">
@@ -172,11 +153,9 @@ $verified = $driver['verification_status'] === 'verified';
                     </div>
                 </div>
             </div>
-
             <div>
                 <div class="box">
                     <h2>Assigned Bus</h2>
-
                     <?php if ($driver['bus_id']): ?>
                         <div class="details">
                             <div><small>Bus Number</small> : <strong><?= htmlspecialchars($driver['bus_number']) ?></strong></div>
@@ -190,10 +169,8 @@ $verified = $driver['verification_status'] === 'verified';
                         <div class="no-bus">No bus has been assigned to this driver.</div>
                     <?php endif; ?>
                 </div>
-
                 <div class="box">
                     <h2>Passenger and Booking Summary</h2>
-
                     <div class="details">
                         <div><small>Today's Passengers </small>: <strong><?= $today_bookings ?></strong></div>
                         <div><small>Total Bookings </small>: <strong><?= $total_bookings ?></strong></div>
@@ -205,7 +182,6 @@ $verified = $driver['verification_status'] === 'verified';
         </div>
         <div class="box-trip">
             <h2>Today's Trips</h2>
-
             <?php if ($today_trips): ?>
                 <table>
                     <tr>
@@ -213,7 +189,6 @@ $verified = $driver['verification_status'] === 'verified';
                         <th>Departure</th>
                         <th>Date</th>
                     </tr>
-
                     <?php foreach ($today_trips as $trip): ?>
                         <tr>
                             <td class="route">
@@ -233,7 +208,6 @@ $verified = $driver['verification_status'] === 'verified';
         function toggleMenu() {
             document.getElementById("settingMenu").classList.toggle("show");
         }
-
         window.onclick = function(e) {
             if (!e.target.closest(".setting")) {
                 document.getElementById("settingMenu").classList.remove("show");

@@ -84,6 +84,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+// Automatically move expired bookings to booking history
+$conn->begin_transaction();
+
+try {
+    $stmt = $conn->prepare(" SELECT bk.booking_id,bk.booking_group_id,bk.user_id,bk.schedule_id,        bk.bus_name,bk.bus_number,bk.route,bk.travel_date,        bk.seat_number,bk.amount,bk.status,bk.created_at FROM bookings bk INNER JOIN schedules s ON bk.schedule_id = s.schedule_id WHERE bk.travel_date < CURDATE()    OR (bk.travel_date = CURDATE() AND s.departure_time <= CURTIME()) ");
+
+    if (!$stmt) {
+        throw new Exception('Unable to check expired bookings.');
+    }
+
+    $stmt->execute();
+    $expiredBookings = $stmt->get_result();
+
+    while ($booking = $expiredBookings->fetch_assoc()) {
+        $history = $conn->prepare(" INSERT INTO booking_history (booking_id,booking_group_id,user_id,schedule_id,bus_name,bus_number,  route,travel_date,seat_number,amount,status,created_at,deleted_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NOW())  ");
+
+        if (!$history) {
+            throw new Exception('Unable to prepare booking history.');
+        }
+
+        $history->bind_param(
+            'isissssssdss',
+            $booking['booking_id'],
+            $booking['booking_group_id'],
+            $booking['user_id'],
+            $booking['schedule_id'],
+            $booking['bus_name'],
+            $booking['bus_number'],
+            $booking['route'],
+            $booking['travel_date'],
+            $booking['seat_number'],
+            $booking['amount'],
+            $booking['status'],
+            $booking['created_at']
+        );
+
+        if (!$history->execute()) {
+            throw new Exception('Unable to save expired booking.');
+        }
+        $history->close();
+
+        $delete = $conn->prepare("DELETE FROM bookings WHERE booking_id=?");
+
+        if (!$delete) {
+            throw new Exception('Unable to prepare booking removal.');
+        }
+
+        $delete->bind_param('i', $booking['booking_id']);
+
+        if (!$delete->execute()) {
+            throw new Exception('Unable to move expired booking.');
+        }
+        $delete->close();
+    }
+
+    $stmt->close();
+    $conn->commit();
+} catch (Exception $e) {
+    $conn->rollback();
+    $error = $e->getMessage();
+}
 $search = trim($_GET['search'] ?? '');
 $sql = "SELECT bk.booking_id,bk.booking_group_id,bk.user_id,bk.schedule_id,bk.bus_name,bk.bus_number,bk.route,bk.travel_date,bk.seat_number,bk.amount,bk.status,bk.created_at,u.name,u.email,u.phone FROM bookings bk LEFT JOIN users u ON bk.user_id=u.user_id";
 $params = [];

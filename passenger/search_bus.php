@@ -17,9 +17,34 @@ if ($from === '' || $to === '' || $date === '') {
 }
 
 if ($from && $to && $date) {
+
+
     $sql = "
-        SELECT      b.bus_id,      b.bus_number,      b.bus_name,      b.bus_type,      b.seats,      b.bus_image,      s.schedule_id,      s.from_city,      s.to_city,      s.departure_date,      s.departure_time,      s.ticket_price,      s.available_seats,      s.status  FROM schedules s  INNER JOIN bus b ON b.bus_id = s.bus_id  WHERE b.status = 'approved'  AND s.status = 'active'  AND LOWER(TRIM(s.from_city)) = LOWER(TRIM(?))  AND LOWER(TRIM(s.to_city)) = LOWER(TRIM(?))  AND s.departure_date = ?  ORDER BY s.departure_time ASC
-    ";
+    SELECT
+        b.bus_id,
+        b.bus_number,
+        b.bus_name,
+        b.bus_type,
+        b.seats,
+        b.bus_image,
+        s.schedule_id,
+        s.from_city,
+        s.to_city,
+        s.departure_date,
+        s.departure_time,
+        s.ticket_price,
+        s.available_seats,
+        s.status
+    FROM schedules s
+    INNER JOIN bus b ON b.bus_id = s.bus_id
+    WHERE b.status = 'approved'
+    AND s.status = 'active'
+    AND LOWER(TRIM(s.from_city)) = LOWER(TRIM(?))
+    AND LOWER(TRIM(s.to_city)) = LOWER(TRIM(?))
+    AND s.departure_date = ?
+    AND TIMESTAMP(s.departure_date, s.departure_time) > DATE_ADD(NOW(), INTERVAL 10 MINUTE)
+    ORDER BY s.departure_time ASC
+";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sss", $from, $to, $date);
     $stmt->execute();

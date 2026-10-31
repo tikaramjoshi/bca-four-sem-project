@@ -117,6 +117,7 @@ if (isset($_POST['update_history'])) {
     }
 }
 $buses = $conn->query("SELECT bus_id, bus_number, bus_name, seats FROM bus WHERE status='approved' ORDER BY bus_id DESC");
+$routes = $conn->query("SELECT route_id, city_name FROM routes ORDER BY city_name ASC");
 $history_result = $conn->query("SELECT h.*, b.bus_number, b.bus_name, b.seats AS bus_total_seats FROM schedule_history h LEFT JOIN bus b ON h.bus_id=b.bus_id ORDER BY h.history_id DESC");
 ?>
 <!DOCTYPE html>
@@ -162,11 +163,34 @@ $history_result = $conn->query("SELECT h.*, b.bus_number, b.bus_name, b.seats AS
                         </div>
                         <div class="form-group">
                             <label>From City</label>
-                            <input type="text" name="from_city" value="<?= htmlspecialchars($history['from_city'] ?? '') ?>" required>
+                            <select name="from_city" id="from_city" required>
+                                <option value="">Select From City</option>
+                                <?php
+                                $routes->data_seek(0);
+                                while ($route = $routes->fetch_assoc()):
+                                ?>
+                                    <option value="<?= htmlspecialchars($route['city_name']) ?>"
+                                        <?= ($history['from_city'] ?? '') == $route['city_name'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars(ucwords($route['city_name'])) ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
                         </div>
+
                         <div class="form-group">
                             <label>To City</label>
-                            <input type="text" name="to_city" value="<?= htmlspecialchars($history['to_city'] ?? '') ?>" required>
+                            <select name="to_city" id="to_city" required>
+                                <option value="">Select To City</option>
+                                <?php
+                                $routes->data_seek(0);
+                                while ($route = $routes->fetch_assoc()):
+                                ?>
+                                    <option value="<?= htmlspecialchars($route['city_name']) ?>"
+                                        <?= ($history['to_city'] ?? '') == $route['city_name'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars(ucwords($route['city_name'])) ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Departure Date</label>
@@ -265,6 +289,25 @@ $history_result = $conn->query("SELECT h.*, b.bus_number, b.bus_name, b.seats AS
             </div>
         </div>
     </div>
+    <script>
+        const fromCity = document.getElementById("from_city");
+        const toCity = document.getElementById("to_city");
+
+        function updateCities() {
+            for (let option of fromCity.options) {
+                option.disabled = option.value !== "" && option.value === toCity.value;
+            }
+
+            for (let option of toCity.options) {
+                option.disabled = option.value !== "" && option.value === fromCity.value;
+            }
+        }
+
+        fromCity.addEventListener("change", updateCities);
+        toCity.addEventListener("change", updateCities);
+
+        updateCities();
+    </script>
 </body>
 
 </html>

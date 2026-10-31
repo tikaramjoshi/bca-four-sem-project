@@ -6,12 +6,45 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'passenger') {
     exit;
 }
 $user_id = (int)$_SESSION['user_id'];
-$passenger_name = $conn->query("SELECT name FROM users WHERE user_id=$user_id")->fetch_assoc()['name'] ?? 'Passenger';
-$sql = "SELECT booking_group_id, MIN(booking_id) AS booking_id, bus_name, bus_number, route, travel_date, GROUP_CONCAT(CASE WHEN status IN('confirmed','paid') THEN seat_number END ORDER BY CAST(seat_number AS UNSIGNED) SEPARATOR ', ') AS confirmed_seats, GROUP_CONCAT(CASE WHEN status='pending' THEN seat_number END ORDER BY CAST(seat_number AS UNSIGNED) SEPARATOR ', ') AS pending_seats, GROUP_CONCAT(CASE WHEN status='cancelled' THEN seat_number END ORDER BY CAST(seat_number AS UNSIGNED) SEPARATOR ', ') AS cancelled_seats, COUNT(*) AS total_seats, SUM(CASE WHEN status!='cancelled' THEN amount ELSE 0 END) AS total_amount, MIN(created_at) AS booking_date, SUM(status IN('confirmed','paid')) AS confirmed_count, SUM(status='pending') AS pending_count, SUM(status='cancelled') AS cancelled_count FROM bookings WHERE user_id=? GROUP BY booking_group_id,bus_name,bus_number,route,travel_date ORDER BY MIN(booking_id) DESC";
+$sql = "
+SELECT
+    booking_group_id,
+    MIN(booking_id) AS booking_id,
+    bus_name,
+    bus_number,
+    route,
+    travel_date,
+    GROUP_CONCAT(CASE WHEN status IN ('confirmed','paid') THEN seat_number END ORDER BY CAST(seat_number AS UNSIGNED) SEPARATOR ', ') AS confirmed_seats,
+    GROUP_CONCAT(CASE WHEN status='pending' THEN seat_number END ORDER BY CAST(seat_number AS UNSIGNED) SEPARATOR ', ') AS pending_seats,
+    GROUP_CONCAT(CASE WHEN status='cancelled' THEN seat_number END ORDER BY CAST(seat_number AS UNSIGNED) SEPARATOR ', ') AS cancelled_seats,
+    COUNT(*) AS total_seats,
+    SUM(CASE WHEN status!='cancelled' THEN amount ELSE 0 END) AS total_amount,
+    MIN(created_at) AS booking_date,
+    SUM(status IN ('confirmed','paid')) AS confirmed_count,
+    SUM(status='pending') AS pending_count,
+    SUM(status='cancelled') AS cancelled_count
+FROM (
+    SELECT booking_id, booking_group_id, user_id, bus_name, bus_number,
+           route, travel_date, seat_number, amount, status, created_at
+    FROM bookings
+    WHERE user_id=?
+
+    UNION ALL
+
+    SELECT booking_id, booking_group_id, user_id, bus_name, bus_number,
+           route, travel_date, seat_number, amount, status, created_at
+    FROM booking_history
+    WHERE user_id=?
+) AS all_bookings
+GROUP BY booking_group_id, bus_name, bus_number, route, travel_date
+ORDER BY MIN(booking_id) DESC
+";
+
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param("ii", $user_id, $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
+$passenger_name = $conn->query("SELECT name FROM users WHERE user_id=$user_id")->fetch_assoc()['name'] ?? 'Passenger';
 ?>
 <!DOCTYPE html>
 <html lang="en">

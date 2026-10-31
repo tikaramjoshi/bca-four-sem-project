@@ -15,12 +15,7 @@ if (!isset($_GET['id'])) {
 
 $verification_id = (int)$_GET['id'];
 
-$stmt = $conn->prepare("
-    SELECT owner_id
-    FROM owner_verification
-    WHERE verification_id=?
-    LIMIT 1
-");
+$stmt = $conn->prepare("    SELECT owner_id    FROM owner_verification    WHERE verification_id=?    LIMIT 1");
 $stmt->bind_param("i", $verification_id);
 $stmt->execute();
 $data = $stmt->get_result()->fetch_assoc();
@@ -37,22 +32,12 @@ $conn->begin_transaction();
 
 try {
 
-    $stmt = $conn->prepare("
-        UPDATE owner_verification
-        SET status='verified',
-            reject_reason=NULL
-        WHERE verification_id=?
-    ");
+    $stmt = $conn->prepare("    UPDATE owner_verification    SET status='verified',        reject_reason=NULL    WHERE verification_id=?");
     $stmt->bind_param("i", $verification_id);
     $stmt->execute();
     $stmt->close();
 
-    $stmt = $conn->prepare("
-        UPDATE users
-        SET verification_status='verified'
-        WHERE user_id=?
-        AND role='owner'
-    ");
+    $stmt = $conn->prepare(" UPDATE users SET verification_status='verified' WHERE user_id=? AND role='owner' ");
     $stmt->bind_param("i", $owner_id);
     $stmt->execute();
     $stmt->close();

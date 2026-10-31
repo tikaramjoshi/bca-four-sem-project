@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "admin") {
     exit();
 }
 require_once "../db.php";
-$sql = "SELECT user_id,name,email,phone,verification_status,created_at FROM users WHERE role='owner' ORDER BY user_id DESC";
+$sql = "SELECT u.user_id,u.name,u.email,u.phone,u.profile_image,u.verification_status,u.created_at,ov.owner_photo FROM users u LEFT JOIN owner_verification ov ON u.user_id=ov.owner_id WHERE u.role='owner' AND (ov.verification_id IS NULL OR ov.verification_id = (     SELECT MAX(verification_id) FROM owner_verification WHERE owner_id=u.user_id )) ORDER BY u.user_id DESC";
 $result = mysqli_query($conn, $sql);
 if (!$result) die("Database Error: " . mysqli_error($conn));
 ?>
@@ -16,109 +16,8 @@ if (!$result) die("Database Error: " . mysqli_error($conn));
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>View Owners</title>
-    <link rel="stylesheet" href="side.css">
+    <link rel="stylesheet" href="view_owners.css">
 
-    <style>
-        * {
-            box-sizing: border-box
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            margin: 0;
-            padding: 0
-        }
-
-
-        .box {
-            background: #fff;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-
-        .title {
-            text-align: center;
-            margin: 0 0 25px;
-            color: #333
-        }
-
-        .table-container {
-            overflow-x: auto
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse
-        }
-
-        th {
-            background: #1560BD;
-            color: #fff;
-            padding: 12px;
-            text-align: left
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd
-        }
-
-        tr:hover {
-            background: #f8f9fa
-        }
-
-        .verified {
-            color: #198754;
-            font-weight: bold
-        }
-
-        .unverified {
-            color: #dc3545;
-            font-weight: bold
-        }
-
-        .view-btn,
-        .back {
-            display: inline-block;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px
-        }
-
-        .view-btn {
-            padding: 8px 14px;
-            background: #1560BD
-        }
-
-        .view-btn:hover {
-            background: #0d4f9c
-        }
-
-        .back {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #555
-        }
-
-        .back:hover {
-            background: #333
-        }
-
-        @media(max-width:600px) {
-            .box {
-                width: 96%;
-                padding: 15px;
-                margin: 20px auto
-            }
-
-            th,
-            td {
-                padding: 9px;
-                font-size: 13px
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -132,6 +31,7 @@ if (!$result) die("Database Error: " . mysqli_error($conn));
                     <thead>
                         <tr>
                             <th>Owner ID</th>
+                            <th>Owner Image</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
@@ -145,6 +45,14 @@ if (!$result) die("Database Error: " . mysqli_error($conn));
                             <?php while ($owner = mysqli_fetch_assoc($result)): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($owner['user_id']) ?></td>
+                                    <td>
+                                        <?php
+                                        $image = !empty($owner['profile_image']) ? "../uploads/profile/" . (int)$owner['user_id'] . "/profile/" . $owner['profile_image'] : (!empty($owner['owner_photo']) ? "../uploads/profile/" . (int)$owner['user_id'] . "/profile/" . $owner['owner_photo']  : "../uploads/default.png");
+                                        ?>
+                                        <div class="profile">
+                                            <img src="<?= htmlspecialchars($image) ?>" alt="Owner" onerror="this.onerror=null;this.src='../uploads/default.png';">
+                                        </div>
+                                    </td>
                                     <td><?= htmlspecialchars($owner['name']) ?></td>
                                     <td><?= htmlspecialchars($owner['email']) ?></td>
                                     <td><?= htmlspecialchars($owner['phone']) ?></td>
@@ -156,18 +64,18 @@ if (!$result) die("Database Error: " . mysqli_error($conn));
                                         <?php endif; ?>
                                     </td>
                                     <td><?= htmlspecialchars($owner['created_at']) ?></td>
-                                    <td><a href="view_owner.php?id=<?= (int)$owner['user_id'] ?>" class="view-btn">View Details</a></td>
+                                    <td><a href="view_owner.php?id=<?= (int)$owner['user_id'] ?>" class="view-btn"><i class="fa fa-eye"></i>&nbsp; View Details</a></td>
                                 </tr>
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="7" style="text-align:center">No owners found.</td>
+                                <td colspan="8" style="text-align:center">No owners found.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
-            <a href="dashboard.php" class="back">Back</a>
+            <a href="dashboard.php" class="back"><i class="fa fa-arrow-left"></i>&nbsp; Back</a>
         </div>
     </div>
 </body>
