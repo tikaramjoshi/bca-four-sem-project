@@ -5,55 +5,36 @@ if (!isset($_SESSION['user_id'], $_SESSION['role']) || $_SESSION['role'] !== 'ad
     header("Location: ../login.php");
     exit;
 }
+
 $root = realpath(__DIR__ . "/../uploads");
 if (!$root || !is_dir($root)) die("Uploads folder not found.");
-$msg = $_GET['msg'] ?? '';
-$message = $msg === 'deleted' ? 'File deleted successfully.' : '';
+$message = ($_GET['msg'] ?? '') === 'deleted' ? 'File deleted successfully.' : '';
 $type = $message ? 'success' : '';
 
-function isImageUsed($conn, $relative)
+function isFileUsed($conn, $relative)
 {
     $relative = str_replace('\\', '/', ltrim($relative, '/'));
-    $basename = basename($relative);
-
-    $result = $conn->query("    SELECT TABLE_NAME, COLUMN_NAME    FROM INFORMATION_SCHEMA.COLUMNS    WHERE TABLE_SCHEMA = DATABASE()    AND (        LOWER(COLUMN_NAME) LIKE '%image%'        OR LOWER(COLUMN_NAME) LIKE '%photo%'        OR LOWER(COLUMN_NAME) LIKE '%picture%'        OR LOWER(COLUMN_NAME) LIKE '%file%'        OR LOWER(COLUMN_NAME) LIKE '%path%'    )    AND DATA_TYPE IN ('varchar','char','text','tinytext','mediumtext','longtext')");
-
-    if (!$result) return false;
-
-    $paths = [
-        $relative,
-        'uploads/' . $relative,
-        '/uploads/' . $relative,
-        '../uploads/' . $relative,
-        '../../uploads/' . $relative,
-        $basename
-    ];
-
+    $paths = [$relative, 'uploads/' . $relative, '/uploads/' . $relative, '../uploads/' . $relative, '../../uploads/' . $relative, basename($relative)];
+    $result = $conn->query("SELECT TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND (LOWER(COLUMN_NAME) LIKE '%image%' OR LOWER(COLUMN_NAME) LIKE '%photo%' OR LOWER(COLUMN_NAME) LIKE '%picture%' OR LOWER(COLUMN_NAME) LIKE '%file%' OR LOWER(COLUMN_NAME) LIKE '%path%' OR LOWER(COLUMN_NAME) LIKE '%certificate%' OR LOWER(COLUMN_NAME) LIKE '%document%') AND DATA_TYPE IN ('varchar','char','text','tinytext','mediumtext','longtext')");
+    if (!$result) return true;
     while ($row = $result->fetch_assoc()) {
         $table = str_replace('`', '``', $row['TABLE_NAME']);
         $column = str_replace('`', '``', $row['COLUMN_NAME']);
-
-        foreach ($paths as $pathValue) {
-            $stmt = $conn->prepare("SELECT 1 FROM `$table` WHERE `$column` = ? LIMIT 1");
-
+        foreach ($paths as $value) {
+            $stmt = $conn->prepare("SELECT 1 FROM `$table` WHERE `$column`=? LIMIT 1");
             if (!$stmt) continue;
-
-            $stmt->bind_param("s", $pathValue);
+            $stmt->bind_param("s", $value);
             $stmt->execute();
             $stmt->store_result();
-
-            if ($stmt->num_rows > 0) {
+            if ($stmt->num_rows) {
                 $stmt->close();
                 return true;
             }
-
             $stmt->close();
         }
     }
-
     return false;
 }
-
 
 function files($dir, $root)
 {
@@ -63,14 +44,7 @@ function files($dir, $root)
         if ($item === '.' || $item === '..') continue;
         $path = "$dir/$item";
         if (is_dir($path)) $list = array_merge($list, files($path, $root));
-        elseif (is_file($path)) $list[] = [
-            'name' => $item,
-            'path' => $path,
-            'relative' => str_replace('\\', '/', ltrim(str_replace($root, '', $path), '\\/')),
-            'size' => filesize($path),
-            'modified' => filemtime($path),
-            'extension' => strtolower(pathinfo($item, PATHINFO_EXTENSION))
-        ];
+        elseif (is_file($path)) $list[] = ['name' => $item, 'path' => $path, 'relative' => str_replace('\\', '/', ltrim(str_replace($root, '', $path), '\\/')), 'size' => filesize($path), 'modified' => filemtime($path), 'extension' => strtolower(pathinfo($item, PATHINFO_EXTENSION))];
     }
     return $list;
 }
@@ -78,13 +52,9 @@ function files($dir, $root)
 if (isset($_GET['delete'])) {
     $relative = ltrim(str_replace('\\', '/', urldecode($_GET['delete'])), '/');
     $path = realpath("$root/$relative");
-
     if ($path && is_file($path) && strpos($path, $root . DIRECTORY_SEPARATOR) === 0) {
-        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-        $images = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
-
-        if (in_array($extension, $images) && isImageUsed($conn, $relative)) {
-            $message = "This image is used in the database and cannot be deleted.";
+        if (isFileUsed($conn, $relative)) {
+            $message = "This file is used in the database and cannot be deleted.";
             $type = "error";
         } elseif (unlink($path)) {
             header("Location: uploads.php?msg=deleted");
@@ -99,17 +69,11 @@ if (isset($_GET['delete'])) {
     }
 }
 
-$files = files($root, $root);
+$files = array_filter(files($root, $root), fn($f) => !isFileUsed($conn, $f['relative']));
 $search = trim($_GET['search'] ?? '');
-if ($search) {
-    $files = array_filter(
-        $files,
-        fn($f) =>
-        stripos($f['name'], $search) !== false ||
-            stripos($f['relative'], $search) !== false
-    );
-}
+if ($search) $files = array_filter($files, fn($f) => stripos($f['name'], $search) !== false || stripos($f['relative'], $search) !== false);
 usort($files, fn($a, $b) => $b['modified'] <=> $a['modified']);
+
 $images = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
 $docs = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv'];
 $imageCount = count(array_filter($files, fn($f) => in_array($f['extension'], $images)));
@@ -134,47 +98,26 @@ $total = count($files);
         <div class="page">
             <div class="page-header">
                 <div>
-                    <h1>Users Uploaded Files</h1>
-                    <p>View and manage all files uploaded to the system.</p>
+                    <h1>Users Unused Files</h1>
+                    <p>View and delete unused files in the system.</p>
                 </div>
             </div>
-            <?php if ($message): ?>
-                <div class="message <?= $type ?>"><?= htmlspecialchars($message) ?></div>
-            <?php endif; ?>
+            <?php if ($message): ?><div class="message <?= htmlspecialchars($type) ?>"><?= htmlspecialchars($message) ?></div><?php endif; ?>
+
             <div class="stats">
-                <div class="stat-card">
-                    <span>Total Files</span>
-                    <strong><i class="fa fa-folder"></i> &nbsp; &nbsp; <?= $total ?></strong>
-                </div>
-                <div class="stat-card">
-                    <span>Images</span>
-                    <strong><i class="fa fa-image"></i> &nbsp; &nbsp; <?= $imageCount ?></strong>
-                </div>
-                <div class="stat-card">
-                    <span>Documents</span>
-                    <strong><i class="fa fa-file-text"></i> &nbsp; &nbsp; <?= $docCount ?></strong>
-                </div>
-                <div class="stat-card">
-                    <span>Other Files</span>
-                    <strong><i class="fa fa-file"></i> &nbsp; &nbsp;<?= $otherCount ?></strong>
-                </div>
+                <div class="stat-card"><span>Total Files</span><strong><i class="fa fa-folder"></i> &nbsp; <?= $total ?></strong></div>
+                <div class="stat-card"><span>Images</span><strong><i class="fa fa-image"></i> &nbsp; <?= $imageCount ?></strong></div>
+                <div class="stat-card"><span>Documents</span><strong><i class="fa fa-file-text"></i> &nbsp; <?= $docCount ?></strong></div>
+                <div class="stat-card"><span>Other Files</span><strong><i class="fa fa-file"></i> &nbsp; <?= $otherCount ?></strong></div>
             </div>
-            <div class="toolbar">
-                <form method="GET" class="search-form">
-                    <input type="text" name="search" placeholder="Search file..." value="<?= htmlspecialchars($search) ?>">
-                    <button type="submit"><i class="fa fa-search"></i> Search</button>
-                    <?php if ($search): ?>
-                        <a href="uploads.php" class="clear-btn">Clear</a>
-                    <?php endif; ?>
-                </form>
-            </div>
+
             <div class="files-box">
                 <div class="box-header">
                     <div>
-                        <h2>All Uploaded Files</h2>
-                        <span><?= $total ?> file(s)</span>
-                    </div>
+                        <h2>All Unused Files</h2><span>Total Unused file(s) : <?= $total ?> </span>
+                    </div> <a href="uploads_user.php" class="uploads_user"><i class="fa fa-eye">&nbsp; </i>View All Files</a>
                 </div>
+
                 <?php if ($files): ?>
                     <div class="file-grid">
                         <?php foreach ($files as $file):
@@ -182,19 +125,12 @@ $total = count($files);
                             $url = "../uploads/" . implode("/", array_map("rawurlencode", explode("/", $file['relative'])));
                             $image = in_array($ext, $images);
                             $document = in_array($ext, $docs);
-                            $used = $image && isImageUsed($conn, $file['relative']);
-                            $size = $file['size'] >= 1048576
-                                ? number_format($file['size'] / 1048576, 2) . " MB"
-                                : ($file['size'] >= 1024
-                                    ? number_format($file['size'] / 1024, 2) . " KB"
-                                    : $file['size'] . " B");
+                            $size = $file['size'] >= 1048576 ? number_format($file['size'] / 1048576, 2) . " MB" : ($file['size'] >= 1024 ? number_format($file['size'] / 1024, 2) . " KB" : $file['size'] . " B");
                         ?>
                             <div class="file-card">
                                 <div class="preview">
                                     <?php if ($image): ?>
-                                        <a href="<?= htmlspecialchars($url) ?>" target="_blank">
-                                            <img src="<?= htmlspecialchars($url) ?>" alt="<?= htmlspecialchars($file['name']) ?>">
-                                        </a>
+                                        <a href="<?= htmlspecialchars($url) ?>" target="_blank"><img src="<?= htmlspecialchars($url) ?>" alt="<?= htmlspecialchars($file['name']) ?>"></a>
                                     <?php elseif ($document): ?>
                                         <div class="file-icon document"><?= strtoupper($ext ?: 'FILE') ?></div>
                                     <?php else: ?>
@@ -202,26 +138,13 @@ $total = count($files);
                                     <?php endif; ?>
                                 </div>
                                 <div class="file-info">
-                                    <h3 title="<?= htmlspecialchars($file['name']) ?>">
-                                        <?= htmlspecialchars($file['name']) ?>
-                                    </h3>
+                                    <h3 title="<?= htmlspecialchars($file['name']) ?>"><?= htmlspecialchars($file['name']) ?></h3>
                                     <p class="file-path"><?= htmlspecialchars($file['relative']) ?></p>
-                                    <div class="file-meta">
-                                        <span><?= strtoupper($ext ?: 'FILE') ?></span>
-                                        <span><?= $size ?></span>
-                                    </div>
+                                    <div class="file-meta"><span><?= strtoupper($ext ?: 'FILE') ?></span><span><?= $size ?></span></div>
                                     <div class="file-actions">
-                                        <a href="<?= htmlspecialchars($url) ?>" target="_blank" class="view-btn">View</a>
-                                        <a href="<?= htmlspecialchars($url) ?>" download class="download-btn">Download</a>
-                                        <?php if ($used): ?>
-                                            <button type="button" class="delete-btn" disabled>Delete</button>
-                                        <?php else: ?>
-                                            <a href="uploads.php?delete=<?= rawurlencode($file['relative']) ?>"
-                                                class="delete-btn"
-                                                onclick="return confirm('Are you sure you want to delete this file?')">
-                                                Delete
-                                            </a>
-                                        <?php endif; ?>
+                                        <a href="<?= htmlspecialchars($url) ?>" target="_blank" class="view-btn"><i class="fa fa-eye"></i>&nbsp; View</a>
+                                        <a href="<?= htmlspecialchars($url) ?>" download class="download-btn"><i class="fa fa-download"></i>&nbsp; Download</a>
+                                        <a href="uploads.php?delete=<?= rawurlencode($file['relative']) ?>" class="delete-btn" onclick="return confirm('Are you sure you want to delete this file?')"><i class="fa fa-trash"></i>&nbsp; Delete</a>
                                     </div>
                                 </div>
                             </div>
@@ -231,12 +154,21 @@ $total = count($files);
                     <div class="empty">
                         <div class="empty-icon"><i class="fa fa-folder-open"></i></div>
                         <h3>No Files Found</h3>
-                        <p><?= $search ? 'No uploaded file matches your search.' : 'There are no files inside the uploads folder.' ?></p>
+                        <p><?= $search ? 'No uploaded file matches your search.' : 'There are no unused files inside the uploads folder.' ?></p>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
     </div>
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.message').forEach(msg => {
+                msg.style.transition = 'opacity 0.5s';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 3000);
+    </script>
 </body>
 
 </html>
